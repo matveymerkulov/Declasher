@@ -6,25 +6,22 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import javax.imageio.ImageIO;
 
-public class Main {
-  public static Chunk zeroChunk = new Chunk(true);
+class Main {
+  private static final Chunk zeroChunk = new Chunk(true);
   
-  public static class Chunk {
-    public final int[] value = new int[8];
-    public int quantity = 1;
-    public boolean used;
+  private static class Chunk {
+    private final int[] value = new int[8];
+    private int quantity = 1;
+    private boolean used;
 
-    public Chunk(boolean used) {
+    private Chunk(boolean used) {
       this.used = used;
     }
 
     @Override
     public boolean equals(Object obj) {
       final Chunk other = (Chunk) obj;
-      if(!Arrays.equals(this.value, other.value)) {
-        return false;
-      }
-      return true;
+      return Arrays.equals(this.value, other.value);
     }
 
     private void add(Chunk chunk) {
@@ -32,11 +29,90 @@ public class Main {
     }
   }
   
-  public static final Chunk[] chunks = new Chunk[768];
-  public static final int [] color = {0x000000, 0x0000FF, 0xFF0000, 0xFF00FF
+  private static class Image {
+    private final byte[] data;
+    private final int width, height, x1, y1, x2, y2;
+
+    public Image(byte[] data, int width, int height, int x1, int y1, int x2, int y2) {
+      this.data = data;
+      this.width = width;
+      this.height = height;
+      this.x1 = x1;
+      this.y1 = y1;
+      this.x2 = x2;
+      this.y2 = y2;
+    }
+
+    private BufferedImage toBufferedImage() {
+      BufferedImage image = new BufferedImage(width, height
+          , BufferedImage.TYPE_INT_RGB);
+      for(int y = 0; y < height; y++) {
+        for(int x = 0; x < width; x++) {
+          int colIndex;
+          switch(data[x + y * width]) {
+            case OFF: colIndex = 0; break;
+            case ON: colIndex = 7; break;
+            default: colIndex = 3; break;
+          }
+          image.setRGB(x, y, color[colIndex]);
+        }
+      }
+      return image;
+    }
+
+    private boolean isLargeEnough() {
+      return x2 - x1 >= 8 && y2 - y1 >= 8;
+    }
+  
+    private boolean match(Image image) {
+      int xSize = x2 - x1;
+      int ySize = y2 - y1;
+      int maxDx = image.width - xSize;
+      int maxDy = image.height - ySize;
+      for(int dy = 0; dy < maxDy; dy++) {
+        d: for(int dx = 0; dx < maxDx; dx++) {
+          int dx2 = dx - x1;
+          int dy2 = dy - y1;
+          for(int y = y1; y < y2; y++) {
+            for(int x = x1; x < x2; x++) {
+              byte value1 = data[x + y * width];
+              if((value1 & UNKNOWN) != 0) continue;
+              byte value2 = (byte) (image.data[x + dx2 + (y + dy2) * width] & 1);
+              if(value1 != value2) continue d;
+            }
+          }
+
+          for(int y = y1; y < y2; y++) {
+            for(int x = x1; x < x2; x++) {
+              byte value = image.data[x + dx2 + (y + dy2) * width];
+              if(value < UNKNOWN) data[x + y * width] = value;
+            }
+          }
+          return true;
+        }
+      }
+      return false;
+    }
+
+    private static int outnum = 0;
+    
+    private void save() throws IOException {
+      outnum++;
+      File outputfile = new File("D:/temp2/output/"
+          + String.format("%08d", outnum) + ".png");
+      ImageIO.write(toBufferedImage(), "png", outputfile);
+    }
+  }
+  
+  private static final byte OFF = 0, ON = 1
+      , OFF_OR_TRANSPARENT = 2, ON_OR_TRANSPARENT = 3
+      , VALUE = 1, UNKNOWN = 2;
+  
+  private static final Chunk[] chunks = new Chunk[768];
+  private static final int [] color = {0x000000, 0x0000FF, 0xFF0000, 0xFF00FF
           , 0x00FF00, 0x00FFFF, 0xFFFF00, 0xFFFFFF}, attrs = new int[768];
     
-  public static void loadScreen(int num) throws IOException {
+  private static void loadScreen(int num) throws IOException {
     File source = new File("source/image-" + String.format("%08d", num)
         + ".scr");
     FileInputStream input = new FileInputStream(source);
@@ -63,7 +139,7 @@ public class Main {
     }
   }
   
-  public static BufferedImage toImage(Chunk[] chunkArray, boolean colored) {
+  private static BufferedImage toImage(Chunk[] chunkArray, boolean colored) {
     int dx = x2 - x1 + 1, dy = y2 - y1 + 1;
     BufferedImage image = new BufferedImage(dx << 3, dy << 3
         , BufferedImage.TYPE_INT_RGB);
@@ -91,32 +167,39 @@ public class Main {
     }
     return image;
   }
-
-  public static void saveImage(int num) throws IOException {
-    File outputfile = new File("D:/temp2/output/"
-        + String.format("%08d", num) + ".png");
-    
+  
+  private static Image difference() {
     BufferedImage image = toImage(chunks, false);
     BufferedImage backImage = toImage(background, false);
-    for(int y = 0; y < image.getHeight(); y++) {
-      for(int x = 0; x < image.getWidth(); x++) {
+    int width = image.getWidth(), height = image.getHeight();
+    byte[] data = new byte[width * height];
+    int ix1 = width, iy1 = height, ix2 = 0, iy2 = 0;
+    for(int y = 0; y < height; y++) {
+      for(int x = 0; x < width; x++) {
+        int address = y * width + x;
         boolean imgPixel = (image.getRGB(x, y) & 1) == 1;
         boolean backPixel = (backImage.getRGB(x, y) & 1) == 1;
-        if(imgPixel == backPixel)
-          image.setRGB(x, y, imgPixel ? color[4] : color[1]);
+        if(imgPixel == backPixel) {
+          data[address] = imgPixel ? ON_OR_TRANSPARENT : OFF_OR_TRANSPARENT;
+        } else {
+          data[address] = imgPixel ? ON : OFF;
+          ix1 = Integer.min(ix1, x);
+          iy1 = Integer.min(iy1, y);
+          ix2 = Integer.max(ix2, x);
+          iy2 = Integer.max(iy2, y);
+        }
       }
     }
-    
-    ImageIO.write(image, "png", outputfile);
+    return new Image(data, width, height, ix1, iy1, ix2, iy2);
   }
   
-  public static class ChunkList extends LinkedList<Chunk> {};
+  private static class ChunkList extends LinkedList<Chunk> {};
   
-  public static Chunk[] background = new Chunk[768];
+  private static final Chunk[] background = new Chunk[768];
   
-  public static int x1, x2, y1, y2;
+  private static int x1, x2, y1, y2;
   
-  public static boolean usedBlock(int i) {
+  private static boolean usedBlock(int i) {
     if(chunks[i].used) return true;
     
     if(chunks[i].equals(background[i])) {
@@ -129,7 +212,7 @@ public class Main {
     return false;
   }
   
-  public static boolean findBlock(int i) {
+  private static boolean findBlock(int i) {
     if(usedBlock(i)) return false;
     
     x1 = x2 = i & 31;
@@ -140,7 +223,7 @@ public class Main {
     return true;
   }
   
-  public static void spawn(int x, int y) {
+  private static void spawn(int x, int y) {
     x1 = Integer.min(x1, x);
     y1 = Integer.min(y1, y);
     x2 = Integer.max(x2, x);
@@ -152,14 +235,15 @@ public class Main {
     if(y < 23) check(x, y + 1);
   }
   
-  public static void check(int x, int y) {
+  private static void check(int x, int y) {
     int i = x + (y << 5);
     if(usedBlock(i)) return;
     spawn(x, y);
   }
   
   public static void main(String[] args) {
-    int from = 754, to = 912;
+    final int from = 754, to = 912;
+    
     try {
       final ChunkList[] chunkList = new ChunkList[768];
       for(int i = 0; i < 768; i++) chunkList[i] = new ChunkList();
@@ -192,16 +276,23 @@ public class Main {
         background[i] = maxChunk;
       }
       
-      int outnum = 0;
+      LinkedList<Image> images = new LinkedList<>();
+      
       for(int num = from; num <= to; num++) {
         loadScreen(num);
-        for(int i = 0; i < 768; i++) {
+        block: for(int i = 0; i < 768; i++) {
           if(findBlock(i)) {
-            outnum++;
-            saveImage(outnum);
+            Image image = difference();
+            if(image.isLargeEnough()) {
+              for(Image oldImage: images)
+                if(oldImage.match(image)) continue block;
+              images.add(image);
+            }
           }
         }
       }
+      
+      for(Image image: images) image.save();
     } catch (IOException e) {
       System.err.println("I/O error");
     }
