@@ -63,7 +63,7 @@ public class Main {
     }
   }
   
-  public static BufferedImage toImage(boolean colored) {
+  public static BufferedImage toImage(Chunk[] chunkArray, boolean colored) {
     int dx = x2 - x1 + 1, dy = y2 - y1 + 1;
     BufferedImage image = new BufferedImage(dx << 3, dy << 3
         , BufferedImage.TYPE_INT_RGB);
@@ -78,7 +78,7 @@ public class Main {
           col[0] = color[(attr >> 3) & 7];
           col[1] = color[attr & 7];
         }
-        Chunk chunk = chunks[addr];
+        Chunk chunk = chunkArray[addr];
         int xPos = x << 3;
         for(int yy = 0; yy < 8; yy++) {
           int val = chunk.value[yy];
@@ -92,10 +92,22 @@ public class Main {
     return image;
   }
 
-  public static void saveImage(int num, boolean colored) throws IOException {
+  public static void saveImage(int num) throws IOException {
     File outputfile = new File("D:/temp2/output/"
         + String.format("%08d", num) + ".png");
-    ImageIO.write(toImage(colored), "png", outputfile);
+    
+    BufferedImage image = toImage(chunks, false);
+    BufferedImage backImage = toImage(background, false);
+    for(int y = 0; y < image.getHeight(); y++) {
+      for(int x = 0; x < image.getWidth(); x++) {
+        boolean imgPixel = (image.getRGB(x, y) & 1) == 1;
+        boolean backPixel = (backImage.getRGB(x, y) & 1) == 1;
+        if(imgPixel == backPixel)
+          image.setRGB(x, y, imgPixel ? color[4] : color[1]);
+      }
+    }
+    
+    ImageIO.write(image, "png", outputfile);
   }
   
   public static class ChunkList extends LinkedList<Chunk> {};
@@ -186,7 +198,7 @@ public class Main {
         for(int i = 0; i < 768; i++) {
           if(findBlock(i)) {
             outnum++;
-            saveImage(outnum, false);
+            saveImage(outnum);
           }
         }
       }
