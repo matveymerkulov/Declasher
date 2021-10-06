@@ -19,6 +19,10 @@ public class Main {
       }
       return true;
     }
+
+    private void add(Chunk chunk) {
+      for(int i = 0; i < 8; i++) value[i] = (value[i] ^ chunk.value[i]) & 0xFF;
+    }
   }
   
   public static final Chunk[] chunks = new Chunk[768];
@@ -52,14 +56,18 @@ public class Main {
     }
   }
   
-  public static void saveImage(String fileName) throws IOException {
+  public static BufferedImage toImage() {
+    return toImage(0, 0, 31, 23);
+  }
+  
+  public static BufferedImage toImage(int x1, int y1, int x2, int y2) {
     BufferedImage image = new BufferedImage(256, 192
         , BufferedImage.TYPE_INT_RGB);
     int[] col = new int[2];
-    for(int y = 0; y < 24; y++) {
+    for(int y = y1; y <= y2; y++) {
       int lineStart = y << 5;
       int yPos = y << 3;
-      for(int x = 0; x < 32; x++) {
+      for(int x = x1; x <= x2; x++) {
         int addr = lineStart | x;
         int attr = attrs[addr];
         col[0] = color[(attr >> 3) & 7];
@@ -75,12 +83,17 @@ public class Main {
         }
       }
     }
+    return image;
+  }
 
+  public static void saveImage(String fileName) throws IOException {
     File outputfile = new File(fileName);
-    ImageIO.write(image, "png", outputfile);
+    ImageIO.write(toImage(), "png", outputfile);
   }
   
   public static class ChunkList extends LinkedList<Chunk> {};
+  
+  public static Chunk[] background = new Chunk[768];
   
   public static void main(String[] args) {
     int from = 754, to = 912;
@@ -106,17 +119,31 @@ public class Main {
       for(int i = 0; i < 768; i++) {
         ChunkList list = chunkList[i];
         Chunk maxChunk = null;
-        int maxQuantity = 0;
-        for(Chunk chunk: list) {
+        int maxQuantity = 1;
+        for(Chunk chunk: list) {          
           if(chunk.quantity > maxQuantity) {
             maxChunk = chunk;
             maxQuantity = chunk.quantity;
           }
         }
-        chunks[i] = maxChunk;
+        background[i] = maxChunk;
       }
       
-      saveImage("D:/temp2/image.png");
+      Chunk zeroChunk = new Chunk();
+      for(int num = from; num <= to; num++) {
+        loadScreen(num);
+        for(int i = 0; i < 768; i++) {
+          if(chunks[i].equals(background[i])) {
+            chunks[i] = zeroChunk;
+          } else {
+            attrs[i] = 0b001111;
+          }
+          //chunks[i].add(background[i]);
+        }
+        
+        saveImage("D:/temp2/output/" + String.format("%08d", num) + ".png");
+      }
+      
     } catch (IOException e) {
       int a = 0;
     }
