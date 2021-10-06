@@ -7,11 +7,16 @@ import java.util.LinkedList;
 import javax.imageio.ImageIO;
 
 public class Main {
-  public static Chunk zeroChunk = new Chunk();
+  public static Chunk zeroChunk = new Chunk(true);
   
   public static class Chunk {
     public final int[] value = new int[8];
     public int quantity = 1;
+    public boolean used;
+
+    public Chunk(boolean used) {
+      this.used = used;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -49,7 +54,7 @@ public class Main {
         for(int x = 0; x < 32; x++) {
           int xSource = ySource | x;
           int xDestination = yDestination | x;
-          Chunk chunk = new Chunk();
+          Chunk chunk = new Chunk(false);
           for(int yy = 0; yy < 8; yy++)
             chunk.value[yy] = byteScreen[xSource | (yy << 8)] & 0xFF;
           chunks[xDestination] = chunk;
@@ -58,24 +63,21 @@ public class Main {
     }
   }
   
-  public static BufferedImage toImage() {
-    x1 = 0; y1 = 0; x2 = 31; y2 = 23;
-    return toImagePart();
-  }
-  
-  public static BufferedImage toImagePart() {
+  public static BufferedImage toImage(boolean colored) {
     int dx = x2 - x1 + 1, dy = y2 - y1 + 1;
     BufferedImage image = new BufferedImage(dx << 3, dy << 3
         , BufferedImage.TYPE_INT_RGB);
-    int[] col = new int[2];
+    int[] col = {color[0], color[7]};
     for(int y = 0; y < dy; y++) {
       int lineStart = (y + y1) << 5;
       int yPos = y << 3;
       for(int x = 0; x < dx; x++) {
         int addr = lineStart | (x + x1);
-        int attr = attrs[addr];
-        col[0] = color[(attr >> 3) & 7];
-        col[1] = color[attr & 7];
+        if(colored) {
+          int attr = attrs[addr];
+          col[0] = color[(attr >> 3) & 7];
+          col[1] = color[attr & 7];
+        }
         Chunk chunk = chunks[addr];
         int xPos = x << 3;
         for(int yy = 0; yy < 8; yy++) {
@@ -90,10 +92,10 @@ public class Main {
     return image;
   }
 
-  public static void saveImage(int num) throws IOException {
+  public static void saveImage(int num, boolean colored) throws IOException {
     File outputfile = new File("D:/temp2/output/"
         + String.format("%08d", num) + ".png");
-    ImageIO.write(toImagePart(), "png", outputfile);
+    ImageIO.write(toImage(colored), "png", outputfile);
   }
   
   public static class ChunkList extends LinkedList<Chunk> {};
@@ -103,16 +105,14 @@ public class Main {
   public static int x1, x2, y1, y2;
   
   public static boolean usedBlock(int i) {
-    if(chunks[i] == zeroChunk) return true;
+    if(chunks[i].used) return true;
     
     if(chunks[i].equals(background[i])) {
       chunks[i] = zeroChunk;
       return true;
     }
     
-    if(attrs[i] == 0b001111) return true;
-    
-    attrs[i] = 0b001111;
+    chunks[i].used = true;
     
     return false;
   }
@@ -186,7 +186,7 @@ public class Main {
         for(int i = 0; i < 768; i++) {
           if(findBlock(i)) {
             outnum++;
-            saveImage(outnum);
+            saveImage(outnum, false);
           }
         }
       }
