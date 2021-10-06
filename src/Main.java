@@ -1,153 +1,53 @@
+ 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
 import javax.imageio.ImageIO;
 
 public class Main {
-  public static class Chunk {
-    public final int[] value = new int[8];
-    public int quantity = 1;
-
-    @Override
-    public boolean equals(Object obj) {
-      final Chunk other = (Chunk) obj;
-      if(!Arrays.equals(this.value, other.value)) {
-        return false;
-      }
-      return true;
-    }
-
-    private void add(Chunk chunk) {
-      for(int i = 0; i < 8; i++) value[i] = (value[i] ^ chunk.value[i]) & 0xFF;
-    }
-  }
-  
-  public static final Chunk[] chunks = new Chunk[768];
-  public static final int [] color = {0x000000, 0x0000FF, 0xFF0000, 0xFF00FF
-          , 0x00FF00, 0x00FFFF, 0xFFFF00, 0xFFFFFF}, attrs = new int[768];
-    
-  public static void loadScreen(int num) throws IOException {
-    File source = new File("source/image-" + String.format("%08d", num)
-        + ".scr");
-    FileInputStream input = new FileInputStream(source);
-    byte[] byteScreen = new byte[6912];
-    input.read(byteScreen);
-    
-    for(int x = 0; x < 768; x++) attrs[x] = byteScreen[6144 | x] & 0xFF;
-    
-    for(int part = 0; part < 3; part++) {
-      int partSource = (part << 11);
-      int partDestination = part << 8;
-      for(int y = 0; y < 8; y++) {
-        int ySource = partSource + (y << 5);
-        int yDestination = partDestination | (y << 5);
+  public static void main(String[] args) {
+    try {
+      int[] color = new int[8];
+      color[0] = 0x000000;
+      color[1] = 0x0000FF;
+      color[2] = 0xFF0000;
+      color[3] = 0xFF00FF;
+      color[4] = 0x00FF00;
+      color[5] = 0x00FFFF;
+      color[6] = 0xFFFF00;
+      color[7] = 0xFFFFFF;
+      
+      File source = new File("source/image-00000001.scr");
+      FileInputStream input = new FileInputStream(source);
+      byte[] byteScreen = new byte[6912];
+      input.read(byteScreen);
+      int[] screen = new int[6912];
+      for(int i = 0; i < 6912; i++) screen[i] = byteScreen[i] & 0xFF;
+      
+      BufferedImage image = new BufferedImage(256, 192
+          , BufferedImage.TYPE_INT_RGB);
+      int[] col = new int[2];
+      for(int y = 0; y < 192; y++) {
+        int lineStart = ((((y >> 3) & 0b111) | ((y & 0b111) << 3)
+            | (y & 0b111000000)) << 5);
         for(int x = 0; x < 32; x++) {
-          int xSource = ySource | x;
-          int xDestination = yDestination | x;
-          Chunk chunk = new Chunk();
-          for(int yy = 0; yy < 8; yy++)
-            chunk.value[yy] = byteScreen[xSource | (yy << 8)] & 0xFF;
-          chunks[xDestination] = chunk;
-        }
-      }
-    }
-  }
-  
-  public static BufferedImage toImage() {
-    return toImage(0, 0, 31, 23);
-  }
-  
-  public static BufferedImage toImage(int x1, int y1, int x2, int y2) {
-    BufferedImage image = new BufferedImage(256, 192
-        , BufferedImage.TYPE_INT_RGB);
-    int[] col = new int[2];
-    for(int y = y1; y <= y2; y++) {
-      int lineStart = y << 5;
-      int yPos = y << 3;
-      for(int x = x1; x <= x2; x++) {
-        int addr = lineStart | x;
-        int attr = attrs[addr];
-        col[0] = color[(attr >> 3) & 7];
-        col[1] = color[attr & 7];
-        Chunk chunk = chunks[addr];
-        int xPos = x << 3;
-        for(int yy = 0; yy < 8; yy++) {
-          int val = chunk.value[yy];
-          for(int xx = 7; xx >= 0; xx--) {
-            image.setRGB(xPos | xx, yPos | yy, col[val & 1]);
+          int attr = screen[6144 | ((y >> 3) << 5) | x];
+          col[0] = color[(attr >> 3) & 7];
+          col[1] = color[attr & 7];
+          int val = screen[lineStart | x];
+          int xx = x << 3;
+          for(int i = 7; i >= 0; i--) {
+            image.setRGB(xx | i, y, col[val & 1]);
             val = val >> 1;
           }
         }
       }
-    }
-    return image;
-  }
-
-  public static void saveImage(String fileName) throws IOException {
-    File outputfile = new File(fileName);
-    ImageIO.write(toImage(), "png", outputfile);
-  }
-  
-  public static class ChunkList extends LinkedList<Chunk> {};
-  
-  public static Chunk[] background = new Chunk[768];
-  
-  public static void main(String[] args) {
-    int from = 754, to = 912;
-    try {
-      final ChunkList[] chunkList = new ChunkList[768];
-      for(int i = 0; i < 768; i++) chunkList[i] = new ChunkList();
       
-      for(int num = from; num <= to; num++) {
-        loadScreen(num);
-        chunk: for(int i = 0; i < 768; i++) {
-          ChunkList list = chunkList[i];
-          Chunk oldChunk = chunks[i];
-          for(Chunk chunk: list) {
-            if(chunk.equals(oldChunk)) {
-              chunk.quantity++;
-              continue chunk;
-            }
-          }
-          list.add(oldChunk);
-        }
-      }
-      
-      for(int i = 0; i < 768; i++) {
-        ChunkList list = chunkList[i];
-        Chunk maxChunk = null;
-        int maxQuantity = 1;
-        for(Chunk chunk: list) {          
-          if(chunk.quantity > maxQuantity) {
-            maxChunk = chunk;
-            maxQuantity = chunk.quantity;
-          }
-        }
-        background[i] = maxChunk;
-      }
-      
-      Chunk zeroChunk = new Chunk();
-      for(int num = from; num <= to; num++) {
-        loadScreen(num);
-        for(int i = 0; i < 768; i++) {
-          if(chunks[i].equals(background[i])) {
-            chunks[i] = zeroChunk;
-          } else {
-            attrs[i] = 0b001111;
-          }
-          //chunks[i].add(background[i]);
-        }
-        
-        for(int x = 0)
-        
-        saveImage("D:/temp2/output/" + String.format("%08d", num) + ".png");
-      }
-      
+      File outputfile = new File("D:/temp2/image.png");
+      ImageIO.write(image, "png", outputfile);
     } catch (IOException e) {
-      int a = 0;
+      
     }
   }
 }
