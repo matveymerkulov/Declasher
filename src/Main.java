@@ -9,7 +9,7 @@ class Main {
   public static final int [] color = {0x000000, 0x0000FF, 0xFF0000, 0xFF00FF
           , 0x00FF00, 0x00FFFF, 0xFFFF00, 0xFFFFFF}, attrs = new int[768];
   
-  protected static int x1, x2, y1, y2;
+  protected static int blockX1, blockY1, blockY2, blockX2;
   
   private static Image difference() {
     BufferedImage image = Screen.toImage(false);
@@ -38,31 +38,34 @@ class Main {
     return new Image(data, width2, height2, ix1 + 4, iy1 + 4, ix2 + 4, iy2 + 4);
   }
   
+  private static final LinkedList<Image> images = new LinkedList<>();
+  
   public static void main(String[] args) {
-    final int from = 754, to = 912;
-    
     try {
-      Screen.composeBackground(from, to);
-      
-      LinkedList<Image> images = new LinkedList<>();
-      
-      for(int num = from; num <= to; num++) {
-        Screen.loadScreen(num);
-        block: for(int i = 0; i < 768; i++) {
-          if(Screen.findBlock(i)) {
-            Image image = difference();
-            if(image.isLargeEnough()) {
-              for(Image oldImage: images)
-                if(oldImage.match(image)) continue block;
-              images.add(image);
-            }
-          }
-        }
-      }
+      process(327, 475);
+      process(483, 666);
+      process(754, 912);
       
       for(Image image: images) image.save();
     } catch (IOException e) {
       System.err.println("I/O error");
+    }
+  }
+
+  private static void process(int from, int to) throws IOException {
+    Background.compose(from, to);
+    for(int num = from; num <= to; num++) {
+      Screen.load(num);
+      block: for(int i = 0; i < 768; i++) {
+        if(Block.findBlock(i & 31, i >> 5)) {
+          Image image = difference();
+          if(image.isLargeEnough()) {
+            for(Image oldImage: images)
+              oldImage.compareTo(image);
+            images.add(image);
+          }
+        }
+      }
     }
   }
 }
