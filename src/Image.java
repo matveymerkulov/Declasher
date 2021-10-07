@@ -6,9 +6,6 @@ import java.util.LinkedList;
 import javax.imageio.ImageIO;
 
 public class Image extends Main {
-  private static final int minWidth = 8, maxWidth = 24
-      , minHeight = 16, maxHeight = 32;
-  
   private class ImageEntry {
     private final Image image;
     private final int dx, dy;
@@ -34,6 +31,14 @@ public class Image extends Main {
     this.y1 = y1;
     this.x2 = x2;
     this.y2 = y2;
+    /*System.out.println(width + "x" + height + ", " + x1 + ", " + y1
+        + ", " + x2 + ", " + y2);*/
+  }
+
+  public boolean hasAcceptableSize() {
+    int innerWidth = x2 - x1, innerHeight = y2 - y1;
+    return innerWidth >= minWidth && innerWidth <= maxWidth
+        && innerHeight >= minHeight && innerHeight <= maxHeight;
   }
 
   private void add(Image image, int dx, int dy) {
@@ -60,18 +65,13 @@ public class Image extends Main {
         switch(data[x + y * width]) {
           case OFF: colIndex = 0; break;
           case ON: colIndex = 7; break;
-          default: colIndex = 3; break;
+          case OFF_OR_TRANSPARENT: colIndex = 3; break;
+          default: colIndex = colored ? 4 : 3; break;
         }
         image.setRGB(x, y, color[colIndex]);
       }
     }
     return resizeImage(image, width * 8, height * 8);
-  }
-
-  public boolean hasAcceptableSize() {
-    int innerWidth = x2 - x1, innerHeight = y2 - y1;
-    return innerWidth >= minWidth && innerWidth <= maxWidth
-        && innerHeight >= minHeight && innerHeight <= maxHeight;
   }
 
   public boolean compareTo(Image image) {
