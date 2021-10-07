@@ -59,9 +59,9 @@ class Main {
       block: for(int i = 0; i < 768; i++) {
         if(Block.findBlock(i & 31, i >> 5)) {
           Image image = difference();
-          if(image.isLargeEnough()) {
+          if(image.hasAcceptableSize()) {
             for(Image oldImage: images)
-              oldImage.compareTo(image);
+              if(oldImage.compareTo(image)) continue block;
             images.add(image);
           }
         }

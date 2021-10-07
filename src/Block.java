@@ -5,10 +5,7 @@ public class Block extends Screen {
     if(chunk.used) return true;
     chunk.used = true;
     
-    if(chunk.equals(background[i])) {
-      chunks[i] = background[i];
-      return true;
-    }
+    if(chunk.equals(background[i])) return true;
     
     return false;
   }

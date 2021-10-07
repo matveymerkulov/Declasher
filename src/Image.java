@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import javax.imageio.ImageIO;
 
 public class Image extends Main {
+  private static final int minWidth = 8, maxWidth = 24
+      , minHeight = 16, maxHeight = 32;
+  
   private class ImageEntry {
     private final Image image;
     private final int dx, dy;
@@ -19,6 +22,7 @@ public class Image extends Main {
   
   private final byte[] data;
   private final int width, height, x1, y1, x2, y2;
+  private int quantity = 0;
   private final LinkedList<ImageEntry> matched = new LinkedList<>();
 
   public Image(byte[] data, int width, int height, int x1, int y1, int x2
@@ -34,6 +38,7 @@ public class Image extends Main {
 
   private void add(Image image, int dx, int dy) {
     matched.add(new ImageEntry(image, dx, dy));
+    quantity++;
   }
   
   private BufferedImage resizeImage(BufferedImage originalImage
@@ -63,22 +68,37 @@ public class Image extends Main {
     return resizeImage(image, width * 8, height * 8);
   }
 
-  public boolean isLargeEnough() {
-    return x2 - x1 >= 8 && y2 - y1 >= 8;
+  public boolean hasAcceptableSize() {
+    int innerWidth = x2 - x1, innerHeight = y2 - y1;
+    return innerWidth >= minWidth && innerWidth <= maxWidth
+        && innerHeight >= minHeight && innerHeight <= maxHeight;
   }
 
-  public void compareTo(Image image) {
-    if(x1 == image.x1 && y1 == image.y1 && x2 == image.x2 && y2 == image.y2
-        && width == image.width && height == image.height) {
-      int a = 0;
+  public boolean compareTo(Image image) {
+    if(x2 - x1 == image.x2 - image.x1 && y2 - y1 == image.y2 - image.y1) {
+      int dx = image.x1 - x1;
+      int dy = image.y1 - y1;
+      all: while(true) {
+        for(int y = y1; y < y2; y++) {
+          for(int x = x1; x < x2; x++) {
+            byte value1 = data[x + y * width];
+            if(value1 < UNKNOWN) {
+              byte value2 = image.data[(x + dx) + (y + dy) * image.width];
+              if(value1 != value2) break all;
+            }
+          }
+        }
+        quantity++;
+        return true;
+      }
     }
     
     int minDx = Integer.max(x2 - image.width, -image.x1);
     int maxDx = Integer.min(x1, width - image.x2);
-    if(minDx > maxDx) return;
+    if(minDx > maxDx) return false;
     int minDy = Integer.max(y2 - image.height, -image.y1);
     int maxDy = Integer.min(y1, height - image.y2);
-    if(minDy > maxDy) return;
+    if(minDy > maxDy) return false;
     for(int dy = minDy; dy <= maxDy; dy++) {
       int fromY = Integer.min(y1, image.y1 + dy);
       int toY = Integer.max(y2, image.y2 + dy);
@@ -107,9 +127,10 @@ public class Image extends Main {
         }
         add(image, dx, dy);
         image.add(this, -dx, -dy);
-        return;
+        return false;
       }
     }
+    return false;
   }
 
   private static int outnum = 0;
@@ -118,7 +139,7 @@ public class Image extends Main {
     merge();
     outnum++;
     File outputfile = new File("D:/temp2/output/"
-        + String.format("%08d", outnum + 10000 * matched.size()) + ".png");
+        + String.format("%08d", outnum + 10000 * quantity) + ".png");
     ImageIO.write(toBufferedImage(), "png", outputfile);
   }
 
