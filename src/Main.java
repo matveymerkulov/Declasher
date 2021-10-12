@@ -9,9 +9,33 @@ class Main {
   
   private static final int blockBorder = Math.floorDiv(borderSize + 7, 8);
   
-  public static final byte OFF = 0, ON = 1
-      , OFF_OR_TRANSPARENT = 2, ON_OR_TRANSPARENT = 3
-      , VALUE = 1, UNKNOWN = 2;
+  public static enum PixelType {
+    OFF(false, true),
+    ON(true, true),
+    OFF_OR_TRANSPARENT(false, false) {
+      @Override
+      PixelType removeTransparency() {
+        return OFF;
+      }
+    },
+    ON_OR_TRANSPARENT(true, false) {
+      @Override
+      PixelType removeTransparency() {
+        return ON;
+      }
+    };
+
+    boolean value, cannotBeTransparent;
+
+    private PixelType(boolean value, boolean cannotBeTransparent) {
+      this.value = value;
+      this.cannotBeTransparent = cannotBeTransparent;
+    }
+
+    PixelType removeTransparency() {
+      return this;
+    }    
+  }
   public static final int [] color = {0x000000, 0x0000FF, 0xFF0000, 0xFF00FF
           , 0x00FF00, 0x00FFFF, 0xFFFF00, 0xFFFFFF}, attrs = new int[768];
   
@@ -25,7 +49,7 @@ class Main {
     BufferedImage image = Screen.toImage(false);
     BufferedImage backImage = Screen.backgroundToImage(false);
     int width = image.getWidth(), height = image.getHeight();
-    byte[] data = new byte[width * height];
+    PixelType[] data = new PixelType[width * height];
     int x1 = width, y1 = height, x2 = 0, y2 = 0;
     for(int y = 0; y < height; y++) {
       for(int x = 0; x < width; x++) {
@@ -33,9 +57,10 @@ class Main {
         boolean imgPixel = (image.getRGB(x, y) & 1) == 1;
         boolean backPixel = (backImage.getRGB(x, y) & 1) == 1;
         if(imgPixel == backPixel) {
-          data[address] = imgPixel ? ON_OR_TRANSPARENT : OFF_OR_TRANSPARENT;
+          data[address] = imgPixel ? PixelType.ON_OR_TRANSPARENT
+              : PixelType.OFF_OR_TRANSPARENT;
         } else {
-          data[address] = imgPixel ? ON : OFF;
+          data[address] = imgPixel ? PixelType.ON : PixelType.OFF;
           x1 = Integer.min(x1, x);
           y1 = Integer.min(y1, y);
           x2 = Integer.max(x2, x);
@@ -55,7 +80,7 @@ class Main {
     int bottomBorder = height - y2 < borderSize ? height - y2 : borderSize;
     int newWidth = leftBorder + (x2 - x1) + rightBorder;
     int newHeight = topBorder + (y2 - y1) + bottomBorder;
-    byte[] newData = new byte[newWidth * newHeight];
+    PixelType[] newData = new PixelType[newWidth * newHeight];
     for(int y = 0; y < newHeight; y++) {
       int yy = y - topBorder + y1;
       for(int x = 0; x < newWidth; x++) {

@@ -17,12 +17,12 @@ public class Image extends Main {
     }
   }
   
-  private final byte[] data;
+  private final PixelType[] data;
   private final int width, height, x1, y1, x2, y2;
   private int quantity = 0;
   private final LinkedList<ImageEntry> matched = new LinkedList<>();
 
-  public Image(byte[] data, int width, int height, int x1, int y1, int x2
+  public Image(PixelType[] data, int width, int height, int x1, int y1, int x2
       , int y2) {
     this.data = data;
     this.width = width;
@@ -81,9 +81,9 @@ public class Image extends Main {
       all: while(true) {
         for(int y = y1; y < y2; y++) {
           for(int x = x1; x < x2; x++) {
-            byte value1 = data[x + y * width];
-            if(value1 < UNKNOWN) {
-              byte value2 = image.data[(x + dx) + (y + dy) * image.width];
+            PixelType value1 = data[x + y * width];
+            if(value1.cannotBeTransparent) {
+              PixelType value2 = image.data[(x + dx) + (y + dy) * image.width];
               if(value1 != value2) break all;
             }
           }
@@ -107,20 +107,22 @@ public class Image extends Main {
         int toX = Integer.max(x2, image.x2 + dx);
         for(int y = fromY; y < toY; y++) {
           for(int x = fromX; x < toX; x++) {
-            byte value1 = data[x + y * width];
-            byte value2 = image.data[(x - dx) + (y - dy) * image.width];
+            PixelType value1 = data[x + y * width];
+            PixelType value2 = image.data[(x - dx) + (y - dy) * image.width];
             switch(value1) {
               case OFF:
-                if(value2 == ON || value2 == ON_OR_TRANSPARENT) continue main;
+                if(value2 == PixelType.ON
+                    || value2 == PixelType.ON_OR_TRANSPARENT) continue main;
                 break;
               case ON:
-                if(value2 == OFF || value2 == OFF_OR_TRANSPARENT) continue main;
+                if(value2 == PixelType.OFF
+                    || value2 == PixelType.OFF_OR_TRANSPARENT) continue main;
                 break;
               case OFF_OR_TRANSPARENT:
-                if(value2 == ON) continue main;
+                if(value2 == PixelType.ON) continue main;
                 break;
               case ON_OR_TRANSPARENT:
-                if(value2 == OFF) continue main;
+                if(value2 == PixelType.OFF) continue main;
                 break;
             }
           }
@@ -150,9 +152,9 @@ public class Image extends Main {
       int dy = entry.dy;
       for(int y = image.y1; y < image.y2; y++) {
         for(int x = image.x1; x < image.x2; x++) {
-          int value = image.data[x + y * image.width];
-          if(value < UNKNOWN)
-            data[(x + dx) + (y + dy) * width] = (byte) (value & VALUE);
+          PixelType value = image.data[x + y * image.width];
+          if(value.cannotBeTransparent)
+            data[(x + dx) + (y + dy) * width] = value.removeTransparency();
         }
       }
     }
