@@ -17,12 +17,40 @@ public class Image extends Main {
     }
   }
   
+  private static enum PixelType {
+    OFF(false, true),
+    ON(true, true),
+    OFF_OR_TRANSPARENT(false, false) {
+      @Override
+      protected PixelType removeTransparency() {
+        return OFF;
+      }
+    },
+    ON_OR_TRANSPARENT(true, false) {
+      @Override
+      protected PixelType removeTransparency() {
+        return ON;
+      }
+    };
+
+    boolean value, cannotBeTransparent;
+
+    private PixelType(boolean value, boolean cannotBeTransparent) {
+      this.value = value;
+      this.cannotBeTransparent = cannotBeTransparent;
+    }
+
+    protected PixelType removeTransparency() {
+      return this;
+    }    
+  }
+  
   private final PixelType[] data;
   private final int width, height, x1, y1, x2, y2;
   private int quantity = 0;
   private final LinkedList<ImageEntry> matched = new LinkedList<>();
 
-  public Image(PixelType[] data, int width, int height, int x1, int y1, int x2
+  private Image(PixelType[] data, int width, int height, int x1, int y1, int x2
       , int y2) {
     this.data = data;
     this.width = width;
@@ -54,24 +82,6 @@ public class Image extends Main {
         , BufferedImage.TYPE_INT_RGB);
     outputImage.getGraphics().drawImage(resultingImage, 0, 0, null);
     return outputImage;
-  }
-
-  private BufferedImage toBufferedImage() {
-    BufferedImage image = new BufferedImage(width, height
-        , BufferedImage.TYPE_INT_RGB);
-    for(int y = 0; y < height; y++) {
-      for(int x = 0; x < width; x++) {
-        int colIndex;
-        switch(data[x + y * width]) {
-          case OFF: colIndex = 0; break;
-          case ON: colIndex = 7; break;
-          case OFF_OR_TRANSPARENT: colIndex = 3; break;
-          default: colIndex = colored ? 4 : 3; break;
-        }
-        image.setRGB(x, y, color[colIndex]);
-      }
-    }
-    return resizeImage(image, width * 8, height * 8);
   }
 
   public boolean compareTo(Image image) {
@@ -134,6 +144,71 @@ public class Image extends Main {
     }
     return false;
   }
+  
+  public static Image difference(BufferedImage image, BufferedImage backImage) {
+    int width = image.getWidth(), height = image.getHeight();
+    PixelType[] data = new PixelType[width * height];
+    int x1 = width, y1 = height, x2 = 0, y2 = 0;
+    for(int y = 0; y < height; y++) {
+      for(int x = 0; x < width; x++) {
+        int address = y * width + x;
+        boolean imgPixel = (image.getRGB(x, y) & 1) == 1;
+        boolean backPixel = (backImage.getRGB(x, y) & 1) == 1;
+        if(imgPixel == backPixel) {
+          data[address] = imgPixel ? PixelType.ON_OR_TRANSPARENT
+              : PixelType.OFF_OR_TRANSPARENT;
+        } else {
+          data[address] = imgPixel ? PixelType.ON : PixelType.OFF;
+          x1 = Integer.min(x1, x);
+          y1 = Integer.min(y1, y);
+          x2 = Integer.max(x2, x);
+          y2 = Integer.max(y2, y);
+        }
+      }
+    }
+    x2++;
+    y2++;
+    /*System.out.println();
+    System.out.println(width + "x" + height + ", " + x1 + ", " + y1
+        + ", " + x2 + ", " + y2);*/
+    
+    int leftBorder = x1 < borderSize ? x1 : borderSize;
+    int topBorder = y1 < borderSize ? y1 : borderSize;
+    int rightBorder = width - x2 < borderSize ? width - x2 : borderSize;
+    int bottomBorder = height - y2 < borderSize ? height - y2 : borderSize;
+    int newWidth = leftBorder + (x2 - x1) + rightBorder;
+    int newHeight = topBorder + (y2 - y1) + bottomBorder;
+    PixelType[] newData = new PixelType[newWidth * newHeight];
+    for(int y = 0; y < newHeight; y++) {
+      int yy = y - topBorder + y1;
+      for(int x = 0; x < newWidth; x++) {
+        int xx = x - leftBorder + x1;
+        newData[x + y * newWidth] = data[xx + yy * width];
+      }
+    }
+    return new Image(newData, newWidth, newHeight, leftBorder, topBorder, 
+        newWidth - rightBorder, newHeight - bottomBorder);
+  }
+  
+  
+
+  private BufferedImage toBufferedImage() {
+    BufferedImage image = new BufferedImage(width, height
+        , BufferedImage.TYPE_INT_RGB);
+    for(int y = 0; y < height; y++) {
+      for(int x = 0; x < width; x++) {
+        int colIndex;
+        switch(data[x + y * width]) {
+          case OFF: colIndex = 0; break;
+          case ON: colIndex = 7; break;
+          case OFF_OR_TRANSPARENT: colIndex = 3; break;
+          default: colIndex = colored ? 4 : 3; break;
+        }
+        image.setRGB(x, y, color[colIndex]);
+      }
+    }
+    return resizeImage(image, width * 8, height * 8);
+  }
 
   private static int outnum = 0;
 
@@ -141,7 +216,8 @@ public class Image extends Main {
     merge();
     outnum++;
     File outputfile = new File("D:/temp2/output/"
-        + String.format("%08d", outnum + 10000 * quantity) + ".png");
+        + String.format("%03d", quantity) + "_"
+        + String.format("%06d", outnum) + ".png");
     ImageIO.write(toBufferedImage(), "png", outputfile);
   }
 
