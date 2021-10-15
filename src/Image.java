@@ -65,8 +65,8 @@ public class Image extends Main {
 
   public boolean hasAcceptableSize() {
     int innerWidth = x2 - x1, innerHeight = y2 - y1;
-    return innerWidth >= minWidth && innerWidth <= maxWidth
-        && innerHeight >= minHeight && innerHeight <= maxHeight;
+    return innerWidth >= MIN_WIDTH && innerWidth <= MAX_WIDTH
+        && innerHeight >= MIN_HEIGHT && innerHeight <= MAX_HEIGHT;
   }
 
   private void add(Image image, int dx, int dy) {
@@ -172,10 +172,10 @@ public class Image extends Main {
     System.out.println(width + "x" + height + ", " + x1 + ", " + y1
         + ", " + x2 + ", " + y2);*/
     
-    int leftBorder = x1 < borderSize ? x1 : borderSize;
-    int topBorder = y1 < borderSize ? y1 : borderSize;
-    int rightBorder = width - x2 < borderSize ? width - x2 : borderSize;
-    int bottomBorder = height - y2 < borderSize ? height - y2 : borderSize;
+    int leftBorder = x1 < BORDER_SIZE ? x1 : BORDER_SIZE;
+    int topBorder = y1 < BORDER_SIZE ? y1 : BORDER_SIZE;
+    int rightBorder = width - x2 < BORDER_SIZE ? width - x2 : BORDER_SIZE;
+    int bottomBorder = height - y2 < BORDER_SIZE ? height - y2 : BORDER_SIZE;
     int newWidth = leftBorder + (x2 - x1) + rightBorder;
     int newHeight = topBorder + (y2 - y1) + bottomBorder;
     PixelType[] newData = new PixelType[newWidth * newHeight];

@@ -2,8 +2,9 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 class Main {
-  public static final int borderSize = 4, minWidth = 8, maxWidth = 24
-      , minHeight = 8, maxHeight = 32;
+  public static final int BORDER_SIZE = 4, MAX_DISTANCE = 2
+      , MIN_WIDTH = 8, MAX_WIDTH = 24, MIN_HEIGHT = 8, MAX_HEIGHT = 32
+      , AREA_X = 0, AREA_Y = 6, AREA_WIDTH = 32, AREA_HEIGHT = 18;
   public boolean colored = false;
   
   public static final int [] color = {0x000000, 0x0000FF, 0xFF0000, 0xFF00FF
@@ -13,24 +14,11 @@ class Main {
   
   public static void main(String[] args) {
     try {
-      process(327, 475);
-      /*process(483, 666);
-      process(754, 912);
-      process(923, 1101);
-      process(1106, 1357);*/
-      /*process(1369, 1546);
-      process(1566, 1747);
-      process(1840, 2025);
-      process(2043, 2230);*/
-      
-      for(Image image: images) image.save();
+      Screen.process(216, 216);
+      Screen.saveBackground();
+      //for(Image image: images) image.save();
     } catch (IOException e) {
       System.err.println("I/O error");
     }
-  }
-
-  private static void process(int from, int to) throws IOException {
-    Screen.composeBackground(from, to);
-    Screen.saveBackground();
   }
 }
