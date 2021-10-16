@@ -1,3 +1,4 @@
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.LinkedList;
 
@@ -16,12 +17,21 @@ class Main {
   private static final LinkedList<Image> images = new LinkedList<>();
   
   public static void main(String[] args) {
-    try {
-      Screen.process(1, 2966, "source/image-000");
-      //Screen.process(1, 60299, "D:/temp2/scr/");
-      //for(Image image: images) image.save();
-    } catch (IOException e) {
-      System.err.println("I/O error");
-    }
+    Screen.process(34234, 34418, "source/");
+    //Screen.process(12863, 13040, "source/");
+    //Screen.process(34032, 37979, "source/");
+    //Screen.process(1, 60299, "source/");
+    //Screen.process(1, 60299, "D:/temp2/scr/");
+    //for(Image image: images) image.save();
+  }
+  
+  public static BufferedImage resizeImage(BufferedImage originalImage
+      , int targetWidth, int targetHeight) {
+    java.awt.Image resultingImage = originalImage.getScaledInstance(targetWidth
+        , targetHeight, java.awt.Image.SCALE_DEFAULT);
+    BufferedImage outputImage = new BufferedImage(targetWidth, targetHeight
+        , BufferedImage.TYPE_INT_RGB);
+    outputImage.getGraphics().drawImage(resultingImage, 0, 0, null);
+    return outputImage;
   }
 }

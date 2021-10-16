@@ -1,4 +1,6 @@
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,6 +14,7 @@ public class Screen extends Main {
       , MAX_AREA_X = AREA_X + AREA_WIDTH, MAX_AREA_Y = AREA_Y + AREA_HEIGHT;
   
   private static final int[] backgroundOn = new int[PIXEL_SIZE];
+  private static final boolean[] background = new boolean[PIXEL_SIZE];
   private static int[] attrs, backgroundAttrs;
 
   private static boolean[] load(String path, int num)
@@ -64,51 +67,103 @@ public class Screen extends Main {
       if(attrs[i] != backgroundAttrs[i]) difference++;
     return difference;
   }
+  
+  public static BufferedImage declash(boolean[] screen
+      , BufferedImage backgroundImage) {
+    ColorModel cm = backgroundImage.getColorModel();
+    boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+    WritableRaster raster = backgroundImage.copyData(null);
+    BufferedImage image = new BufferedImage(cm, raster, isAlphaPremultiplied
+        , null);
+    
+    for(int y = 0; y < PIXEL_HEIGHT; y++) {
+      int ySource = y << 8;
+      for(int x = 0; x < PIXEL_WIDTH; x++) {
+        int addr = ySource | x;
+        boolean value = screen[addr];
+        if(value && value != background[addr])
+          image.setRGB(x, y, color[7]);
+      }
+    }
+    
+    return image;
+  }
 
-  public static void process(int from, int to, String path) throws IOException {
-    int frames = 0;
+  private static void composeBackground(int frames) {
+    int minFrames = (int) Math.floor(PERCENT_ON * frames);
+    for(int addr = 0; addr < PIXEL_SIZE; addr++) 
+      background[addr] = backgroundOn[addr] >= minFrames;
+  }
+
+  public static void process(int from, int to, String path) {
+    int firstFrame = from;
     boolean newSection = true;
-    for(int num = from; num <= to; num++) {
-      boolean[] screen = load(path, num);
-      if(!newSection && difference() > MAX_DIFFERENCE) {
-        if(frames >= MIN_FRAMES) saveBackground(frames);
-        frames = 0;
-        newSection = true;
+    for(int frame = from; frame <= to; frame++) {
+      boolean[] screen;
+      try {
+        screen = load(path, frame);
+      } catch (IOException e) {
+        continue;
       }
       
+      if(!newSection && difference() > MAX_DIFFERENCE) {
+        saveClip(path, firstFrame, frame);
+        firstFrame = frame;
+        newSection = true;
+      }
+
       if(newSection) {
         //background = screen;
         Arrays.fill(backgroundOn, 0);
         newSection = false;
       }
-      
+
       backgroundAttrs = attrs;
-      frames++;
       for(int i = 0; i < PIXEL_SIZE; i++)
         if(screen[i]) backgroundOn[i]++;
     }
+    saveClip(path, firstFrame, to + 1);
+  }
+
+  private static void saveClip(String path, int from, int to) {
+    int frames = to - from;
+    if(frames >= MIN_FRAMES) {
+      composeBackground(frames);
+      BufferedImage backgroundImage = backgroundToImage();
+      //saveBackground(backgroundImage);
+      for(int frame = from; frame < to; frame++) {
+        System.out.println(frame);
+        try {
+          saveImage(declash(load(path, frame), backgroundImage), frame);
+        } catch (IOException e) {
+        }
+      }
+    }
   }
   
-  private static int fileNumber = -1;
-      
-  public static void saveBackground(int frames) throws IOException {
+  public static BufferedImage backgroundToImage() {
     BufferedImage image = new BufferedImage(PIXEL_WIDTH, PIXEL_HEIGHT
         , BufferedImage.TYPE_INT_RGB);
     
-    int minFrames = (int) Math.floor(PERCENT_ON * frames);
     for(int y = 0; y < PIXEL_HEIGHT; y++) {
       int ySource = y << 8;
       int yAttrSource = ((y >> 3) + AREA_Y) << 5;
       for(int x = 0; x < PIXEL_WIDTH; x++) {
         int attr = backgroundAttrs[yAttrSource | (x >> 3 + AREA_X)];
         int addr = ySource | x;
-        boolean value = backgroundOn[addr] >= minFrames;
+        boolean value = background[addr];
         image.setRGB(x, y, value ? color[attr & 7] : color[(attr >> 3) & 7]);
       }
     }
     
-    fileNumber++;
+    return image;
+  }
+  
+  public static void saveImage(BufferedImage image, int fileNumber)
+      throws IOException {
+    image = resizeImage(image, PIXEL_WIDTH * 3, PIXEL_HEIGHT * 3);
     File outputfile = new File("D:/temp2/output/"
         + String.format("%06d", fileNumber) +".png");
-    ImageIO.write(image, "png", outputfile);  }
+    ImageIO.write(image, "png", outputfile);
+  }
 }

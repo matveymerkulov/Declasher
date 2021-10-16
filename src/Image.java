@@ -73,16 +73,6 @@ public class Image extends Main {
     matched.add(new ImageEntry(image, dx, dy));
     quantity++;
   }
-  
-  private BufferedImage resizeImage(BufferedImage originalImage
-      , int targetWidth, int targetHeight) {
-    java.awt.Image resultingImage = originalImage.getScaledInstance(targetWidth
-        , targetHeight, java.awt.Image.SCALE_DEFAULT);
-    BufferedImage outputImage = new BufferedImage(targetWidth, targetHeight
-        , BufferedImage.TYPE_INT_RGB);
-    outputImage.getGraphics().drawImage(resultingImage, 0, 0, null);
-    return outputImage;
-  }
 
   public boolean compareTo(Image image) {
     if(x2 - x1 == image.x2 - image.x1 && y2 - y1 == image.y2 - image.y1) {
