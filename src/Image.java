@@ -62,8 +62,38 @@ public class Image extends Main {
     /*System.out.println(width + "x" + height + ", " + x1 + ", " + y1
         + ", " + x2 + ", " + y2);*/
   }
-
-  public boolean hasAcceptableSize() {
+    
+  public Image(int[] pixels, boolean[] screen, boolean[] background
+      , int x1, int y1, int x2, int y2, int imageNumber) {
+    int leftBorder = Integer.min(BORDER_SIZE, x1);
+    int topBorder = Integer.min(BORDER_SIZE, y1);
+    int rightBorder = Integer.min(BORDER_SIZE, PIXEL_WIDTH - x2);
+    int bottomBorder = Integer.min(BORDER_SIZE, PIXEL_HEIGHT - y2);
+    this.width = leftBorder + x2 - x1 + rightBorder;
+    this.height = topBorder + y2 - y1 + bottomBorder;
+    this.x1 = leftBorder;
+    this.y1 = topBorder;
+    this.x2 = this.width - rightBorder;
+    this.y2 = this.height - bottomBorder;
+    this.data = new PixelType[this.width * this.height];
+    int dx = x1 - leftBorder;
+    int dy = y1 - topBorder;
+    for(int y = 0; y < this.height; y++) {
+      int ySource = y * this.width;
+      int yDestination = (y + dy) * PIXEL_WIDTH + dx;
+      for(int x = 0; x < this.width; x++) {
+        int addr = yDestination + x;
+        if(pixels[addr] == imageNumber) {
+          this.data[x + ySource] = screen[addr] ? PixelType.ON : PixelType.OFF;
+        } else {
+          this.data[x + ySource] = screen[addr] ? PixelType.ON_OR_TRANSPARENT
+              : PixelType.OFF_OR_TRANSPARENT;
+        }
+      }
+    }
+  }
+  
+  public static boolean hasAcceptableSize(int x1, int y1, int x2, int y2) {
     int innerWidth = x2 - x1, innerHeight = y2 - y1;
     return innerWidth >= MIN_WIDTH && innerWidth <= MAX_WIDTH
         && innerHeight >= MIN_HEIGHT && innerHeight <= MAX_HEIGHT;

@@ -8,17 +8,11 @@ import java.util.Arrays;
 import javax.imageio.ImageIO;
 
 public class Screen extends Main {
-  private static final int BYTE_SIZE = 32 * 24 * 8, ATTR_SIZE = BYTE_SIZE / 8
-      , PIXEL_WIDTH = AREA_WIDTH << 3, PIXEL_HEIGHT = AREA_HEIGHT << 3
-      , AREA_SIZE = AREA_WIDTH * AREA_HEIGHT, PIXEL_SIZE = AREA_SIZE << 6
-      , MAX_AREA_X = AREA_X + AREA_WIDTH, MAX_AREA_Y = AREA_Y + AREA_HEIGHT;
-  
   private static final int[] backgroundOn = new int[PIXEL_SIZE];
   private static final boolean[] background = new boolean[PIXEL_SIZE];
   private static int[] attrs, backgroundAttrs;
 
-  private static boolean[] load(String path, int num)
-      throws IOException {
+  private static boolean[] load(String path, int num) throws IOException {
     boolean[] data = new boolean[PIXEL_SIZE];
     
     File image = new File(path + String.format("%05d", num)
@@ -95,7 +89,7 @@ public class Screen extends Main {
       background[addr] = backgroundOn[addr] >= minFrames;
   }
 
-  public static void process(int from, int to, String path) {
+  public static void process(int from, int to, String path) throws IOException {
     int firstFrame = from;
     boolean newSection = true;
     for(int frame = from; frame <= to; frame++) {
@@ -125,19 +119,17 @@ public class Screen extends Main {
     saveClip(path, firstFrame, to + 1);
   }
 
-  private static void saveClip(String path, int from, int to) {
+  private static void saveClip(String path, int from, int to)
+      throws IOException {
+    System.out.println(from + " - " + to);
     int frames = to - from;
     if(frames >= MIN_FRAMES) {
       composeBackground(frames);
       BufferedImage backgroundImage = backgroundToImage();
       //saveBackground(backgroundImage);
-      for(int frame = from; frame < to; frame++) {
-        System.out.println(frame);
-        try {
-          saveImage(declash(load(path, frame), backgroundImage), frame);
-        } catch (IOException e) {
-        }
-      }
+      for(int frame = from; frame < to; frame++)
+        ImageExtractor.extract(load(path, frame), background);
+        //saveImage(declash(load(path, frame), backgroundImage), frame);
     }
   }
   
@@ -163,7 +155,7 @@ public class Screen extends Main {
       throws IOException {
     image = resizeImage(image, PIXEL_WIDTH * 3, PIXEL_HEIGHT * 3);
     File outputfile = new File("D:/temp2/output/"
-        + String.format("%06d", fileNumber) +".png");
+        + String.format("%06d", fileNumber) + ".png");
     ImageIO.write(image, "png", outputfile);
   }
 }
