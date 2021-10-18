@@ -45,10 +45,19 @@ public class Image extends Main {
     }    
   }
   
-  private final PixelType[] data;
+  private PixelType[] data;
   private final int width, height, x1, y1, x2, y2;
-  private int quantity = 0;
+  private int quantity = 1;
   private final LinkedList<ImageEntry> matched = new LinkedList<>();
+  
+  public int getWeight() {
+    return matched.size();
+  }
+
+  public boolean hasMatched(Image image) {
+    for(ImageEntry entry: matched) if(entry.image == image) return true;
+    return false;
+  }
 
   private Image(PixelType[] data, int width, int height, int x1, int y1, int x2
       , int y2) {
@@ -101,10 +110,11 @@ public class Image extends Main {
 
   private void add(Image image, int dx, int dy) {
     matched.add(new ImageEntry(image, dx, dy));
-    quantity++;
   }
+  
+  public enum Comparsion {EQUAL, SIMILAR, OTHER}
 
-  public boolean compareTo(Image image) {
+  public Comparsion compareTo(Image image) {
     if(x2 - x1 == image.x2 - image.x1 && y2 - y1 == image.y2 - image.y1) {
       int dx = image.x1 - x1;
       int dy = image.y1 - y1;
@@ -119,16 +129,16 @@ public class Image extends Main {
           }
         }
         quantity++;
-        return true;
+        return Comparsion.EQUAL;
       }
     }
     
     int minDx = Integer.max(x2 - image.width, -image.x1);
     int maxDx = Integer.min(x1, width - image.x2);
-    if(minDx > maxDx) return false;
+    if(minDx > maxDx) return Comparsion.OTHER;
     int minDy = Integer.max(y2 - image.height, -image.y1);
     int maxDy = Integer.min(y1, height - image.y2);
-    if(minDy > maxDy) return false;
+    if(minDy > maxDy) return Comparsion.OTHER;
     for(int dy = minDy; dy <= maxDy; dy++) {
       int fromY = Integer.min(y1, image.y1 + dy);
       int toY = Integer.max(y2, image.y2 + dy);
@@ -159,10 +169,10 @@ public class Image extends Main {
         }
         add(image, dx, dy);
         image.add(this, -dx, -dy);
-        return false;
+        return Comparsion.SIMILAR;
       }
     }
-    return false;
+    return Comparsion.OTHER;
   }
   
   public static Image difference(BufferedImage image, BufferedImage backImage) {
@@ -233,19 +243,24 @@ public class Image extends Main {
   private static int outnum = 0;
 
   public void save() throws IOException {
-    merge();
+    if(getWeight() < MIN_QUANTITY) return;
     outnum++;
     File outputfile = new File("D:/temp2/output/"
-        + String.format("%03d", quantity) + "_"
+        + String.format("%03d", getWeight()) + "_"
         + String.format("%06d", outnum) + ".png");
-    ImageIO.write(toBufferedImage(), "png", outputfile);
+    ImageIO.write(merge().toBufferedImage(), "png", outputfile);
   }
 
-  private void merge() {
+  private Image merge() {
+    int fx1 = x1, fy1 = y1, fx2 = x2, fy2 = y2;
     for(ImageEntry entry: matched) {
       Image image = entry.image;
       int dx = entry.dx;
       int dy = entry.dy;
+      fx1 = Integer.min(image.x1 + dx, fx1);
+      fy1 = Integer.min(image.y1 + dy, fy1);
+      fx2 = Integer.max(image.x2 + dx, fx2);
+      fy2 = Integer.max(image.y2 + dy, fy2);
       for(int y = image.y1; y < image.y2; y++) {
         for(int x = image.x1; x < image.x2; x++) {
           PixelType value = image.data[x + y * image.width];
@@ -254,6 +269,16 @@ public class Image extends Main {
         }
       }
     }
+    int fwidth = fx2 - fx1;
+    int fheight = fy2 - fy1;
+    PixelType[] newData = new PixelType[fwidth * fheight];
+    for(int y = fy1; y < fy2; y++) {
+      for(int x = fx1; x < fx2; x++) {
+        newData[(x - fx1) + (y - fy1) * fwidth] = data[x + y * width];
+      }
+    }
+    
+    return new Image(newData, fwidth, fheight, 0, 0, fwidth, fheight);
   }
 
   @Override

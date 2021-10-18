@@ -127,9 +127,14 @@ public class Screen extends Main {
       composeBackground(frames);
       BufferedImage backgroundImage = backgroundToImage();
       //saveBackground(backgroundImage);
-      for(int frame = from; frame < to; frame++)
-        ImageExtractor.extract(load(path, frame), background);
+      for(int frame = from; frame < to; frame++) {
+        try {
+          ImageExtractor.extract(load(path, frame), background);
+        } catch (IOException e) {
+          continue;
+        }
         //saveImage(declash(load(path, frame), backgroundImage), frame);
+      }
     }
   }
   
