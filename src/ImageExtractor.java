@@ -1,16 +1,12 @@
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Stack;
 
 public class ImageExtractor extends Main {
-  private static boolean[] screen, background;
-  private static int[] pixels;
-  private static int x1, y1, x2, y2, imageNumber;
-  private static final int SAME = 0, CHANGED = 1;
-  
   private static class Coords {
-    private int x, y;
+    private final int x, y;
 
     public Coords(int x, int y) {
       this.x = x;
@@ -18,19 +14,17 @@ public class ImageExtractor extends Main {
     }
   }
   
-  private static Stack<Coords> coordsStack = new Stack<>();
+  private static final Stack<Coords> coordsStack = new Stack<>();
   
   public static final LinkedList<LinkedList<Image>> images = new LinkedList<>();
   
-  public static void extract(boolean[] scr, boolean[] backgr) {
-    screen = scr;
-    background = backgr;
-    imageNumber = 1;
-    
-    pixels = new int[PIXEL_SIZE];
+  public static void process(boolean[] screen, boolean[] background, int frame)
+      throws IOException {
+    final int SAME = 0, CHANGED = 1;
+    int x1, y1, x2, y2, imageNumber = 1;
+    int[] pixels = new int[PIXEL_SIZE];
     for(int addr = 0; addr < PIXEL_SIZE; addr++)
       pixels[addr] = screen[addr] == background[addr] ? SAME : CHANGED;
-    
     
     for(int y = 0; y < PIXEL_HEIGHT; y++) {
       int ySource = y << 8;
@@ -66,33 +60,41 @@ public class ImageExtractor extends Main {
               }
             }
           } 
+          x2++;
+          y2++;
+          
           if(!Image.hasAcceptableSize(x1, y1, x2, y2)) continue;
-          Image image = new Image(pixels, screen, background, x1, y1, x2, y2
-              , imageNumber);
-          for(LinkedList<Image> list: images) {
-            for(Image listImage: list) {
-              switch(listImage.compareTo(image)) {
-                case EQUAL:
-                  continue x;
-                case SIMILAR:
-                  list.add(image);
-                  continue x;
-                case OTHER:
-                default:
-                  break;
+          if(mode == Mode.EXTRACT) {
+            Image image = new Image(pixels, screen, background, x1, y1, x2, y2
+                , imageNumber);
+            for(LinkedList<Image> list: images) {
+              for(Image listImage: list) {
+                switch(listImage.compareTo(image)) {
+                  case EQUAL:
+                    continue x;
+                  case SIMILAR:
+                    list.add(image);
+                    continue x;
+                  case OTHER:
+                    break;
+                }
               }
             }
-          }
 
-          LinkedList<Image> newList = new LinkedList<>();
-          newList.add(image);
-          images.add(newList);
+            LinkedList<Image> newList = new LinkedList<>();
+            newList.add(image);
+            images.add(newList);
+          } else {
+            Screen.saveImage(Sprites.declash(screen, background
+                , x1, y1, x2, y2), frame);
+          }
         }
       }
     }
   }
 
   public static void saveImages() throws IOException {
+    int listNum = 0;
     for(LinkedList<Image> list: images) {
       int maxWeight = -1;
       Image maxImage = null;
@@ -103,7 +105,8 @@ public class ImageExtractor extends Main {
           maxImage = image;
         }
       }
-      maxImage.save();
+      listNum++;
+      maxImage.save(listNum);
     }
   }
 }

@@ -45,9 +45,8 @@ public class Image extends Main {
     }    
   }
   
-  private PixelType[] data;
+  private final PixelType[] data;
   private final int width, height, x1, y1, x2, y2;
-  private int quantity = 1;
   private final LinkedList<ImageEntry> matched = new LinkedList<>();
   
   public int getWeight() {
@@ -128,7 +127,6 @@ public class Image extends Main {
             }
           }
         }
-        quantity++;
         return Comparsion.EQUAL;
       }
     }
@@ -175,51 +173,6 @@ public class Image extends Main {
     return Comparsion.OTHER;
   }
   
-  public static Image difference(BufferedImage image, BufferedImage backImage) {
-    int width = image.getWidth(), height = image.getHeight();
-    PixelType[] data = new PixelType[width * height];
-    int x1 = width, y1 = height, x2 = 0, y2 = 0;
-    for(int y = 0; y < height; y++) {
-      for(int x = 0; x < width; x++) {
-        int address = y * width + x;
-        boolean imgPixel = (image.getRGB(x, y) & 1) == 1;
-        boolean backPixel = (backImage.getRGB(x, y) & 1) == 1;
-        if(imgPixel == backPixel) {
-          data[address] = imgPixel ? PixelType.ON_OR_TRANSPARENT
-              : PixelType.OFF_OR_TRANSPARENT;
-        } else {
-          data[address] = imgPixel ? PixelType.ON : PixelType.OFF;
-          x1 = Integer.min(x1, x);
-          y1 = Integer.min(y1, y);
-          x2 = Integer.max(x2, x);
-          y2 = Integer.max(y2, y);
-        }
-      }
-    }
-    x2++;
-    y2++;
-    /*System.out.println();
-    System.out.println(width + "x" + height + ", " + x1 + ", " + y1
-        + ", " + x2 + ", " + y2);*/
-    
-    int leftBorder = x1 < BORDER_SIZE ? x1 : BORDER_SIZE;
-    int topBorder = y1 < BORDER_SIZE ? y1 : BORDER_SIZE;
-    int rightBorder = width - x2 < BORDER_SIZE ? width - x2 : BORDER_SIZE;
-    int bottomBorder = height - y2 < BORDER_SIZE ? height - y2 : BORDER_SIZE;
-    int newWidth = leftBorder + (x2 - x1) + rightBorder;
-    int newHeight = topBorder + (y2 - y1) + bottomBorder;
-    PixelType[] newData = new PixelType[newWidth * newHeight];
-    for(int y = 0; y < newHeight; y++) {
-      int yy = y - topBorder + y1;
-      for(int x = 0; x < newWidth; x++) {
-        int xx = x - leftBorder + x1;
-        newData[x + y * newWidth] = data[xx + yy * width];
-      }
-    }
-    return new Image(newData, newWidth, newHeight, leftBorder, topBorder, 
-        newWidth - rightBorder, newHeight - bottomBorder);
-  }
-  
   
 
   private BufferedImage toBufferedImage() {
@@ -237,16 +190,17 @@ public class Image extends Main {
         image.setRGB(x, y, color[colIndex]);
       }
     }
-    return resizeImage(image, width * 8, height * 8);
+    return resized ? resizeImage(image, width * 10, height * 10) : image;
   }
 
   private static int outnum = 0;
 
-  public void save() throws IOException {
+  public void save(int num) throws IOException {
     if(getWeight() < MIN_QUANTITY) return;
     outnum++;
     File outputfile = new File("D:/temp2/output/"
         + String.format("%03d", getWeight()) + "_"
+        + String.format("%03d", num) + "_"
         + String.format("%06d", outnum) + ".png");
     ImageIO.write(merge().toBufferedImage(), "png", outputfile);
   }
@@ -269,6 +223,7 @@ public class Image extends Main {
         }
       }
     }
+    
     int fwidth = fx2 - fx1;
     int fheight = fy2 - fy1;
     PixelType[] newData = new PixelType[fwidth * fheight];

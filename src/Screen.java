@@ -55,32 +55,11 @@ public class Screen extends Main {
     return data;
   }
   
-  public static int difference() {
+  public static int screenDifference() {
     int difference = 0;
     for(int i = 0; i < ATTR_SIZE; i++)
       if(attrs[i] != backgroundAttrs[i]) difference++;
     return difference;
-  }
-  
-  public static BufferedImage declash(boolean[] screen
-      , BufferedImage backgroundImage) {
-    ColorModel cm = backgroundImage.getColorModel();
-    boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-    WritableRaster raster = backgroundImage.copyData(null);
-    BufferedImage image = new BufferedImage(cm, raster, isAlphaPremultiplied
-        , null);
-    
-    for(int y = 0; y < PIXEL_HEIGHT; y++) {
-      int ySource = y << 8;
-      for(int x = 0; x < PIXEL_WIDTH; x++) {
-        int addr = ySource | x;
-        boolean value = screen[addr];
-        if(value && value != background[addr])
-          image.setRGB(x, y, color[7]);
-      }
-    }
-    
-    return image;
   }
 
   private static void composeBackground(int frames) {
@@ -89,7 +68,7 @@ public class Screen extends Main {
       background[addr] = backgroundOn[addr] >= minFrames;
   }
 
-  public static void process(int from, int to, String path) throws IOException {
+  public static void process(String path, int from, int to) throws IOException {
     int firstFrame = from;
     boolean newSection = true;
     for(int frame = from; frame <= to; frame++) {
@@ -100,8 +79,8 @@ public class Screen extends Main {
         continue;
       }
       
-      if(!newSection && difference() > MAX_DIFFERENCE) {
-        saveClip(path, firstFrame, frame);
+      if(!newSection && screenDifference() > MAX_DIFFERENCE) {
+        processSequence(path, firstFrame, frame);
         firstFrame = frame;
         newSection = true;
       }
@@ -116,29 +95,26 @@ public class Screen extends Main {
       for(int i = 0; i < PIXEL_SIZE; i++)
         if(screen[i]) backgroundOn[i]++;
     }
-    saveClip(path, firstFrame, to + 1);
+    processSequence(path, firstFrame, to + 1);
   }
 
-  private static void saveClip(String path, int from, int to)
+  private static void processSequence(String path, int from, int to)
       throws IOException {
-    System.out.println(from + " - " + to);
+    System.out.println(from + " - " + to + ", " + ImageExtractor.images.size());
     int frames = to - from;
-    if(frames >= MIN_FRAMES) {
+    if(frames >= MIN_FRAMES || mode == Mode.DECLASH) {
       composeBackground(frames);
-      BufferedImage backgroundImage = backgroundToImage();
-      //saveBackground(backgroundImage);
       for(int frame = from; frame < to; frame++) {
         try {
-          ImageExtractor.extract(load(path, frame), background);
+          ImageExtractor.process(load(path, frame), background
+              , frame);
         } catch (IOException e) {
-          continue;
         }
-        //saveImage(declash(load(path, frame), backgroundImage), frame);
       }
     }
   }
   
-  public static BufferedImage backgroundToImage() {
+  public static BufferedImage toImage(boolean[] screenData) {
     BufferedImage image = new BufferedImage(PIXEL_WIDTH, PIXEL_HEIGHT
         , BufferedImage.TYPE_INT_RGB);
     
@@ -148,7 +124,7 @@ public class Screen extends Main {
       for(int x = 0; x < PIXEL_WIDTH; x++) {
         int attr = backgroundAttrs[yAttrSource | (x >> 3 + AREA_X)];
         int addr = ySource | x;
-        boolean value = background[addr];
+        boolean value = screenData[addr];
         image.setRGB(x, y, value ? color[attr & 7] : color[(attr >> 3) & 7]);
       }
     }
@@ -158,7 +134,7 @@ public class Screen extends Main {
   
   public static void saveImage(BufferedImage image, int fileNumber)
       throws IOException {
-    image = resizeImage(image, PIXEL_WIDTH * 3, PIXEL_HEIGHT * 3);
+    if(resized) image = resizeImage(image, PIXEL_WIDTH * 3, PIXEL_HEIGHT * 3);
     File outputfile = new File("D:/temp2/output/"
         + String.format("%06d", fileNumber) + ".png");
     ImageIO.write(image, "png", outputfile);
