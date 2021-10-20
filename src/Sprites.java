@@ -1,6 +1,4 @@
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -44,18 +42,15 @@ public class Sprites extends Main {
     for(final File file: folder.listFiles()) sprites.add(new Sprite(file));
   }
   
-  public static BufferedImage declash(boolean[] screen, boolean[] background
-      , int x1, int y1, int x2, int y2) {
-    BufferedImage newImage = Screen.toImage(screen);
-
+  public static void declash(
+      int [] pixels, int imageNumber, boolean[] screen, boolean[] background
+      , int x1, int y1, int x2, int y2, BufferedImage image) {
     for(int y = y1; y < y2; y++) {
       int yAddr = y * PIXEL_WIDTH;
       for(int x = x1; x < x2; x++) {
         int addr = x + yAddr;
-        if(screen[addr] && !background[addr]) {
-          newImage.setRGB(x, y, color[7]);
-        } else {
-          //newImage.setRGB(x, y, color[3]);
+        if(pixels[addr] == imageNumber && screen[addr]) {
+          image.setRGB(x, y, particleColor);
         }
       }
     }
@@ -65,11 +60,14 @@ public class Sprites extends Main {
     for(Sprite sprite: sprites) {
       int spriteWidth = sprite.width;
       int spriteHeight = sprite.height;
-      if(spriteWidth < width || spriteHeight < height) continue;
-      for(int dy = y2 - spriteHeight; dy <= y1; dy++) {
-        dx: for(int dx = x2 - spriteWidth; dx <= x1; dx++) {
+      int dy1 = y1 - MIN_DETECTION_HEIGHT - spriteHeight;
+      int dy2 = y1 + height - MIN_DETECTION_HEIGHT;
+      for(int dy = dy1; dy <= dy2; dy++) {
+        int dx1 = x1 + MIN_DETECTION_WIDTH - spriteWidth;
+        int dx2 = x1 + width - MIN_DETECTION_WIDTH;
+        dx: for(int dx = dx1; dx <= dx2; dx++) {
+          int errors = 0;
           for(int pass = 0; pass <= 1; pass++) {
-            int errors = 0;
             for(int spriteY = 0; spriteY < spriteHeight; spriteY++) {
               int screenY = spriteY + dy;
               if(screenY < 0 || screenY >= PIXEL_HEIGHT) continue;
@@ -93,7 +91,7 @@ public class Sprites extends Main {
                   }
                   if(errors > MAX_ERRORS) continue dx;
                 } else if(spriteValue == SpritePixelType.ON) {
-                  newImage.setRGB(screenX, screenY, color[7]);
+                  image.setRGB(screenX, screenY, spriteColor);
                 }
               }
             }
@@ -101,7 +99,5 @@ public class Sprites extends Main {
         }
       }
     }
-    
-    return newImage;
   }
 }

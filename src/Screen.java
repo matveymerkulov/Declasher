@@ -1,6 +1,4 @@
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,8 +20,11 @@ public class Screen extends Main {
     input.read(byteScreen);
     
     attrs = new int[ATTR_SIZE];
-    for(int x = 0; x < ATTR_SIZE; x++)
-      attrs[x] = byteScreen[BYTE_SIZE | x] & 0xFF;
+    for(int x = 0; x < ATTR_SIZE; x++) {
+      int value = byteScreen[BYTE_SIZE | x];
+      int bright = (value & 0b1000000) == 0 ? 0 : 0b10001000;
+      attrs[x] =  (value & 0b111) | ((value & 0b111000) >> 2) | bright;
+    }
     
     main: for(int part = 0; part < 3; part++) {
       int partSource = part << 11;
@@ -104,7 +105,12 @@ public class Screen extends Main {
     int frames = to - from;
     if(frames >= MIN_FRAMES || mode == Mode.DECLASH) {
       composeBackground(frames);
+      if(mode == Mode.EXTRACT_BACKGROUNDS) {
+        saveImage(toImage(background), from);
+        return;
+      }
       for(int frame = from; frame < to; frame++) {
+        if(LOG_PROGRESS) System.out.println(frame + " / " + to);
         try {
           ImageExtractor.process(load(path, frame), background
               , frame);
@@ -125,7 +131,7 @@ public class Screen extends Main {
         int attr = backgroundAttrs[yAttrSource | (x >> 3 + AREA_X)];
         int addr = ySource | x;
         boolean value = screenData[addr];
-        image.setRGB(x, y, value ? color[attr & 7] : color[(attr >> 3) & 7]);
+        image.setRGB(x, y, value ? color[attr & 15] : color[(attr >> 4) & 15]);
       }
     }
     
@@ -134,7 +140,7 @@ public class Screen extends Main {
   
   public static void saveImage(BufferedImage image, int fileNumber)
       throws IOException {
-    if(resized) image = resizeImage(image, PIXEL_WIDTH * 3, PIXEL_HEIGHT * 3);
+    if(RESIZED) image = resizeImage(image, PIXEL_WIDTH * 3, PIXEL_HEIGHT * 3);
     File outputfile = new File("D:/temp2/output/"
         + String.format("%06d", fileNumber) + ".png");
     ImageIO.write(image, "png", outputfile);

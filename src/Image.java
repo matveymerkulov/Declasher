@@ -101,8 +101,16 @@ public class Image extends Main {
     }
   }
   
+  private static int maxImageWidth = 0, maxImageHeight = 0;
+  
+  public static void logMaxSize() {
+    System.out.println("Max image is " + maxImageWidth + "x" + maxImageHeight);
+  }
+  
   public static boolean hasAcceptableSize(int x1, int y1, int x2, int y2) {
     int innerWidth = x2 - x1, innerHeight = y2 - y1;
+    maxImageWidth = Integer.max(maxImageWidth, innerWidth);
+    maxImageHeight = Integer.max(maxImageHeight, innerHeight);
     return innerWidth >= MIN_WIDTH && innerWidth <= MAX_WIDTH
         && innerHeight >= MIN_HEIGHT && innerHeight <= MAX_HEIGHT;
   }
@@ -185,12 +193,12 @@ public class Image extends Main {
           case OFF: colIndex = 0; break;
           case ON: colIndex = 7; break;
           case OFF_OR_TRANSPARENT: colIndex = 3; break;
-          default: colIndex = colored ? 4 : 3; break;
+          default: colIndex = COLORED ? 4 : 3; break;
         }
         image.setRGB(x, y, color[colIndex]);
       }
     }
-    return resized ? resizeImage(image, width * 10, height * 10) : image;
+    return RESIZED ? resizeImage(image, width * 10, height * 10) : image;
   }
 
   private static int outnum = 0;

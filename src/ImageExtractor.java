@@ -1,8 +1,10 @@
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Stack;
+import javax.imageio.ImageIO;
 
 public class ImageExtractor extends Main {
   private static class Coords {
@@ -25,6 +27,9 @@ public class ImageExtractor extends Main {
     int[] pixels = new int[PIXEL_SIZE];
     for(int addr = 0; addr < PIXEL_SIZE; addr++)
       pixels[addr] = screen[addr] == background[addr] ? SAME : CHANGED;
+    
+    //BufferedImage newImage = ImageIO.read(new File("backgrounds/002438.png"));
+    BufferedImage newImage = Screen.toImage(screen);
     
     for(int y = 0; y < PIXEL_HEIGHT; y++) {
       int ySource = y << 8;
@@ -63,34 +68,46 @@ public class ImageExtractor extends Main {
           x2++;
           y2++;
           
-          if(!Image.hasAcceptableSize(x1, y1, x2, y2)) continue;
-          if(mode == Mode.EXTRACT) {
-            Image image = new Image(pixels, screen, background, x1, y1, x2, y2
-                , imageNumber);
-            for(LinkedList<Image> list: images) {
-              for(Image listImage: list) {
-                switch(listImage.compareTo(image)) {
-                  case EQUAL:
-                    continue x;
-                  case SIMILAR:
-                    list.add(image);
-                    continue x;
-                  case OTHER:
-                    break;
+          if(Image.hasAcceptableSize(x1, y1, x2, y2)) {
+            if(mode == Mode.DETECT_MAX_SIZE) continue;
+            if(mode == Mode.EXTRACT_SPRITES) {
+              Image image = new Image(pixels, screen, background, x1, y1, x2, y2
+                  , imageNumber);
+              for(LinkedList<Image> list: images) {
+                for(Image listImage: list) {
+                  switch(listImage.compareTo(image)) {
+                    case EQUAL:
+                      continue x;
+                    case SIMILAR:
+                      list.add(image);
+                      continue x;
+                    case OTHER:
+                      break;
+                  }
+                }
+              }
+
+              LinkedList<Image> newList = new LinkedList<>();
+              newList.add(image);
+              images.add(newList);
+            } else {
+              Sprites.declash(pixels, imageNumber, screen, background
+                  , x1, y1, x2, y2, newImage);
+            }
+          } else {
+            for(int yy = y1; yy < y2; yy++) {
+              int yAddr = yy * PIXEL_WIDTH;
+              for(int xx = x1; xx < x2; xx++) {
+                if(pixels[xx + yAddr] == imageNumber) {
+                  newImage.setRGB(xx, yy, particleColor);
                 }
               }
             }
-
-            LinkedList<Image> newList = new LinkedList<>();
-            newList.add(image);
-            images.add(newList);
-          } else {
-            Screen.saveImage(Sprites.declash(screen, background
-                , x1, y1, x2, y2), frame);
           }
         }
       }
     }
+    Screen.saveImage(newImage, frame);
   }
 
   public static void saveImages() throws IOException {
