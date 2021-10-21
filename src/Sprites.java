@@ -38,7 +38,7 @@ public class Sprites extends Main {
   private static final LinkedList<Sprite> sprites = new LinkedList<>();
   
   public static void load() throws IOException {
-    final File folder = new File("sprites");
+    final File folder = new File(project + "sprites");
     for(final File file: folder.listFiles()) sprites.add(new Sprite(file));
   }
   

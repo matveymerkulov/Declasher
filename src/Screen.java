@@ -1,24 +1,33 @@
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
+import org.tukaani.xz.SeekableFileInputStream;
+import org.tukaani.xz.SeekableXZInputStream;
 
 public class Screen extends Main {
+  private static final int FRAME_SIZE = BYTE_SIZE + ATTR_SIZE;
   private static final int[] backgroundOn = new int[PIXEL_SIZE];
   private static final boolean[] background = new boolean[PIXEL_SIZE];
   private static int[] attrs, backgroundAttrs;
 
-  private static boolean[] load(String path, int num) throws IOException {
+  private static SeekableXZInputStream in;
+  
+  public static void init() throws IOException {
+    SeekableFileInputStream file
+        = new SeekableFileInputStream(project + "video.xz");
+    in = new SeekableXZInputStream(file);
+  }
+  
+  private static boolean[] load(int num) throws IOException {
     boolean[] data = new boolean[PIXEL_SIZE];
     
-    File image = new File(path + String.format("%05d", num)
-        + ".scr");
-    FileInputStream input = new FileInputStream(image);
-    byte[] byteScreen = new byte[BYTE_SIZE + ATTR_SIZE];
-    input.read(byteScreen);
-    
+    byte[] byteScreen = new byte[FRAME_SIZE];
+    in.seek(num * FRAME_SIZE);
+    in.read(byteScreen, 0, FRAME_SIZE);
+
     attrs = new int[ATTR_SIZE];
     for(int x = 0; x < ATTR_SIZE; x++) {
       int value = byteScreen[BYTE_SIZE | x];
@@ -41,7 +50,7 @@ public class Screen extends Main {
           for(int x = 0; x < AREA_WIDTH; x++) {
             int source = yySource | (x + AREA_X);
             int destination = (yyDestination + x) << 3;
-            int byteValue = byteScreen[source] & 0xFF;
+            int byteValue = byteScreen[source];
             for(int xx = 7; xx >= 0; xx--) {
               int addr = destination | xx;
               boolean pixelValue = (byteValue & 1) > 0;
@@ -69,19 +78,15 @@ public class Screen extends Main {
       background[addr] = backgroundOn[addr] >= minFrames;
   }
 
-  public static void process(String path, int from, int to) throws IOException {
+  public static void process(int from, int to) throws IOException {
     int firstFrame = from;
     boolean newSection = true;
     for(int frame = from; frame <= to; frame++) {
       boolean[] screen;
-      try {
-        screen = load(path, frame);
-      } catch (IOException e) {
-        continue;
-      }
+      screen = load(frame);
       
       if(!newSection && screenDifference() > MAX_DIFFERENCE) {
-        processSequence(path, firstFrame, frame);
+        processSequence(firstFrame, frame);
         firstFrame = frame;
         newSection = true;
       }
@@ -96,10 +101,10 @@ public class Screen extends Main {
       for(int i = 0; i < PIXEL_SIZE; i++)
         if(screen[i]) backgroundOn[i]++;
     }
-    processSequence(path, firstFrame, to + 1);
+    processSequence(firstFrame, to + 1);
   }
 
-  private static void processSequence(String path, int from, int to)
+  private static void processSequence(int from, int to)
       throws IOException {
     System.out.println(from + " - " + to + ", " + ImageExtractor.images.size());
     int frames = to - from;
@@ -111,11 +116,7 @@ public class Screen extends Main {
       }
       for(int frame = from; frame < to; frame++) {
         if(LOG_PROGRESS) System.out.println(frame + " / " + to);
-        try {
-          ImageExtractor.process(load(path, frame), background
-              , frame);
-        } catch (IOException e) {
-        }
+        ImageExtractor.process(load(frame), background, frame);
       }
     }
   }

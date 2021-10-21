@@ -27,34 +27,31 @@ class Main {
   public static double PERCENT_ON = 0.7;
   public static int MAX_ERRORS = 32;
   public static int MIN_DETECTION_WIDTH = 8, MIN_DETECTION_HEIGHT = 8;
+  public static String project = "ratime/";
   
-  public static void main(String[] args) {
-    try {
-      if(mode == Mode.DECLASH) Sprites.load();
-      
-      //Screen.process("source/", 28875, 29154); // sprites
-      
-      //Screen.process("source/", 2490, 2530); // particles
-      particleColor = color[13]; Screen.process("source/", 2438, 2642); // particles
-      particleColor = color[15]; Screen.process("source/", 34234, 34418); // particles
-      /*
-      Screen.process("source/", 1367, 1545); // declash
-      Screen.process("source/", 4413, 4600); // declash
-      Screen.process("source/", 6732, 6908); // declash
-      Screen.process("source/", 12660, 13040); // declash
-      Screen.process("source/", 35055, 35232); // declash
-      Screen.process("source/", 37795, 37973); // declash
-      Screen.process("source/", 38183, 38361); // declash
-      */
-      //LOG_PROGRESS = false; Screen.process("source/", 1, 60299);
-      //LOG_PROGRESS = false; Screen.process("D:/temp2/scr/", 1, 60299);
-      
-      ImageExtractor.saveImages();
-      Image.logMaxSize();
-      
-    } catch (IOException ex) {
-      System.err.println(ex.toString());
-    }
+  
+  public static void main(String[] args) throws IOException {
+    Screen.init();
+    if(mode == Mode.DECLASH) Sprites.load();
+
+    //Screen.process(28875, 29154); // sprites
+
+    //Screen.process(2490, 2530); // particles
+    Screen.process(2438, 2642); // particles
+    //Screen.process(34234, 34418); // particles
+    /*
+    Screen.process(1367, 1545); // declash
+    Screen.process(4413, 4600); // declash
+    Screen.process(6732, 6908); // declash
+    Screen.process(12660, 13040); // declash
+    Screen.process(35055, 35232); // declash
+    Screen.process(37795, 37973); // declash
+    Screen.process(38183, 38361); // declash
+    */
+    //LOG_PROGRESS = false; Screen.process(1, 60299);
+
+    ImageExtractor.saveImages();
+    Image.logMaxSize();
   }
   
   public static BufferedImage resizeImage(BufferedImage originalImage
