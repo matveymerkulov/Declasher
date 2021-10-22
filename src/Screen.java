@@ -170,8 +170,9 @@ public class Screen extends Main {
 
   private static void processSequence(int from, int to)
       throws IOException {
-    System.out.println(from + " - " + to + (mode == Mode.EXTRACT_SPRITES
-        ? ", " + ImageExtractor.images.size() : ""));
+    System.out.println("Processing sequence " + from + " - " + to
+        + (mode == Mode.EXTRACT_SPRITES
+            ? ", " + ImageExtractor.images.size() : ""));
     int frames = to - from;
     BufferedImage repaintedBackground = findRepaintedBackground();
     if(frames >= MIN_FRAMES || mode == Mode.DECLASH) {
@@ -181,7 +182,7 @@ public class Screen extends Main {
         return;
       }
       for(int frame = from; frame < to; frame++) {
-        if(frame % 100 == 0) System.out.println(frame + " / " + to);
+        if(frame % 100 == 0) System.out.println("  " + frame + " / " + to);
         BufferedImage backgroundImage = repaintedBackground == null ?
             toImage(background) : copyImage(repaintedBackground);
         ImageExtractor.process(load(frame), background, frame

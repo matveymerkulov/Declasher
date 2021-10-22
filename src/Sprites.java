@@ -7,14 +7,25 @@ import javax.imageio.ImageIO;
 public class Sprites extends Main {
   private static enum SpritePixelType {ON, OFF, ANY};
   
+  private static int minDetectionWidth = MAX_WIDTH
+      , minDetectionHeight = MAX_HEIGHT
+      , minDetectionPixels = MAX_WIDTH * MAX_HEIGHT;
+  
+  public static String getMaxDetectionSize() {
+    return minDetectionWidth + "x" + minDetectionHeight + ", "
+        + minDetectionPixels;
+  }
+  
   private static class Sprite {
     SpritePixelType[] data;
     int width, height;
     
     public Sprite(File file) throws IOException {
       BufferedImage image = ImageIO.read(file);
+      
       width = image.getWidth();
       height = image.getHeight();
+      
       data = new SpritePixelType[width * height];
       for(int y = 0; y < height; y++) {
         int yAddr = y * width;
@@ -36,6 +47,11 @@ public class Sprites extends Main {
   }
   
   private static final LinkedList<Sprite> sprites = new LinkedList<>();
+  private static int maxErrors = 0;
+  
+  public static int getMaxErrors() {
+    return maxErrors;
+  }
   
   public static void load() throws IOException {
     final File folder = new File(project + "sprites");
@@ -81,16 +97,7 @@ public class Sprites extends Main {
               if(screenX < 0 || screenX >= PIXEL_WIDTH) continue;
               SpritePixelType spriteValue = sprite.data[spriteX + ySprite];
               boolean screenValue = screen[screenX + yScreen];
-              switch(spriteValue) {
-                case ON:
-                  if(!screenValue) errors++;
-                  break;
-                case OFF:
-                  //if(screenValue) errors++;
-                  break;
-                case ANY:
-                  break;
-              }
+              if(spriteValue == SpritePixelType.ON && !screenValue) errors++;
               if(errors > MAX_ERRORS) continue dx;
             }
           }
@@ -106,13 +113,16 @@ public class Sprites extends Main {
     }
     
     if(bestErrors < 0) return;
+    maxErrors = Integer.max(maxErrors, bestErrors);
+    minDetectionWidth = Integer.min(minDetectionWidth, width);
+    minDetectionHeight = Integer.min(minDetectionHeight, height);
+    minDetectionPixels = Integer.min(minDetectionPixels, width * height);
     
     int spriteWidth = bestSprite.width;
     int spriteHeight = bestSprite.height;
     for(int spriteY = 0; spriteY < spriteHeight; spriteY++) {
       int screenY = spriteY + bestDy;
       if(screenY < 0 || screenY >= PIXEL_HEIGHT) continue;
-      int yScreen = screenY * PIXEL_WIDTH;
       int ySprite = spriteY * spriteWidth;
       for(int spriteX = 0; spriteX < spriteWidth; spriteX++) {
         int screenX = spriteX + bestDx;

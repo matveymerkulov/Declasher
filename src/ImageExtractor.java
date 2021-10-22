@@ -23,8 +23,18 @@ public class ImageExtractor extends Main {
     final int SAME = 0, CHANGED = 1;
     int x1, y1, x2, y2, imageNumber = 1;
     int[] pixels = new int[PIXEL_SIZE];
-    for(int addr = 0; addr < PIXEL_SIZE; addr++)
-      pixels[addr] = screen[addr] == background[addr] ? SAME : CHANGED;
+    
+    int changed = 0;
+    for(int addr = 0; addr < PIXEL_SIZE; addr++) {
+      boolean isChanged = screen[addr] != background[addr];
+      pixels[addr] = isChanged ? CHANGED : SAME;
+      if(isChanged) changed++;
+    }
+    
+    if(changed > MAX_CHANGED_PIXELS) {
+      System.out.println("  Changed pixels of " + frame + " is " + changed);
+      return;
+    }
     
     for(int y = 0; y < PIXEL_HEIGHT; y++) {
       int ySource = y << 8;
@@ -64,6 +74,11 @@ public class ImageExtractor extends Main {
           y2++;
           
           if(Image.hasAcceptableSize(x1, y1, x2, y2)) {
+            if(x2 - x1 >= MAX_WIDTH || y2 - y1 >= MAX_HEIGHT) {
+              System.out.println("  " + frame + " - skipped big "
+                  + (x2 - x1) + "x" + (y2 - y1) + "changed area.");
+            }
+            
             if(mode == Mode.DETECT_MAX_SIZE) continue;
             if(mode == Mode.EXTRACT_SPRITES) {
               Image image = new Image(pixels, screen, background, x1, y1, x2, y2

@@ -6,9 +6,10 @@ import java.io.IOException;
 
 class Main {
   public static final int BORDER_SIZE = 4, MAX_DISTANCE = 2
-      , MIN_WIDTH = 8, MAX_WIDTH = 110, MIN_HEIGHT = 8, MAX_HEIGHT = 90
+      , MAX_WIDTH = 48, MAX_HEIGHT = 90, MAX_CHANGED_PIXELS = 500
       , AREA_X = 0, AREA_Y = 6, AREA_WIDTH = 32, AREA_HEIGHT = 18
-      , MAX_DIFFERENCE = 8, MIN_FRAMES = 20, MIN_QUANTITY = 3;
+      , MAX_DIFFERENCE = 8, MIN_FRAMES = 20, MIN_QUANTITY = 3
+      , MIN_WIDTH = 10, MIN_HEIGHT = 6, MIN_PIXELS = 60;
       
   public static final int BYTE_SIZE = 32 * 24 * 8, ATTR_SIZE = BYTE_SIZE / 8
       , PIXEL_WIDTH = AREA_WIDTH << 3, PIXEL_HEIGHT = AREA_HEIGHT << 3
@@ -37,7 +38,7 @@ class Main {
   
   // debug
   
-  public static final boolean COLORED = false, SHOW_DETECTION_AREA = true
+  public static final boolean SAVE_COLORED = false, SHOW_DETECTION_AREA = false
       , RESIZED = mode != Mode.EXTRACT_BACKGROUNDS;
   
   // main
@@ -55,7 +56,10 @@ class Main {
     //Screen.process(0, -1, false);
 
     ImageExtractor.saveImages();
-    Image.logMaxSize();
+    System.out.println("Min detection area size is "
+        + Sprites.getMaxDetectionSize() + " pixels");
+    System.out.println("Max image is " + Image.getMaxSize() + " pixels");
+    System.out.println("Max errors is " + Sprites.getMaxErrors());
   }
   
   public static BufferedImage resizeImage(BufferedImage originalImage
