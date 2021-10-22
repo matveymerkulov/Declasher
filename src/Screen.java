@@ -1,8 +1,8 @@
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import javax.imageio.ImageIO;
 import org.tukaani.xz.SeekableFileInputStream;
 import org.tukaani.xz.SeekableXZInputStream;
@@ -19,20 +19,23 @@ public class Screen extends Main {
     SeekableFileInputStream file
         = new SeekableFileInputStream(project + "video.xz");
     in = new SeekableXZInputStream(file);
+    loadBackgrounds();
   }
+  
+  // loading
   
   private static boolean[] load(int num) throws IOException {
     boolean[] data = new boolean[PIXEL_SIZE];
     
     byte[] byteScreen = new byte[FRAME_SIZE];
     in.seek(num * FRAME_SIZE);
-    in.read(byteScreen, 0, FRAME_SIZE);
+    if(in.read(byteScreen, 0, FRAME_SIZE) < FRAME_SIZE) throw new IOException();
 
     attrs = new int[ATTR_SIZE];
     for(int x = 0; x < ATTR_SIZE; x++) {
       int value = byteScreen[BYTE_SIZE | x];
       int bright = (value & 0b1000000) == 0 ? 0 : 0b10001000;
-      attrs[x] =  (value & 0b111) | ((value & 0b111000) >> 2) | bright;
+      attrs[x] =  (value & 0b111) | ((value & 0b111000) << 1) | bright;
     }
     
     main: for(int part = 0; part < 3; part++) {
@@ -65,11 +68,53 @@ public class Screen extends Main {
     return data;
   }
   
-  public static int screenDifference() {
-    int difference = 0;
-    for(int i = 0; i < ATTR_SIZE; i++)
-      if(attrs[i] != backgroundAttrs[i]) difference++;
-    return difference;
+  // background
+  
+  private static class Attributes {
+    private final int[] values;
+    private final BufferedImage background;
+
+    public Attributes(int[] values) {
+      this.values = values;
+      this.background = null;
+    }
+
+    public Attributes(int[] values, BufferedImage background) {
+      this.values = values;
+      this.background = background;
+    }
+    
+    public boolean areSameAs(int[] attributes) {
+      return !isDifferent(values, attributes);
+    }
+  }
+  
+  public static void loadBackgrounds() throws IOException {
+    for(final File file: new File(project + "backgrounds").listFiles()) {
+      String fileName = file.getName();
+      int number = Integer.parseInt(
+          fileName.substring(0, fileName.indexOf('.')));
+      load(number);
+      backgroundAttributes.add(new Attributes(attrs, ImageIO.read(file)));
+    }
+  }
+  
+  private static BufferedImage findRepaintedBackground() {
+    for(Attributes attributes: backgroundAttributes) {
+      if(attributes.areSameAs(backgroundAttrs)) return attributes.background;
+    }
+    return null;
+  }
+  
+  private static LinkedList<Attributes> backgroundAttributes
+      = new LinkedList<>();
+  
+  private static boolean backgroundIsNew() {
+    for(Attributes attributes: backgroundAttributes) {
+      if(attributes.areSameAs(backgroundAttrs)) return false;
+    }
+    backgroundAttributes.add(new Attributes(backgroundAttrs));
+    return true;
   }
 
   private static void composeBackground(int frames) {
@@ -77,16 +122,35 @@ public class Screen extends Main {
     for(int addr = 0; addr < PIXEL_SIZE; addr++) 
       background[addr] = backgroundOn[addr] >= minFrames;
   }
+  
+  private static boolean isDifferent(int[] attributes, int[] otherAttributes) {
+    int difference = 0;
+    for(int i = 0; i < ATTR_SIZE; i++)
+      if(attributes[i] != otherAttributes[i]) difference++;
+    return difference > MAX_DIFFERENCE;
+  }
+  
+  // processing
 
-  public static void process(int from, int to) throws IOException {
+  public static void process(int... start) throws IOException {
+    for(int i = 0; i < start.length; i++) process(start[i], -1, true);
+  }
+  
+  public static void process(int from, int to, boolean singleScreen)
+      throws IOException {
     int firstFrame = from;
     boolean newSection = true;
-    for(int frame = from; frame <= to; frame++) {
+    for(int frame = from; frame <= to || to < 0; frame++) {
       boolean[] screen;
-      screen = load(frame);
+      try {
+        screen = load(frame);
+      } catch (IOException ex) {
+        break;
+      }
       
-      if(!newSection && screenDifference() > MAX_DIFFERENCE) {
+      if(!newSection && isDifferent(attrs, backgroundAttrs)) {
         processSequence(firstFrame, frame);
+        if(singleScreen) return;
         firstFrame = frame;
         newSection = true;
       }
@@ -106,20 +170,27 @@ public class Screen extends Main {
 
   private static void processSequence(int from, int to)
       throws IOException {
-    System.out.println(from + " - " + to + ", " + ImageExtractor.images.size());
+    System.out.println(from + " - " + to + (mode == Mode.EXTRACT_SPRITES
+        ? ", " + ImageExtractor.images.size() : ""));
     int frames = to - from;
+    BufferedImage repaintedBackground = findRepaintedBackground();
     if(frames >= MIN_FRAMES || mode == Mode.DECLASH) {
       composeBackground(frames);
       if(mode == Mode.EXTRACT_BACKGROUNDS) {
-        saveImage(toImage(background), from);
+        if(backgroundIsNew()) saveImage(toImage(background), from);
         return;
       }
       for(int frame = from; frame < to; frame++) {
-        if(LOG_PROGRESS) System.out.println(frame + " / " + to);
-        ImageExtractor.process(load(frame), background, frame);
+        if(frame % 100 == 0) System.out.println(frame + " / " + to);
+        BufferedImage backgroundImage = repaintedBackground == null ?
+            toImage(background) : copyImage(repaintedBackground);
+        ImageExtractor.process(load(frame), background, frame
+            , backgroundImage);
       }
     }
   }
+  
+  // conversion and saving
   
   public static BufferedImage toImage(boolean[] screenData) {
     BufferedImage image = new BufferedImage(PIXEL_WIDTH, PIXEL_HEIGHT
@@ -142,7 +213,7 @@ public class Screen extends Main {
   public static void saveImage(BufferedImage image, int fileNumber)
       throws IOException {
     if(RESIZED) image = resizeImage(image, PIXEL_WIDTH * 3, PIXEL_HEIGHT * 3);
-    File outputfile = new File("D:/temp2/output/"
+    File outputfile = new File(outDir
         + String.format("%06d", fileNumber) + ".png");
     ImageIO.write(image, "png", outputfile);
   }

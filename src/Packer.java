@@ -23,18 +23,19 @@ public class Packer {
     
     int blockSize = 6912;
     
-    for(int i = 0; i < 60000; i++) {
+    int i = 0;
+    while(true) {
       if(i % 100 == 0) System.out.println(i);
+      
       byte[] buf = new byte[blockSize];
-      final File inFile = new File("D:/temp2/source/"
+      final File inFile = new File("D:/temp2/ratime/"
           + String.format("%05d", i) + ".scr");
-      if(inFile.exists()) {
-        BufferedInputStream inStream = new BufferedInputStream(
-            new FileInputStream(inFile));
-        inStream.read(buf, 0, blockSize);
-      }
+      if(!inFile.exists()) break;
+      BufferedInputStream inStream = new BufferedInputStream(
+          new FileInputStream(inFile));
+      inStream.read(buf, 0, blockSize);
       out.write(buf, 0, blockSize);
-      //out.endBlock();
+      i++;
     }
 
     out.endBlock();

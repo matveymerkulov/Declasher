@@ -18,16 +18,13 @@ public class ImageExtractor extends Main {
   
   public static final LinkedList<LinkedList<Image>> images = new LinkedList<>();
   
-  public static void process(boolean[] screen, boolean[] background, int frame)
-      throws IOException {
+  public static void process(boolean[] screen, boolean[] background, int frame
+      , BufferedImage backgroundImage) throws IOException {
     final int SAME = 0, CHANGED = 1;
     int x1, y1, x2, y2, imageNumber = 1;
     int[] pixels = new int[PIXEL_SIZE];
     for(int addr = 0; addr < PIXEL_SIZE; addr++)
       pixels[addr] = screen[addr] == background[addr] ? SAME : CHANGED;
-    
-    //BufferedImage newImage = ImageIO.read(new File("backgrounds/002438.png"));
-    BufferedImage newImage = Screen.toImage(screen);
     
     for(int y = 0; y < PIXEL_HEIGHT; y++) {
       int ySource = y << 8;
@@ -90,14 +87,14 @@ public class ImageExtractor extends Main {
               images.add(newList);
             } else {
               Sprites.declash(pixels, imageNumber, screen, background
-                  , x1, y1, x2, y2, newImage);
+                  , x1, y1, x2, y2, backgroundImage);
             }
           } else {
             for(int yy = y1; yy < y2; yy++) {
               int yAddr = yy * PIXEL_WIDTH;
               for(int xx = x1; xx < x2; xx++) {
                 if(pixels[xx + yAddr] == imageNumber) {
-                  newImage.setRGB(xx, yy, particleColor);
+                  backgroundImage.setRGB(xx, yy, particleColor);
                 }
               }
             }
@@ -105,7 +102,7 @@ public class ImageExtractor extends Main {
         }
       }
     }
-    Screen.saveImage(newImage, frame);
+    Screen.saveImage(backgroundImage, frame);
   }
 
   public static void saveImages() throws IOException {
