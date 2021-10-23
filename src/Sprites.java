@@ -1,3 +1,5 @@
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -7,7 +9,7 @@ import javax.imageio.ImageIO;
 public class Sprites extends Main {
   private static enum SpritePixelType {ON, OFF, ANY};
   
-  private static int minDetectionWidth = MAX_WIDTH
+  private static int minSpritePixels = -1, minDetectionWidth = MAX_WIDTH
       , minDetectionHeight = MAX_HEIGHT
       , minDetectionPixels = MAX_WIDTH * MAX_HEIGHT;
   
@@ -16,16 +18,25 @@ public class Sprites extends Main {
         + minDetectionPixels;
   }
   
+  public static int getMinSpritePixels() {
+    return minSpritePixels;
+  }
+  
   private static class Sprite {
     SpritePixelType[] data;
+    BufferedImage repainted = null;
     int width, height;
     
     public Sprite(File file) throws IOException {
-      BufferedImage image = ImageIO.read(file);
+      final File repaintedFile = new File(project + "repainted/"
+          + file.getName());
+      if(repaintedFile.exists()) repainted = ImageIO.read(repaintedFile);
       
+      BufferedImage image = ImageIO.read(file);
       width = image.getWidth();
       height = image.getHeight();
       
+      int pixels = 0;
       data = new SpritePixelType[width * height];
       for(int y = 0; y < height; y++) {
         int yAddr = y * width;
@@ -33,9 +44,11 @@ public class Sprites extends Main {
           switch(image.getRGB(x, y)) {
             case 0xFF000000:
               data[yAddr + x] = SpritePixelType.OFF;
+              pixels++;
               break;
             case 0xFFFFFFFF:
               data[yAddr + x] = SpritePixelType.ON;
+              pixels++;
               break;
             default:
               data[yAddr + x] = SpritePixelType.ANY;
@@ -43,98 +56,156 @@ public class Sprites extends Main {
           }
         }
       }
+      if(minSpritePixels < 0 || pixels < minSpritePixels) {
+        minSpritePixels = pixels;
+      }
     }
   }
   
-  private static final LinkedList<Sprite> sprites = new LinkedList<>();
-  private static int maxErrors = 0;
+  private static final LinkedList<LinkedList<Sprite>> sprites
+      = new LinkedList<>();
+  private static int minMatched = minDetectionPixels, maxErrors = 0;
   
   public static int getMaxErrors() {
     return maxErrors;
   }
   
-  public static void load() throws IOException {
-    final File folder = new File(project + "sprites");
-    for(final File file: folder.listFiles()) sprites.add(new Sprite(file));
+  public static int getMinMatched() {
+    return minMatched;
   }
   
-  public static void declash(
-      int [] pixels, int imageNumber, boolean[] screen, boolean[] background
-      , int x1, int y1, int x2, int y2, BufferedImage image) {
-    for(int y = y1; y < y2; y++) {
-      int yAddr = y * PIXEL_WIDTH;
-      for(int x = x1; x < x2; x++) {
-        int addr = x + yAddr;
-        if(pixels[addr] == imageNumber) {
-          image.setRGB(x, y, screen[addr] ? particleColor : 0);
-        } else if(SHOW_DETECTION_AREA) {
-          image.setRGB(x, y, color[3]);
+  
+  
+  public static void load() throws IOException {
+    final File folder = new File(project + "sprites");
+    for(final File file: folder.listFiles()) {
+      LinkedList<Sprite> list = new LinkedList<>();
+      if(file.isDirectory()) {
+        for(final File file2: file.listFiles()) list.add(new Sprite(file2));
+      } else {
+        list.add(new Sprite(file));
+      }
+      sprites.add(list);
+    }
+  }
+  
+  
+  
+  public static void declash( int [] pixels, int imageNumber, boolean[] screen
+      , boolean[] background, int x1, int y1, int x2, int y2
+      , BufferedImage image, boolean repaint) {
+    if(repaint) {
+      for(int y = y1; y < y2; y++) {
+        int yAddr = y * PIXEL_WIDTH;
+        for(int x = x1; x < x2; x++) {
+          int addr = x + yAddr;
+          if(pixels[addr] == imageNumber) {
+            image.setRGB(x, y, screen[addr] ? particleColor : 0);
+          } else if(SHOW_DETECTION_AREA) {
+            image.setRGB(x, y, color[3]);
+          }
         }
       }
     }
     
     int width = x2 - x1;
     int height = y2 - y1;
-    int bestDx = 0, bestDy = 0, bestErrors = -1;
-    Sprite bestSprite = null;
-    main: for(Sprite sprite: sprites) {
-      int spriteWidth = sprite.width;
-      int spriteHeight = sprite.height;
-      int dy1 = y1 - MIN_DETECTION_HEIGHT - spriteHeight;
-      int dy2 = y1 + height - MIN_DETECTION_HEIGHT;
-      for(int dy = dy1; dy <= dy2; dy++) {
-        int dx1 = x1 + MIN_DETECTION_WIDTH - spriteWidth;
-        int dx2 = x1 + width - MIN_DETECTION_WIDTH;
-        dx: for(int dx = dx1; dx <= dx2; dx++) {
-          int errors = 0;
-          for(int spriteY = 0; spriteY < spriteHeight; spriteY++) {
-            int screenY = spriteY + dy;
-            if(screenY < 0 || screenY >= PIXEL_HEIGHT) continue;
-            int yScreen = screenY * PIXEL_WIDTH;
-            int ySprite = spriteY * spriteWidth;
-            for(int spriteX = 0; spriteX < spriteWidth; spriteX++) {
-              int screenX = spriteX + dx;
-              if(screenX < 0 || screenX >= PIXEL_WIDTH) continue;
-              SpritePixelType spriteValue = sprite.data[spriteX + ySprite];
-              boolean screenValue = screen[screenX + yScreen];
-              if(spriteValue == SpritePixelType.ON && !screenValue) errors++;
-              if(errors > MAX_ERRORS) continue dx;
+    for(LinkedList<Sprite> list: sprites) {
+      int bestDx = 0, bestDy = 0, bestErrors = -1, bestMatched = 0;
+      Sprite bestSprite = null;
+      
+      list: for(Sprite sprite: list) {
+        int spriteWidth = sprite.width;
+        int spriteHeight = sprite.height;
+        int dy1 = y1 - MIN_DETECTION_HEIGHT - spriteHeight;
+        int dy2 = y1 + height - MIN_DETECTION_HEIGHT;
+        for(int dy = dy1; dy <= dy2; dy++) {
+          int spriteY1 = Integer.max(0, -dy);
+          int spriteY2 = Integer.min(spriteHeight, PIXEL_HEIGHT - dy);
+          int areaHeight = spriteY2 - spriteY1;
+          if(areaHeight < MIN_DETECTION_HEIGHT) continue;
+
+          int dx1 = x1 + MIN_DETECTION_WIDTH - spriteWidth;
+          int dx2 = x1 + width - MIN_DETECTION_WIDTH;
+          dx: for(int dx = dx1; dx <= dx2; dx++) {
+            int spriteX1 = Integer.max(0, -dx);
+            int spriteX2 = Integer.min(spriteWidth, PIXEL_WIDTH - dx);
+            int areaWidth = spriteX2 - spriteX1;
+            if(areaWidth < MIN_DETECTION_WIDTH
+                || areaWidth * areaHeight < MIN_DETECTION_PIXELS) continue;
+
+            int errors = 0, matched = 0;
+            for(int spriteY = spriteY1; spriteY < spriteY2; spriteY++) {
+              int screenY = spriteY + dy;
+              int yScreen = screenY * PIXEL_WIDTH;
+              int ySprite = spriteY * spriteWidth;
+              for(int spriteX = spriteX1; spriteX < spriteX2; spriteX++) {
+                int screenX = spriteX + dx;
+                if(screenX < 0 || screenX >= PIXEL_WIDTH) continue;
+                SpritePixelType spriteValue = sprite.data[spriteX + ySprite];
+                boolean screenValue = screen[screenX + yScreen];
+                switch(spriteValue) {
+                  case ON:
+                    if(screenValue) matched++; else errors++;
+                    break;
+                  case OFF:
+                    if(!screenValue) matched++;
+                    break;
+                }
+                if(errors > MAX_ERRORS) continue dx;
+              }
             }
-          }
-          if(bestErrors < 0 || errors < bestErrors) {
-            bestDx = dx;
-            bestDy = dy;
-            bestErrors = errors;
-            bestSprite = sprite;
-            if(errors == 0) break main;
+            if(matched < MIN_MATCHED) continue;
+            if(bestErrors < 0 || errors < bestErrors) {
+              bestDx = dx;
+              bestDy = dy;
+              bestErrors = errors;
+              bestSprite = sprite;
+              bestMatched = matched;
+              if(errors == 0) break list;
+            }
           }
         }
       }
-    }
-    
-    if(bestErrors < 0) return;
-    maxErrors = Integer.max(maxErrors, bestErrors);
-    minDetectionWidth = Integer.min(minDetectionWidth, width);
-    minDetectionHeight = Integer.min(minDetectionHeight, height);
-    minDetectionPixels = Integer.min(minDetectionPixels, width * height);
-    
-    int spriteWidth = bestSprite.width;
-    int spriteHeight = bestSprite.height;
-    for(int spriteY = 0; spriteY < spriteHeight; spriteY++) {
-      int screenY = spriteY + bestDy;
-      if(screenY < 0 || screenY >= PIXEL_HEIGHT) continue;
-      int ySprite = spriteY * spriteWidth;
-      for(int spriteX = 0; spriteX < spriteWidth; spriteX++) {
-        int screenX = spriteX + bestDx;
-        if(screenX < 0 || screenX >= PIXEL_WIDTH) continue;
-        switch(bestSprite.data[spriteX + ySprite]) {
-          case ON:
-            image.setRGB(screenX, screenY, spriteColor);
-            break;
-          case OFF:
-            image.setRGB(screenX, screenY, color[0]);
-            break;
-        }              
+
+      if(bestErrors < 0) continue;
+
+      if(SHOW_DETECTION_AREA) {
+        Graphics2D gO = image.createGraphics();
+        gO.setColor(Color.white);
+        gO.drawString(bestMatched + "/" + bestErrors, bestDx, bestDy - 3);
+      }
+
+      maxErrors = Integer.max(maxErrors, bestErrors);
+      minMatched = Integer.min(minMatched, bestMatched);
+      minDetectionWidth = Integer.min(minDetectionWidth, width);
+      minDetectionHeight = Integer.min(minDetectionHeight, height);
+      minDetectionPixels = Integer.min(minDetectionPixels, width * height);
+
+      int spriteWidth = bestSprite.width;
+      int spriteHeight = bestSprite.height;
+      for(int spriteY = 0; spriteY < spriteHeight; spriteY++) {
+        int screenY = spriteY + bestDy;
+        if(screenY < 0 || screenY >= PIXEL_HEIGHT) continue;
+        int ySprite = spriteY * spriteWidth;
+        for(int spriteX = 0; spriteX < spriteWidth; spriteX++) {
+          int screenX = spriteX + bestDx;
+          if(screenX < 0 || screenX >= PIXEL_WIDTH) continue;
+          BufferedImage repainted = bestSprite.repainted;
+          if(repainted == null) {
+            switch(bestSprite.data[spriteX + ySprite]) {
+              case ON:
+                image.setRGB(screenX, screenY, spriteColor);
+                break;
+              case OFF:
+                image.setRGB(screenX, screenY, color[0]);
+                break;
+            }
+          } else {
+            int value = repainted.getRGB(spriteX, spriteY);
+            if(value != 0xFFFF00FF) image.setRGB(screenX, screenY, value);
+          }
+        }
       }
     }
   }

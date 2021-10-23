@@ -102,7 +102,7 @@ public class ImageExtractor extends Main {
               images.add(newList);
             } else {
               Sprites.declash(pixels, imageNumber, screen, background
-                  , x1, y1, x2, y2, backgroundImage);
+                  , x1, y1, x2, y2, backgroundImage, true);
             }
           } else {
             for(int yy = y1; yy < y2; yy++) {
