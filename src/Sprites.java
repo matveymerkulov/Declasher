@@ -25,18 +25,36 @@ public class Sprites extends Main {
   private static class Sprite {
     SpritePixelType[] data;
     BufferedImage repainted = null;
-    int width, height;
+    int width, height, pixelsQuantity = 0, maxErrors;
+    double minMatched;
     
     public Sprite(File file) throws IOException {
-      final File repaintedFile = new File(project + "repainted/"
-          + file.getName());
-      if(repaintedFile.exists()) repainted = ImageIO.read(repaintedFile);
+      String name = file.getName();
+      switch(name) {
+        case "arrow.png":
+          minMatched = 0.95;
+          maxErrors = 0;
+          break;
+        case "island.png":
+          minMatched = 0.8;
+          maxErrors = 15;
+          break;
+        default:
+          minMatched = 0.9;
+          maxErrors = 15;
+          break;
+      }
+      
+      final File repaintedFile = new File(project + "repainted/" + name);
+      if(repaintedFile.exists()) {
+        repainted = ImageIO.read(repaintedFile);
+        System.out.println(name + " is repainted");
+      }
       
       BufferedImage image = ImageIO.read(file);
       width = image.getWidth();
       height = image.getHeight();
       
-      int pixels = 0;
       data = new SpritePixelType[width * height];
       for(int y = 0; y < height; y++) {
         int yAddr = y * width;
@@ -44,11 +62,11 @@ public class Sprites extends Main {
           switch(image.getRGB(x, y)) {
             case 0xFF000000:
               data[yAddr + x] = SpritePixelType.OFF;
-              pixels++;
+              pixelsQuantity++;
               break;
             case 0xFFFFFFFF:
               data[yAddr + x] = SpritePixelType.ON;
-              pixels++;
+              pixelsQuantity++;
               break;
             default:
               data[yAddr + x] = SpritePixelType.ANY;
@@ -56,22 +74,23 @@ public class Sprites extends Main {
           }
         }
       }
-      if(minSpritePixels < 0 || pixels < minSpritePixels) {
-        minSpritePixels = pixels;
+      if(minSpritePixels < 0 || pixelsQuantity < minSpritePixels) {
+        minSpritePixels = pixelsQuantity;
       }
     }
   }
   
   private static final LinkedList<LinkedList<Sprite>> sprites
       = new LinkedList<>();
-  private static int minMatched = minDetectionPixels, maxErrors = 0;
+  private static int maxErrors = 0;
+  private static double maxDifference = 0;
   
   public static int getMaxErrors() {
     return maxErrors;
   }
   
-  public static int getMinMatched() {
-    return minMatched;
+  public static double getMaxDifference() {
+    return maxDifference;
   }
   
   
@@ -110,6 +129,7 @@ public class Sprites extends Main {
     
     int width = x2 - x1;
     int height = y2 - y1;
+    //System.out.print(width + "x" + height + ", ");
     for(LinkedList<Sprite> list: sprites) {
       int bestDx = 0, bestDy = 0, bestErrors = -1, bestMatched = 0;
       Sprite bestSprite = null;
@@ -152,10 +172,11 @@ public class Sprites extends Main {
                     if(!screenValue) matched++;
                     break;
                 }
-                if(errors > MAX_ERRORS) continue dx;
+                if(errors > sprite.maxErrors) continue dx;
               }
             }
-            if(matched < MIN_MATCHED) continue;
+            if((1.0 * matched / sprite.pixelsQuantity) < sprite.minMatched)
+              continue;
             if(bestErrors < 0 || errors < bestErrors) {
               bestDx = dx;
               bestDy = dy;
@@ -177,7 +198,8 @@ public class Sprites extends Main {
       }
 
       maxErrors = Integer.max(maxErrors, bestErrors);
-      minMatched = Integer.min(minMatched, bestMatched);
+      maxDifference = Double.max(maxDifference, (1.0 * bestSprite.pixelsQuantity
+          - bestMatched) / bestSprite.pixelsQuantity);
       minDetectionWidth = Integer.min(minDetectionWidth, width);
       minDetectionHeight = Integer.min(minDetectionHeight, height);
       minDetectionPixels = Integer.min(minDetectionPixels, width * height);

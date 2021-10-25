@@ -77,6 +77,7 @@ public class ImageExtractor extends Main {
             if(x2 - x1 >= MAX_WIDTH || y2 - y1 >= MAX_HEIGHT) {
               System.out.println("  " + frame + " - skipped big "
                   + (x2 - x1) + "x" + (y2 - y1) + "changed area.");
+              continue;
             }
             
             if(mode == Mode.DETECT_MAX_SIZE) continue;
@@ -87,12 +88,11 @@ public class ImageExtractor extends Main {
                 for(Image listImage: list) {
                   switch(listImage.compareTo(image)) {
                     case EQUAL:
+                      listImage.incrementQuantity();
                       continue x;
                     case SIMILAR:
                       list.add(image);
                       continue x;
-                    case OTHER:
-                      break;
                   }
                 }
               }
@@ -117,7 +117,7 @@ public class ImageExtractor extends Main {
         }
       }
     }
-    Screen.saveImage(backgroundImage, frame);
+    if(mode == Mode.DECLASH) Screen.saveImage(backgroundImage, frame);
   }
 
   public static void saveImages() throws IOException {

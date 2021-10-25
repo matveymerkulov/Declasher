@@ -48,9 +48,16 @@ public class Image extends Main {
   private final PixelType[] data;
   private final int width, height, x1, y1, x2, y2;
   private final LinkedList<ImageEntry> matched = new LinkedList<>();
+  private int quantity = 1;
+
+  public void incrementQuantity() {
+    quantity++;
+  }
+  
+  private final int MIN_QUANTITY = 5;
   
   public int getWeight() {
-    return matched.size();
+    return matched.size() * 5 + quantity;
   }
 
   public boolean hasMatched(Image image) {
@@ -193,9 +200,9 @@ public class Image extends Main {
         int colIndex;
         switch(data[x + y * width]) {
           case OFF: colIndex = 0; break;
-          case ON: colIndex = 7; break;
-          case OFF_OR_TRANSPARENT: colIndex = 3; break;
-          default: colIndex = SAVE_COLORED ? 4 : 3; break;
+          case ON: colIndex = 15; break;
+          case OFF_OR_TRANSPARENT: colIndex = 11; break;
+          default: colIndex = SAVE_COLORED ? 12 : 11; break;
         }
         image.setRGB(x, y, color[colIndex]);
       }

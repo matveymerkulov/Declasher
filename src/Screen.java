@@ -127,7 +127,7 @@ public class Screen extends Main {
     int difference = 0;
     for(int i = 0; i < ATTR_SIZE; i++)
       if(attributes[i] != otherAttributes[i]) difference++;
-    return difference > MAX_DIFFERENCE;
+    return difference > MAX_ATTR_DIFFERENCE;
   }
   
   // processing
