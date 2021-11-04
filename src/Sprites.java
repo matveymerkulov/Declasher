@@ -119,7 +119,7 @@ public class Sprites extends Main {
         for(int x = x1; x < x2; x++) {
           int addr = x + yAddr;
           if(pixels[addr] == imageNumber) {
-            image.setRGB(x, y, screen[addr] ? particleColor : 0);
+            image.setRGB(x, y, screen[addr] ? PARTICLE_COLOR : 0);
           } else if(SHOW_DETECTION_AREA) {
             image.setRGB(x, y, color[3]);
           }
@@ -217,7 +217,7 @@ public class Sprites extends Main {
           if(repainted == null) {
             switch(bestSprite.data[spriteX + ySprite]) {
               case ON:
-                image.setRGB(screenX, screenY, spriteColor);
+                image.setRGB(screenX, screenY, SPRITE_COLOR);
                 break;
               case OFF:
                 image.setRGB(screenX, screenY, color[0]);

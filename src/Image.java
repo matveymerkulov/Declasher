@@ -215,7 +215,7 @@ public class Image extends Main {
   public void save(int num) throws IOException {
     if(getWeight() < MIN_QUANTITY) return;
     outnum++;
-    File outputfile = new File(outDir
+    File outputfile = new File(OUT_DIR
         + String.format("%03d", getWeight()) + "_"
         + String.format("%03d", num) + "_"
         + String.format("%06d", outnum) + ".png");

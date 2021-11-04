@@ -109,7 +109,7 @@ public class ImageExtractor extends Main {
               int yAddr = yy * PIXEL_WIDTH;
               for(int xx = x1; xx < x2; xx++) {
                 if(pixels[xx + yAddr] == imageNumber) {
-                  backgroundImage.setRGB(xx, yy, particleColor);
+                  backgroundImage.setRGB(xx, yy, PARTICLE_COLOR);
                 }
               }
             }
