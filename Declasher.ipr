@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="InspectionProjectProfileManager">
+    <profile version="1.0">
+      <option name="myName" value="Project Default" />
+    </profile>
+    <version value="1.0" />
+  </component>
+  <component name="ProjectCodeStyleConfiguration">
+    <option name="PREFERRED_PROJECT_CODE_STYLE" value="Default" />
+  </component>
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Declasher.iml" filepath="$PROJECT_DIR$/Declasher.iml" />
+    </modules>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_16" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/../../temp/declasher" />
+  </component>
+  <component name="RunConfigurationProducerService">
+    <option name="ignoredProducers">
+      <set>
+        <option value="com.android.tools.idea.compose.preview.runconfiguration.ComposePreviewRunConfigurationProducer" />
+      </set>
+    </option>
+  </component>
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+  </component>
+  <component name="libraryTable">
+    <library name="KotlinJavaRuntime">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/kotlin-stdlib.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/kotlin-reflect.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/kotlin-test.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/kotlin-stdlib-jdk7.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/kotlin-stdlib-jdk8.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$PROJECT_DIR$/lib/kotlin-stdlib-sources.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/kotlin-reflect-sources.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/kotlin-test-sources.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/kotlin-stdlib-jdk7-sources.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/kotlin-stdlib-jdk8-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="xz">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/xz.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+  </component>
+</project>
