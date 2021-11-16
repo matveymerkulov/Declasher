@@ -11,8 +11,8 @@ import kotlin.math.floor
 object Screen {
   private const val FRAME_SIZE = BYTE_SIZE + ATTR_SIZE
   private val backgroundOn = IntArray(PIXEL_SIZE)
-  private var attrs: IntArray = IntArray(ATTR_SIZE)
   private var inStream: SeekableXZInputStream? = null
+  val attrs: IntArray = IntArray(ATTR_SIZE)
 
   @Throws(IOException::class)
   fun init() {
@@ -29,7 +29,6 @@ object Screen {
     inStream!!.seek((num * FRAME_SIZE).toLong())
     if(inStream!!.read(byteScreen, 0, FRAME_SIZE) < FRAME_SIZE)
       throw IOException()
-    attrs = IntArray(ATTR_SIZE)
     for(x in 0 until ATTR_SIZE) {
       val value = byteScreen[BYTE_SIZE or x].toInt()
       val bright = if(value and 64 == 0) 0 else 136
@@ -75,7 +74,10 @@ object Screen {
           pixels[x + y * PIXEL_WIDTH] = image.getRGB(x, y) and 0xFF > 0x7F
         }
       }
-      backgrounds.add(Background(pixels, null, file.name))
+      val repainted = File("$project/backgrounds/repainted/"
+          + file.name)
+      backgrounds.add(Background(pixels, if(repainted.exists())
+        ImageIO.read(repainted) else null, file.name))
     }
   }
 
@@ -123,7 +125,6 @@ object Screen {
     var firstFrame = from
     var oldScreen: BooleanArray? = null
     var frame = from
-    val pixels = IntArray(PIXEL_SIZE);
     while(frame <= to || to < 0) {
       val screen: BooleanArray = try {
         load(frame)
@@ -144,20 +145,22 @@ object Screen {
           if(isChanged) difference++
         }
 
-        if(difference >= MIN_DIFFERENCE) {
+        if(difference >= MIN_BG_DIFFERENCE) {
           System.out.println(
-            "Processing sequence $firstFrame - $frame " + if(mode === Mode.EXTRACT_SPRITES) ", " + ImageExtractor.images.size else ""
+            "Processing sequence $firstFrame - $frame "
+                + if(mode === Mode.EXTRACT_SPRITES) ", "
+                + ImageExtractor.images.size else ""
           )
           val frames = frame - firstFrame
           if(frames >= MIN_FRAMES) {
             oldScreen = composeBackground(frames)
-            if(findBackground(oldScreen) == null || SAVE_SIMILAR) {
+            if(SAVE_SIMILAR || findBackground(oldScreen) == null) {
               saveImage(toImage(oldScreen, null), firstFrame)
-              backgrounds.add(Background(oldScreen)) //saveImage(toImage(oldScreen, null), frame - 1);
+              backgrounds.add(Background(oldScreen))
+              //saveImage(toImage(oldScreen, null), frame - 1);
               //saveImage(toImage(screen, null), frame);
-              println(
-                "Saved background $firstFrame with difference" + " $difference and $frames frames"
-              )
+              println("Saved background $firstFrame with difference"
+                  + " $difference and $frames frames")
             }
           }
           if(singleScreen) return
@@ -172,10 +175,12 @@ object Screen {
           when(mode) {
             Mode.SHOW_DIFFERENCE
                 -> saveImage(toImage(screen, background.values), frame)
-            Mode.DECLASH, Mode.EXTRACT_SPRITES, Mode.DETECT_MAX_SIZE
-                -> ImageExtractor.process(screen, background.values, frame
-                , background.image ?: toImage(screen
-                , null))
+            Mode.DECLASH, Mode.EXTRACT_SPRITES, Mode.DETECT_MAX_SIZE -> {
+              val image = if(background.image == null) toImage(screen
+                , null) else copyImage(background.image)
+              ImageExtractor.process(screen, background, frame, image)
+              if(mode == Mode.DECLASH) saveImage(image, frame)
+            }
           }
         }
       }
@@ -219,30 +224,5 @@ object Screen {
   fun saveImage(image: BufferedImage, fileName: String) {
     val outputfile = File(OUT_DIR + fileName)
     ImageIO.write(x3(image), "png", outputfile)
-  }
-
-  // background
-  private class Background {
-    val values: BooleanArray
-    val image: BufferedImage?
-    val fileName: String
-
-    constructor(values: BooleanArray) {
-      this.values = values
-      image = null
-      fileName = ""
-    }
-
-    constructor(values: BooleanArray, image: BufferedImage?, fileName: String) {
-      this.values = values
-      this.image = image
-      this.fileName = fileName
-    }
-
-    fun difference(screen: BooleanArray): Int {
-      var difference = 0
-      for(i in 0 until PIXEL_SIZE) if(values[i] != screen[i]) difference++
-      return difference
-    }
   }
 }

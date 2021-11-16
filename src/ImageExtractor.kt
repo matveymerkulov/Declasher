@@ -1,5 +1,4 @@
 import Image.Comparsion
-import Screen.saveImage
 import java.awt.image.BufferedImage
 import java.io.IOException
 import java.util.*
@@ -9,21 +8,25 @@ object ImageExtractor {
   val images = LinkedList<LinkedList<Image>>()
 
   @Throws(IOException::class)
-  fun process(screen: BooleanArray, background: BooleanArray, frame: Int
-              , backgroundImage: BufferedImage) {
+  fun process(screen: BooleanArray, background: Background, frame: Int
+              , image: BufferedImage) {
+    if(background.skip) return
+
     val SAME = 0
     val CHANGED = 1
     val pixels = IntArray(PIXEL_SIZE)
     var changed = 0
+    val backgroundValues = background.values
     for(addr in 0 until PIXEL_SIZE) {
-      val isChanged = screen[addr] != background[addr]
+      val isChanged = screen[addr] != backgroundValues[addr]
       pixels[addr] = if(isChanged) CHANGED else SAME
       if(isChanged) changed++
     }
-    if(changed > MAX_CHANGED_PIXELS) {
+
+    /*if(changed > MAX_CHANGED_PIXELS) {
       println("  Changed pixels of $frame is $changed")
       return
-    }
+    }*/
 
     var imageNumber = 1
     for(y in 0 until PIXEL_HEIGHT) {
@@ -72,8 +75,8 @@ object ImageExtractor {
             }
             if(mode === Mode.DETECT_MAX_SIZE) continue
             if(mode === Mode.EXTRACT_SPRITES) {
-              val image = Image(pixels, screen, background, x1, y1, x2, y2
-                , imageNumber)
+              val image = Image(pixels, screen, backgroundValues
+                , x1, y1, x2, y2, imageNumber)
               for(list in images) {
                 for(listImage in list) {
                   when(listImage.compareTo(image)) {
@@ -92,23 +95,39 @@ object ImageExtractor {
               newList.add(image)
               images.add(newList)
             } else {
-              Sprites.declash(pixels, imageNumber, screen, background, x1, y1
-                  , x2, y2, backgroundImage, true)
+              repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
+                , background.hasParticles)
+              Sprites.declash(screen, x1, y1, x2, y2, image)
             }
           } else {
-            for(yy in y1 until y2) {
-              val yAddr = yy * PIXEL_WIDTH
-              for(xx in x1 until x2) {
-                if(pixels[xx + yAddr] == imageNumber) {
-                  backgroundImage.setRGB(xx, yy, PARTICLE_COLOR)
-                }
-              }
-            }
+            repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
+              , background.hasParticles)
           }
         }
       }
     }
-    if(mode === Mode.DECLASH) saveImage(backgroundImage, frame)
+  }
+
+  private fun repaint(pixels: IntArray, imageNumber: Int, screen: BooleanArray
+                      , x1: Int, y1: Int, x2: Int, y2: Int
+                      , image: BufferedImage, hasParticles: Boolean) {
+    for(y in y1 until y2) {
+      val yAddr = y * PIXEL_WIDTH
+      val yAttrSource = (y shr 3) + AREA_Y shl 5
+      for(x in x1 until x2) {
+        val addr = x + yAddr
+        if(pixels[addr] == imageNumber) {
+          image.setRGB(x, y, color[if(hasParticles) {
+            if(screen[addr]) PARTICLE_COLOR else 0
+          } else {
+            val attr = Screen.attrs[yAttrSource or (x shr 3 + AREA_X)]
+            if(screen[addr]) attr and 0xF else attr shr 4
+          }])
+        } else if(SHOW_DETECTION_AREA) {
+          image.setRGB(x, y, color[3])
+        }
+      }
+    }
   }
 
   @Throws(IOException::class)

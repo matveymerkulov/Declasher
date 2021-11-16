@@ -15,11 +15,11 @@ const val AREA_X = 0
 const val AREA_Y = 6
 const val AREA_WIDTH = 32
 const val AREA_HEIGHT = 18
-const val MAX_CHANGED_PIXELS = 500
+const val MAX_CHANGED_PIXELS = 900
 const val MIN_MATCHED_PIXELS = 60
 const val MAX_BACKGROUND_DELAY = 10
 const val MIN_FRAMES = 5
-const val FRAME_FREQUENCY = 10
+const val FRAME_FREQUENCY = 1
 const val BYTE_SIZE = 32 * 24 * 8
 const val ATTR_SIZE = BYTE_SIZE / 8
 const val PIXEL_WIDTH = AREA_WIDTH shl 3
@@ -28,7 +28,6 @@ const val AREA_SIZE = AREA_WIDTH * AREA_HEIGHT
 const val PIXEL_SIZE = AREA_SIZE shl 6
 const val MAX_AREA_X = AREA_X + AREA_WIDTH
 const val MAX_AREA_Y = AREA_Y + AREA_HEIGHT
-val skippedBackgrounds = intArrayOf()
 const val OUT_DIR = "D:/output/"
 
 @JvmField
@@ -43,13 +42,13 @@ enum class Mode {
 
 // options
 @JvmField
-val mode = Mode.EXTRACT_SPRITES
+val mode = Mode.DECLASH
 
 @JvmField
 var SPRITE_COLOR = color[15]
 
 @JvmField
-var PARTICLE_COLOR = color[15]
+var PARTICLE_COLOR = 15
 
 @JvmField
 var PERCENT_ON = 0.7
@@ -64,11 +63,12 @@ var MIN_DETECTION_HEIGHT = 8
 var MIN_DETECTION_PIXELS = 140
 
 @JvmField
-var MIN_DIFFERENCE = 300
-var MIN_BG_DIFFERENCE = 900
+var MIN_BG_DIFFERENCE = 300
 
 @JvmField
 var project = "ratime"
+var particles = listOf(2437, 3012, 34234, 57410)
+val skippedBackgrounds = listOf(1)
 
 // debug
 const val SAVE_COLORED = false
@@ -92,10 +92,12 @@ fun main(args: Array<String>) {
     }
     Mode.EXTRACT_SPRITES -> {
       Screen.process(0, 1000)
+      //Screen.process()
       ImageExtractor.saveImages()
     }
     Mode.DECLASH -> {
-      Screen.process(0, 1000)
+      //Screen.process(0, 1000)
+      Screen.process(23073)
     }
     else -> Screen.process()
   }

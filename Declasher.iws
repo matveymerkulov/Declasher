@@ -2,9 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c20d8dac-1e5b-41d6-8d15-c786566be6a8" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/Background.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Brightness.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Brightness.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Image.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Image.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/021052.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/056547.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/056547.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/24350.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/sprites/arrow.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/sprites/island.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/sprites/island.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/sprites/log.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/sprites/plane.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/sprites/repainted/arrow.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/sprites/repainted/island.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ImageExtractor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
@@ -14,6 +22,13 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -30,11 +45,11 @@
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="preferences.editor" />
+    <property name="settings.editor.selected.configurable" value="project.propDebugger" />
   </component>
   <component name="RunManager">
-    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Main" />
+    <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="MainKt" />
       <module name="Declasher" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -42,7 +57,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Main" />
+        <item itemvalue="Kotlin.MainKt" />
       </list>
     </recent_temporary>
   </component>
@@ -68,5 +83,16 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="JetRunConfigurationType">
+        <watch expression="image.getRGB(x, y) and 0xFFFFFF" language="kotlin" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

@@ -35,22 +35,8 @@ object Sprites {
     }
   }
 
-  fun declash(pixels: IntArray, imageNumber: Int, screen: BooleanArray
-              , background: BooleanArray, x1: Int, y1: Int, x2: Int, y2: Int
-              , image: BufferedImage, repaint: Boolean) {
-    if(repaint) {
-      for(y in y1 until y2) {
-        val yAddr = y * PIXEL_WIDTH
-        for(x in x1 until x2) {
-          val addr = x + yAddr
-          if(pixels[addr] == imageNumber) {
-            image.setRGB(x, y, if(screen[addr]) PARTICLE_COLOR else 0)
-          } else if(SHOW_DETECTION_AREA) {
-            image.setRGB(x, y, color[3])
-          }
-        }
-      }
-    }
+  fun declash(screen: BooleanArray, x1: Int, y1: Int, x2: Int, y2: Int
+              , image: BufferedImage) {
     val width = x2 - x1
     val height = y2 - y1
     //System.out.print(width + "x" + height + ", ");
@@ -186,16 +172,18 @@ object Sprites {
       for(y in 0 until height) {
         val yAddr = y * width
         for(x in 0 until width) {
-          when(image.getRGB(x, y)) {
-            -0x1000000 -> {
+          when(image.getRGB(x, y) and 0xFFFFFF) {
+            0 -> {
               data[yAddr + x] = SpritePixelType.OFF
               pixelsQuantity++
             }
-            -0x1 -> {
+            0xFFFFFF -> {
               data[yAddr + x] = SpritePixelType.ON
               pixelsQuantity++
             }
-            else -> data[yAddr + x] = SpritePixelType.ANY
+            0xFF00FF -> data[yAddr + x] = SpritePixelType.ANY
+            else
+            -> throw Exception("Invalid color")
           }
         }
       }
