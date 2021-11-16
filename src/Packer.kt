@@ -6,7 +6,7 @@ object Packer {
   @Throws(FileNotFoundException::class, IOException::class)
   @JvmStatic
   fun main(args: Array<String>) {
-    val outFile = File("D:/Dropbox/Declasher/ratime/video.xz")
+    val outFile = File("$project/video.xz")
     val outStream = BufferedOutputStream(
         FileOutputStream(outFile))
     val options = LZMA2Options()

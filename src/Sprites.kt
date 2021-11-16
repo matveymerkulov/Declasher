@@ -2,18 +2,19 @@ import java.awt.Color
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
+import java.lang.Double.max
 import java.util.*
 import javax.imageio.ImageIO
 
-object Sprites : Main() {
+object Sprites {
   var minSpritePixels = -1
     private set
   private var minDetectionWidth = MAX_WIDTH
   private var minDetectionHeight = MAX_HEIGHT
   private var minDetectionPixels = MAX_WIDTH * MAX_HEIGHT
   val maxDetectionSize: String
-    get() = (minDetectionWidth.toString() + "x" + minDetectionHeight + ", "
-        + minDetectionPixels)
+    get() = "${minDetectionWidth.toString()} x $minDetectionHeight" +
+        " $minDetectionPixels"
   private val sprites = LinkedList<LinkedList<Sprite>>()
   var maxErrors = 0
     private set
@@ -22,7 +23,7 @@ object Sprites : Main() {
 
   @Throws(IOException::class)
   fun load() {
-    val folder = File(project + "sprites")
+    val folder = File("$project/sprites")
     for(file in folder.listFiles()) {
       val list = LinkedList<Sprite>()
       if(file.isDirectory) {
@@ -34,7 +35,9 @@ object Sprites : Main() {
     }
   }
 
-  fun declash(pixels: IntArray, imageNumber: Int, screen: BooleanArray, background: BooleanArray?, x1: Int, y1: Int, x2: Int, y2: Int, image: BufferedImage, repaint: Boolean) {
+  fun declash(pixels: IntArray, imageNumber: Int, screen: BooleanArray
+              , background: BooleanArray, x1: Int, y1: Int, x2: Int, y2: Int
+              , image: BufferedImage, repaint: Boolean) {
     if(repaint) {
       for(y in y1 until y2) {
         val yAddr = y * PIXEL_WIDTH
@@ -56,7 +59,7 @@ object Sprites : Main() {
       var bestDy = 0
       var bestErrors = -1
       var bestMatched = 0
-      var bestSprite: Sprite? = null
+      var bestSprite: Sprite = list.first
       list@ for(sprite in list) {
         val spriteWidth = sprite.width
         val spriteHeight = sprite.height
@@ -113,8 +116,7 @@ object Sprites : Main() {
         gO.drawString("$bestMatched/$bestErrors", bestDx, bestDy - 3)
       }
       maxErrors = Integer.max(maxErrors, bestErrors)
-      maxDifference = java.lang.Double.max(maxDifference
-          , (1.0 * bestSprite!!.pixelsQuantity
+      maxDifference = max(maxDifference, (1.0 * bestSprite.pixelsQuantity
           - bestMatched) / bestSprite.pixelsQuantity)
       minDetectionWidth = Integer.min(minDetectionWidth, width)
       minDetectionHeight = Integer.min(minDetectionHeight, height)
@@ -148,7 +150,7 @@ object Sprites : Main() {
   }
 
   private class Sprite(file: File) {
-    var data: Array<SpritePixelType?>
+    var data: Array<SpritePixelType>
     var repainted: BufferedImage? = null
     var width: Int
     var height: Int
@@ -172,7 +174,7 @@ object Sprites : Main() {
           maxErrors = 15
         }
       }
-      val repaintedFile = File(project + "repainted/" + name)
+      val repaintedFile = File("$project/repainted/$name")
       if(repaintedFile.exists()) {
         repainted = ImageIO.read(repaintedFile)
         println("$name is repainted")
@@ -180,7 +182,7 @@ object Sprites : Main() {
       val image = ImageIO.read(file)
       width = image.width
       height = image.height
-      data = arrayOfNulls(width * height)
+      data = Array<SpritePixelType>(width * height) { SpritePixelType.ANY }
       for(y in 0 until height) {
         val yAddr = y * width
         for(x in 0 until width) {

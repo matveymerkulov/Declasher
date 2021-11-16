@@ -4,7 +4,7 @@ import java.io.IOException
 import java.util.*
 import javax.imageio.ImageIO
 
-class Image : Main {
+class Image {
   private class ImageEntry(val image: Image, val dx: Int, val dy: Int)
   private enum class PixelType(var value: Boolean
   , var cannotBeTransparent: Boolean) {
@@ -156,7 +156,7 @@ class Image : Main {
     val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
     for(y in 0 until height) {
       for(x in 0 until width) {
-        var colIndex = when(data[x + y * width]) {
+        val colIndex = when(data[x + y * width]) {
           PixelType.OFF -> 0
           PixelType.ON -> 15
           PixelType.OFF_OR_TRANSPARENT -> 11
@@ -196,8 +196,9 @@ class Image : Main {
       for(y in image.y1 until image.y2) {
         for(x in image.x1 until image.x2) {
           val value = image.data[x + y * image.width]
-          if(value.cannotBeTransparent)
+          if(value.cannotBeTransparent) {
             data[x + dx + (y + dy) * width] = value.removeTransparency()
+          }
         }
       }
     }
@@ -205,14 +206,15 @@ class Image : Main {
     val fheight = fy2 - fy1
     val newData = Array<PixelType>(fwidth * fheight) { PixelType.ON }
     for(y in fy1 until fy2) {
-      if(fx2 - fx1 >= 0) System.arraycopy(data, fx1 + y * width, newData
-          , fx1 + (y - fy1) * fwidth, fx2 - fx1)
+      for(x in fx1 until fx2) {
+        newData[x - fx1 + (y - fy1) * fwidth] = data[x + y * width]
+      }
     }
     return Image(newData, fwidth, fheight, 0, 0, fwidth, fheight)
   }
 
   override fun toString(): String {
-    return "$(x2 - x1) x $(y2 - y1)"
+    return "${x2 - x1} x ${y2 - y1}"
   }
 
   companion object {

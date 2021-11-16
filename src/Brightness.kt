@@ -3,7 +3,7 @@ import java.io.File
 import java.io.IOException
 import javax.imageio.ImageIO
 
-object Brightness : Main() {
+object Brightness {
   private const val brightness = 0x9F
 
   @Throws(IOException::class)
@@ -23,14 +23,14 @@ object Brightness : Main() {
           col[2] = value shr 16 and 0xFF
           value = 0xFF
           for(i in 2 downTo 0) {
-            if(col[i] > 0 && col[i] < 0xFF) col[i] = brightness
+            if(col[i] in 1..0xfe) col[i] = brightness
             value = value shl 8 or col[i]
           }
           destination.setRGB(x, y, value)
         }
       }
       ImageIO.write(destination, "png"
-          , File(project + "backgrounds/" + file.name + ".png"))
+          , File("$project/backgrounds/${file.name}.png"))
     }
   }
 }

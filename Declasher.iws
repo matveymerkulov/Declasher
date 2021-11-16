@@ -2,38 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c20d8dac-1e5b-41d6-8d15-c786566be6a8" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Brightness.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Image.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Main.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Packer.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/manifest.mf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nbproject/build-impl.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nbproject/genfiles.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nbproject/private/config.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nbproject/private/private.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nbproject/private/private.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nbproject/private/profiler/settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nbproject/project.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nbproject/project.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/002438.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/002656.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/002833.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/023073.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/repainted/arrow.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/repainted/island.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/BigClassForNoScreenShaking.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Brightness.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Image.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ImageExtractor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Packer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Screen.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Sprites.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/xz.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Brightness.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Brightness.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Image.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Image.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ImageExtractor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Sprites.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,7 +30,7 @@
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="preferences.sourceCode.Kotlin" />
+    <property name="settings.editor.selected.configurable" value="preferences.editor" />
   </component>
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">

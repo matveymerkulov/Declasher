@@ -7,16 +7,17 @@ import java.util.*
 import javax.imageio.ImageIO
 import kotlin.math.floor
 
-object Screen : Main() {
+
+object Screen {
   private const val FRAME_SIZE = BYTE_SIZE + ATTR_SIZE
   private val backgroundOn = IntArray(PIXEL_SIZE)
   private var attrs: IntArray = IntArray(ATTR_SIZE)
-  private var `in`: SeekableXZInputStream? = null
+  private var inStream: SeekableXZInputStream? = null
 
   @Throws(IOException::class)
   fun init() {
-    val file = SeekableFileInputStream(project + "video.xz")
-    `in` = SeekableXZInputStream(file)
+    val file = SeekableFileInputStream("$project/video.xz")
+    inStream = SeekableXZInputStream(file)
     loadBackgrounds()
   }
 
@@ -25,8 +26,9 @@ object Screen : Main() {
   private fun load(num: Int): BooleanArray {
     val data = BooleanArray(PIXEL_SIZE)
     val byteScreen = ByteArray(FRAME_SIZE)
-    `in`!!.seek((num * FRAME_SIZE).toLong())
-    if(`in`!!.read(byteScreen, 0, FRAME_SIZE) < FRAME_SIZE) throw IOException()
+    inStream!!.seek((num * FRAME_SIZE).toLong())
+    if(inStream!!.read(byteScreen, 0, FRAME_SIZE) < FRAME_SIZE)
+      throw IOException()
     attrs = IntArray(ATTR_SIZE)
     for(x in 0 until ATTR_SIZE) {
       val value = byteScreen[BYTE_SIZE or x].toInt()
@@ -64,7 +66,7 @@ object Screen : Main() {
 
   @Throws(IOException::class)
   fun loadBackgrounds() {
-    for(file in File(project + "backgrounds").listFiles()) {
+    for(file in File("$project/backgrounds").listFiles()) {
       if(file.isDirectory) continue
       val image = ImageIO.read(file)
       val pixels = BooleanArray(PIXEL_SIZE)
@@ -87,7 +89,7 @@ object Screen : Main() {
     }
   }
 
-  private fun findBackground(screen: BooleanArray?): Background? {
+  private fun findBackground(screen: BooleanArray): Background? {
     var minDifference = PIXEL_SIZE
     var minBackground: Background? = null
     for(background in backgrounds) {
@@ -117,12 +119,13 @@ object Screen : Main() {
   }
 
   @Throws(IOException::class)
-  fun process(from: Int, to: Int, singleScreen: Boolean) {
+  fun process(from: Int = 0, to: Int = -1, singleScreen: Boolean = false) {
     var firstFrame = from
     var oldScreen: BooleanArray? = null
     var frame = from
+    val pixels = IntArray(PIXEL_SIZE);
     while(frame <= to || to < 0) {
-      var screen: BooleanArray = try {
+      val screen: BooleanArray = try {
         load(frame)
       } catch(ex: IOException) {
         break
@@ -133,52 +136,58 @@ object Screen : Main() {
         continue
       }
 
-      //final int SAME = 0, CHANGED = 1;
-      //int[] pixels = new int[PIXEL_SIZE];
-      var difference = 0
-      for(addr in 0 until PIXEL_SIZE) {
-        val isChanged = screen[addr] != oldScreen[addr]
-        //pixels[addr] = isChanged ? CHANGED : SAME;
-        if(screen[addr]) backgroundOn[addr]++
-        if(isChanged) difference++
-      }
-      if(difference >= MIN_DIFFERENCE) {
-        val frames = frame - firstFrame
-        if(frames >= MIN_FRAMES) {
-          oldScreen = composeBackground(frames)
-          if(mode === Mode.EXTRACT_BACKGROUNDS) {
+      if(mode === Mode.EXTRACT_BACKGROUNDS) {
+        var difference = 0
+        for(addr in 0 until PIXEL_SIZE) {
+          val isChanged = screen[addr] != oldScreen[addr]
+          if(screen[addr]) backgroundOn[addr]++
+          if(isChanged) difference++
+        }
+
+        if(difference >= MIN_DIFFERENCE) {
+          System.out.println(
+            "Processing sequence $firstFrame - $frame " + if(mode === Mode.EXTRACT_SPRITES) ", " + ImageExtractor.images.size else ""
+          )
+          val frames = frame - firstFrame
+          if(frames >= MIN_FRAMES) {
+            oldScreen = composeBackground(frames)
             if(findBackground(oldScreen) == null || SAVE_SIMILAR) {
               saveImage(toImage(oldScreen, null), firstFrame)
-              backgrounds.add(Background(oldScreen))
-              //saveImage(toImage(oldScreen, null), frame - 1);
+              backgrounds.add(Background(oldScreen)) //saveImage(toImage(oldScreen, null), frame - 1);
               //saveImage(toImage(screen, null), frame);
-              println("Saved background " + firstFrame
-                  + " with difference " + difference + " and " + frames
-                  + " frames")
+              println(
+                "Saved background $firstFrame with difference" + " $difference and $frames frames"
+              )
             }
-          } else {
-            println("Sequence " + firstFrame + " - " + (frame - 1))
           }
+          if(singleScreen) return
+          Arrays.fill(backgroundOn, 0)
+          firstFrame = frame
         }
-        if(singleScreen) return
-        Arrays.fill(backgroundOn, 0)
-        firstFrame = frame
+      } else if(mode == Mode.TO_BLACK_AND_WHITE) {
+        saveImage(toImage(screen, null), frame)
       } else if(frame % FRAME_FREQUENCY == 0) {
-        when(mode) {
-          Mode.SHOW_DIFFERENCE -> {
-            val background = findBackground(screen)
-            if(background != null) saveImage(toImage(screen, background.values), frame)
+        val background = findBackground(screen)
+        if(background != null) {
+          when(mode) {
+            Mode.SHOW_DIFFERENCE
+                -> saveImage(toImage(screen, background.values), frame)
+            Mode.DECLASH, Mode.EXTRACT_SPRITES, Mode.DETECT_MAX_SIZE
+                -> ImageExtractor.process(screen, background.values, frame
+                , background.image ?: toImage(screen
+                , null))
           }
-          Mode.TO_BLACK_AND_WHITE -> saveImage(toImage(screen, null), frame)
         }
       }
+
       oldScreen = screen
       frame++
     }
   }
 
   // conversion and saving
-  fun toImage(screenData: BooleanArray?, bgData: BooleanArray?): BufferedImage {
+  private fun toImage(screenData: BooleanArray, bgData: BooleanArray?)
+      : BufferedImage {
     val image = BufferedImage(PIXEL_WIDTH, PIXEL_HEIGHT
         , BufferedImage.TYPE_INT_RGB)
     for(y in 0 until PIXEL_HEIGHT) {
@@ -187,7 +196,7 @@ object Screen : Main() {
       for(x in 0 until PIXEL_WIDTH) {
         val attr = attrs[yAttrSource or (x shr 3 + AREA_X)]
         val addr = ySource or x
-        val value = screenData!![addr]
+        val value = screenData[addr]
         var col: Int
         col = if(BLACK_AND_WHITE) {
           color[if(value) 15 else 0]
@@ -214,25 +223,25 @@ object Screen : Main() {
 
   // background
   private class Background {
-    val values: BooleanArray?
-    private val image: BufferedImage?
+    val values: BooleanArray
+    val image: BufferedImage?
     val fileName: String
 
-    constructor(values: BooleanArray?) {
+    constructor(values: BooleanArray) {
       this.values = values
       image = null
       fileName = ""
     }
 
-    constructor(values: BooleanArray?, image: BufferedImage?, fileName: String) {
+    constructor(values: BooleanArray, image: BufferedImage?, fileName: String) {
       this.values = values
       this.image = image
       this.fileName = fileName
     }
 
-    fun difference(screen: BooleanArray?): Int {
+    fun difference(screen: BooleanArray): Int {
       var difference = 0
-      for(i in 0 until PIXEL_SIZE) if(values!![i] != screen!![i]) difference++
+      for(i in 0 until PIXEL_SIZE) if(values[i] != screen[i]) difference++
       return difference
     }
   }

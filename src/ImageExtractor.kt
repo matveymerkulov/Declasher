@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage
 import java.io.IOException
 import java.util.*
 
-object ImageExtractor : Main() {
+object ImageExtractor {
   private val coordsStack = Stack<Coords>()
   val images = LinkedList<LinkedList<Image>>()
 
@@ -24,6 +24,7 @@ object ImageExtractor : Main() {
       println("  Changed pixels of $frame is $changed")
       return
     }
+
     var imageNumber = 1
     for(y in 0 until PIXEL_HEIGHT) {
       val ySource = y shl 8
@@ -65,13 +66,14 @@ object ImageExtractor : Main() {
           y2++
           if(Image.Companion.hasAcceptableSize(x1, y1, x2, y2)) {
             if(x2 - x1 >= MAX_WIDTH || y2 - y1 >= MAX_HEIGHT) {
-              println("  " + frame + " - skipped big "
-                  + (x2 - x1) + "x" + (y2 - y1) + "changed area.")
+              println("  $frame - skipped big ${x2 - x1}" +
+                  " x ${y2 - y1} changed area.")
               continue
             }
             if(mode === Mode.DETECT_MAX_SIZE) continue
             if(mode === Mode.EXTRACT_SPRITES) {
-              val image = Image(pixels, screen, background, x1, y1, x2, y2, imageNumber)
+              val image = Image(pixels, screen, background, x1, y1, x2, y2
+                , imageNumber)
               for(list in images) {
                 for(listImage in list) {
                   when(listImage.compareTo(image)) {
@@ -114,7 +116,7 @@ object ImageExtractor : Main() {
     var listNum = 0
     for(list in images) {
       var maxWeight = -1
-      var maxImage: Image? = null
+      var maxImage: Image = list.first
       for(image in list) {
         val size = image.weight
         if(maxWeight < size) {
@@ -123,7 +125,7 @@ object ImageExtractor : Main() {
         }
       }
       listNum++
-      maxImage!!.save(listNum)
+      maxImage.save(listNum)
     }
   }
 
