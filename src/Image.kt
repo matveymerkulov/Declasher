@@ -65,8 +65,8 @@ class Image {
               , x1: Int, y1: Int, x2: Int, y2: Int, imageNumber: Int) {
     val leftBorder = Integer.min(BORDER_SIZE, x1)
     val topBorder = Integer.min(BORDER_SIZE, y1)
-    val rightBorder = Integer.min(BORDER_SIZE, PIXEL_WIDTH - x2)
-    val bottomBorder = Integer.min(BORDER_SIZE, PIXEL_HEIGHT - y2)
+    val rightBorder = Integer.min(BORDER_SIZE, MAIN_SCREEN.pixelWidth() - x2)
+    val bottomBorder = Integer.min(BORDER_SIZE, MAIN_SCREEN.pixelHeight() - y2)
     width = leftBorder + x2 - x1 + rightBorder
     height = topBorder + y2 - y1 + bottomBorder
     this.x1 = leftBorder
@@ -78,7 +78,7 @@ class Image {
     val dy = y1 - topBorder
     for(y in 0 until height) {
       val ySource = y * width
-      val yDestination = (y + dy) * PIXEL_WIDTH + dx
+      val yDestination = (y + dy) * MAIN_SCREEN.pixelWidth() + dx
       for(x in 0 until width) {
         val addr = yDestination + x
         if(pixels[addr] == imageNumber) {

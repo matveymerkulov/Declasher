@@ -8,7 +8,7 @@ object ImageExtractor {
   val images = LinkedList<LinkedList<Image>>()
 
   @Throws(IOException::class)
-  fun process(screen: BooleanArray, background: Background, frame: Int
+  fun process(screen: Area, background: Background, frame: Int
               , image: BufferedImage) {
     if(background.skip) return
 
@@ -16,9 +16,9 @@ object ImageExtractor {
     val CHANGED = 1
     val pixels = IntArray(PIXEL_SIZE)
     var changed = 0
-    val backgroundValues = background.values
+    val backgroundValues = background.pixels
     for(addr in 0 until PIXEL_SIZE) {
-      val isChanged = screen[addr] != backgroundValues[addr]
+      val isChanged = screen.pixels[addr] != backgroundValues[addr]
       pixels[addr] = if(isChanged) CHANGED else SAME
       if(isChanged) changed++
     }
@@ -75,7 +75,7 @@ object ImageExtractor {
             }
             if(mode === Mode.DETECT_MAX_SIZE) continue
             if(mode === Mode.EXTRACT_SPRITES) {
-              val image = Image(pixels, screen, backgroundValues
+              val image = Image(pixels, screen.pixels, backgroundValues
                 , x1, y1, x2, y2, imageNumber)
               for(list in images) {
                 for(listImage in list) {
@@ -96,35 +96,35 @@ object ImageExtractor {
               images.add(newList)
             } else {
               repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
-                , background.hasParticles)
-              Sprites.declash(screen, x1, y1, x2, y2, image)
+                , background.hasForcedColor)
+              Sprites.declash(screen.pixels, x1, y1, x2, y2, image, frame)
             }
           } else {
             repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
-              , background.hasParticles)
+              , background.hasForcedColor)
           }
         }
       }
     }
   }
 
-  private fun repaint(pixels: IntArray, imageNumber: Int, screen: BooleanArray
+  private fun repaint(pixels: IntArray, imageNumber: Int, screen: Area
                       , x1: Int, y1: Int, x2: Int, y2: Int
                       , image: BufferedImage, hasParticles: Boolean) {
     for(y in y1 until y2) {
       val yAddr = y * PIXEL_WIDTH
-      val yAttrSource = (y shr 3) + AREA_Y shl 5
+      val yAttrSource = (y shr 3) shl 5
       for(x in x1 until x2) {
         val addr = x + yAddr
         if(pixels[addr] == imageNumber) {
           image.setRGB(x, y, color[if(hasParticles) {
-            if(screen[addr]) PARTICLE_COLOR else 0
+            if(screen.pixels[addr]) PARTICLE_COLOR else 0
           } else {
-            val attr = Screen.attrs[yAttrSource or (x shr 3 + AREA_X)]
-            if(screen[addr]) attr and 0xF else attr shr 4
+            val attr = screen.attrs[yAttrSource or (x shr 3)]
+            if(screen.pixels[addr]) attr and 0xF else attr shr 4
           }])
         } else if(SHOW_DETECTION_AREA) {
-          image.setRGB(x, y, color[3])
+          image.setRGB(x, y, darkMagenta)
         }
       }
     }

@@ -1,5 +1,7 @@
 import org.tukaani.xz.SeekableFileInputStream
 import org.tukaani.xz.SeekableXZInputStream
+import java.awt.Graphics2D
+import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
@@ -9,10 +11,8 @@ import kotlin.math.floor
 
 
 object Screen {
-  private const val FRAME_SIZE = BYTE_SIZE + ATTR_SIZE
   private val backgroundOn = IntArray(PIXEL_SIZE)
   private var inStream: SeekableXZInputStream? = null
-  val attrs: IntArray = IntArray(ATTR_SIZE)
 
   @Throws(IOException::class)
   fun init() {
@@ -23,16 +23,18 @@ object Screen {
 
   // loading
   @Throws(IOException::class)
-  private fun load(num: Int): BooleanArray {
-    val data = BooleanArray(PIXEL_SIZE)
+  private fun load(num:Int, area: Rect): Area {
+    val data = BooleanArray(area.pixelSize())
+    val attrs = IntArray(area.size())
     val byteScreen = ByteArray(FRAME_SIZE)
     inStream!!.seek((num * FRAME_SIZE).toLong())
     if(inStream!!.read(byteScreen, 0, FRAME_SIZE) < FRAME_SIZE)
       throw IOException()
-    for(x in 0 until ATTR_SIZE) {
-      val value = byteScreen[BYTE_SIZE or x].toInt()
-      val bright = if(value and 64 == 0) 0 else 136
-      attrs[x] = value and 7 or (value and 56 shl 1) or bright
+    val attrOffset = BYTE_SIZE + (area.y shl 5)
+    for(x in 0 until area.size()) {
+      val value = byteScreen[x + attrOffset].toInt()
+      val bright = if(value and 0b1000000 == 0) 0 else 0b10001000
+      attrs[x] = value and 0b111 or (value and 0b111000 shl 1) or bright
     }
     main@ for(part in 0..2) {
       val partSource = part shl 11
@@ -40,14 +42,14 @@ object Screen {
       for(y in 0..7) {
         val ySource = partSource or (y shl 5)
         var yDestination = partDestination or y
-        if(yDestination < AREA_Y) continue
-        if(yDestination >= MAX_AREA_Y) break@main
-        yDestination = yDestination - AREA_Y shl 3
+        if(yDestination < area.y) continue
+        if(yDestination >= area.y + area.height) break@main
+        yDestination = yDestination - area.y shl 3
         for(yy in 0..7) {
           val yySource = ySource or (yy shl 8)
-          val yyDestination = (yDestination or yy) * AREA_WIDTH
-          for(x in 0 until AREA_WIDTH) {
-            val source = yySource or x + AREA_X
+          val yyDestination = (yDestination or yy) * area.width
+          for(x in 0 until area.width) {
+            val source = yySource or x + area.x
             val destination = yyDestination + x shl 3
             var byteValue = byteScreen[source].toInt()
             for(xx in 7 downTo 0) {
@@ -60,7 +62,7 @@ object Screen {
         }
       }
     }
-    return data
+    return Area(data, attrs, area)
   }
 
   @Throws(IOException::class)
@@ -86,8 +88,8 @@ object Screen {
     for(background in backgrounds) {
       val number = background.fileName.substring(0
           , background.fileName.indexOf('.')).toInt()
-      load(number + 1)
-      saveImage(toImage(background.values, null), background.fileName)
+      load(number + 1, MAIN_SCREEN)
+      //saveImage(toImage(background.pixels, null), background.fileName)
     }
   }
 
@@ -123,11 +125,11 @@ object Screen {
   @Throws(IOException::class)
   fun process(from: Int = 0, to: Int = -1, singleScreen: Boolean = false) {
     var firstFrame = from
-    var oldScreen: BooleanArray? = null
+    var oldScreen: Area? = null
     var frame = from
     while(frame <= to || to < 0) {
-      val screen: BooleanArray = try {
-        load(frame)
+      val screen: Area = try {
+        load(frame, MAIN_SCREEN)
       } catch(ex: IOException) {
         break
       }
@@ -140,8 +142,8 @@ object Screen {
       if(mode === Mode.EXTRACT_BACKGROUNDS) {
         var difference = 0
         for(addr in 0 until PIXEL_SIZE) {
-          val isChanged = screen[addr] != oldScreen[addr]
-          if(screen[addr]) backgroundOn[addr]++
+          val isChanged = screen.pixels[addr] != oldScreen.pixels[addr]
+          if(screen.pixels[addr]) backgroundOn[addr]++
           if(isChanged) difference++
         }
 
@@ -153,10 +155,11 @@ object Screen {
           )
           val frames = frame - firstFrame
           if(frames >= MIN_FRAMES) {
-            oldScreen = composeBackground(frames)
-            if(SAVE_SIMILAR || findBackground(oldScreen) == null) {
+            val background = composeBackground(frames)
+            if(SAVE_SIMILAR || findBackground(background) == null) {
+              oldScreen = Area(background, oldScreen.attrs, oldScreen.area)
               saveImage(toImage(oldScreen, null), firstFrame)
-              backgrounds.add(Background(oldScreen))
+              backgrounds.add(Background(background))
               //saveImage(toImage(oldScreen, null), frame - 1);
               //saveImage(toImage(screen, null), frame);
               println("Saved background $firstFrame with difference"
@@ -168,18 +171,28 @@ object Screen {
           firstFrame = frame
         }
       } else if(mode == Mode.TO_BLACK_AND_WHITE) {
-        saveImage(toImage(screen, null), frame)
+        saveImage(toImage(screen), frame)
       } else if(frame % FRAME_FREQUENCY == 0) {
-        val background = findBackground(screen)
+        val background = findBackground(screen.pixels)
         if(background != null) {
           when(mode) {
             Mode.SHOW_DIFFERENCE
-                -> saveImage(toImage(screen, background.values), frame)
+                -> saveImage(toImage(screen, background.pixels), frame)
             Mode.DECLASH, Mode.EXTRACT_SPRITES, Mode.DETECT_MAX_SIZE -> {
               val image = if(background.image == null) toImage(screen
                 , null) else copyImage(background.image)
               ImageExtractor.process(screen, background, frame, image)
-              if(mode == Mode.DECLASH) saveImage(image, frame)
+              if(mode == Mode.DECLASH) {
+                val screenImage = BufferedImage(SCREEN_WIDTH shl 3
+                  , SCREEN_HEIGHT shl 3, BufferedImage.TYPE_INT_RGB)
+                pasteToImage(screenImage, load(frame, STATUS_BAR)
+                  , STATUS_BAR.x shl 3, STATUS_BAR.y shl 3)
+                val g2d: Graphics2D = screenImage.createGraphics()
+                g2d.drawImage(image, MAIN_SCREEN.x shl 3
+                  , MAIN_SCREEN.y shl 3, null)
+                g2d.dispose()
+                saveImage(screenImage, frame)
+              }
             }
           }
         }
@@ -191,28 +204,34 @@ object Screen {
   }
 
   // conversion and saving
-  private fun toImage(screenData: BooleanArray, bgData: BooleanArray?)
-      : BufferedImage {
-    val image = BufferedImage(PIXEL_WIDTH, PIXEL_HEIGHT
-        , BufferedImage.TYPE_INT_RGB)
-    for(y in 0 until PIXEL_HEIGHT) {
+  private fun toImage(area: Area, bgData: BooleanArray? = null): BufferedImage {
+    val image = BufferedImage(area.area.pixelWidth(), area.area.pixelHeight()
+      , BufferedImage.TYPE_INT_RGB)
+    pasteToImage(image, area, 0, 0, bgData)
+    return image
+  }
+
+  private fun pasteToImage(image: BufferedImage, area: Area, x0: Int, y0: Int
+                           , bgData: BooleanArray? = null) {
+    val width = area.area.pixelWidth()
+    val height = area.area.pixelHeight()
+    for(y in 0 until height) {
       val ySource = y shl 8
-      val yAttrSource = (y shr 3) + AREA_Y shl 5
-      for(x in 0 until PIXEL_WIDTH) {
-        val attr = attrs[yAttrSource or (x shr 3 + AREA_X)]
+      val yAttrSource = (y shr 3) shl 5
+      for(x in 0 until width) {
+        val attr = area.attrs[yAttrSource or (x shr 3)]
         val addr = ySource or x
-        val value = screenData[addr]
+        val value = area.pixels[addr]
         var col: Int
         col = if(BLACK_AND_WHITE) {
-          color[if(value) 15 else 0]
+          if(value) white else black
         } else {
-          if(value) color[attr and 15] else color[attr shr 4 and 15]
+          if(value) color[attr and 0b1111] else color[attr shr 4 and 0b1111]
         }
-        if(bgData != null && value != bgData[addr]) col = color[11]
-        image.setRGB(x, y, col)
+        if(bgData != null && value != bgData[addr]) col = magenta
+        image.setRGB(x + x0, y + y0, col)
       }
     }
-    return image
   }
 
   @Throws(IOException::class)

@@ -1,4 +1,5 @@
 import java.awt.Color
+import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
@@ -36,7 +37,7 @@ object Sprites {
   }
 
   fun declash(screen: BooleanArray, x1: Int, y1: Int, x2: Int, y2: Int
-              , image: BufferedImage) {
+              , image: BufferedImage, frame: Int) {
     val width = x2 - x1
     val height = y2 - y1
     //System.out.print(width + "x" + height + ", ");
@@ -47,6 +48,12 @@ object Sprites {
       var bestMatched = 0
       var bestSprite: Sprite = list.first
       list@ for(sprite in list) {
+        val area = sprite.area[frame] ?: continue
+        val areaX1 = 0
+        val areaY1 = 0
+        val areaX2 = (area.x + area.width) shl 3
+        val areaY2 = (area.y + area.height) shl 3
+
         val spriteWidth = sprite.width
         val spriteHeight = sprite.height
         val dy1 = y1 - MIN_DETECTION_HEIGHT - spriteHeight
@@ -54,6 +61,8 @@ object Sprites {
         for(dy in dy1..dy2) {
           val spriteY1 = Integer.max(0, -dy)
           val spriteY2 = Integer.min(spriteHeight, PIXEL_HEIGHT - dy)
+          if(spriteY1 < areaY1 || spriteY2 >= areaY2) continue
+
           val areaHeight = spriteY2 - spriteY1
           if(areaHeight < MIN_DETECTION_HEIGHT) continue
           val dx1 = x1 + MIN_DETECTION_WIDTH - spriteWidth
@@ -61,6 +70,8 @@ object Sprites {
           dx@ for(dx in dx1..dx2) {
             val spriteX1 = Integer.max(0, -dx)
             val spriteX2 = Integer.min(spriteWidth, PIXEL_WIDTH - dx)
+            if(spriteX1 < areaX1 || spriteX2 >= areaX2) continue
+
             val areaWidth = spriteX2 - spriteX1
             if(areaWidth < MIN_DETECTION_WIDTH
                 || areaWidth * areaHeight < MIN_DETECTION_PIXELS) continue
@@ -116,11 +127,11 @@ object Sprites {
         for(spriteX in 0 until spriteWidth) {
           val screenX = spriteX + bestDx
           if(screenX < 0 || screenX >= PIXEL_WIDTH) continue
-          val repainted = bestSprite.repainted
+          val repainted = bestSprite.repainted[frame]
           if(repainted == null) {
             when(bestSprite.data[spriteX + ySprite]) {
               SpritePixelType.ON -> image.setRGB(screenX, screenY, SPRITE_COLOR)
-              SpritePixelType.OFF -> image.setRGB(screenX, screenY, color[0])
+              SpritePixelType.OFF -> image.setRGB(screenX, screenY, black)
             }
           } else {
             val value = repainted.getRGB(spriteX, spriteY)
@@ -137,34 +148,51 @@ object Sprites {
 
   private class Sprite(file: File) {
     var data: Array<SpritePixelType>
-    var repainted: BufferedImage? = null
+    var repainted: DefaultMap<Int, BufferedImage>
+    var area: DefaultMap<Int, Rect>
     var width: Int
     var height: Int
     var pixelsQuantity = 0
     var maxErrors = 0
     var minMatched = 0.0
 
+    fun load(fileName: String):BufferedImage {
+      return ImageIO.read(File("$project/repainted/$fileName"))
+    }
+
     init {
       val name = file.name
+      val repaintedFile = File("$project/repainted/$name")
+      val repaintedImage
+          = if(repaintedFile.exists()) ImageIO.read(repaintedFile) else null
+      if(repaintedImage != null) println("$name is repainted")
+      var defaultRepainted = null
+      var repaintedMap = emptyMap<Int, BufferedImage>()
+      var defaultArea = MAIN_SCREEN
+      var areaMap = emptyMap<Int, Rect>()
       when(name) {
         "arrow.png" -> {
           minMatched = 0.95
           maxErrors = 0
-        }
-        "island.png" -> {
+        } "island.png" -> {
           minMatched = 0.8
           maxErrors = 15
-        }
-        else -> {
+          val redIsland = load("island.png")
+          val blueIsland = load("island2.png")
+          val whiteIsland = load("island3.png")
+          val islandArea = Rect(0, 17, 32, 1)
+          repaintedMap = mapOf(3012 to blueIsland
+            , 23687 to whiteIsland, 24350 to redIsland, 45276 to redIsland)
+          areaMap = mapOf(3012 to islandArea
+            , 23687 to islandArea, 24350 to islandArea
+            , 45276 to Rect(14, 14, 8, 4))
+        } else -> {
           minMatched = 0.9
           maxErrors = 15
         }
       }
-      val repaintedFile = File("$project/repainted/$name")
-      if(repaintedFile.exists()) {
-        repainted = ImageIO.read(repaintedFile)
-        println("$name is repainted")
-      }
+      repainted = DefaultMap(defaultRepainted, repaintedMap)
+      area = DefaultMap(defaultArea, areaMap)
       val image = ImageIO.read(file)
       width = image.width
       height = image.height
@@ -176,14 +204,11 @@ object Sprites {
             0 -> {
               data[yAddr + x] = SpritePixelType.OFF
               pixelsQuantity++
-            }
-            0xFFFFFF -> {
+            } 0xFFFFFF -> {
               data[yAddr + x] = SpritePixelType.ON
               pixelsQuantity++
-            }
-            0xFF00FF -> data[yAddr + x] = SpritePixelType.ANY
-            else
-            -> throw Exception("Invalid color")
+            } 0xFF00FF -> data[yAddr + x] = SpritePixelType.ANY
+            else -> throw Exception("Invalid color")
           }
         }
       }

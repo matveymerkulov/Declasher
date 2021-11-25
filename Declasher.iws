@@ -2,17 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c20d8dac-1e5b-41d6-8d15-c786566be6a8" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Background.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/021052.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/056547.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/056547.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/24350.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/arrow.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/island.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/sprites/island.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/log.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/plane.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/repainted/arrow.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/repainted/island.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Background.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Background.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Image.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Image.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ImageExtractor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
@@ -34,6 +27,9 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="20eT30i8rIUZf3B0CYyfb96EicZ" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -85,6 +81,14 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.ArrayIndexOutOfBoundsException" package="java.lang" />
+          <option name="timeStamp" value="2" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="JetRunConfigurationType">
         <watch expression="image.getRGB(x, y) and 0xFFFFFF" language="kotlin" />
@@ -94,5 +98,8 @@
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
     <select />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Declasher$MainKt.ic" NAME="MainKt Coverage Results" MODIFIED="1637816433497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
 </project>

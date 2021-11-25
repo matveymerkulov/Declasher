@@ -2,16 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9dcd0ae3-14a0-4f58-8655-2d30be363d32" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/KotlinJavaRuntime.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Declasher.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Declasher.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Brightness.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Brightness.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Image.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Image.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Background.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Background.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ImageExtractor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Packer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Packer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Sprites.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />
     </list>
@@ -22,6 +17,10 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$PROJECT_DIR$/lib/kotlin-stdlib-sources.jar!/kotlin/collections/TypeAliases.kt" root0="FORCE_HIGHLIGHTING" />
+    <setting file="jar://$PROJECT_DIR$/lib/kotlin-stdlib-sources.jar!/common/kotlin/collections/Collections.kt" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="20eSDtLvmq2ssem1Aqd7k8QAAFL" />
   <component name="ProjectViewState">
@@ -38,6 +37,9 @@
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="project.propCompiler" />
+  </component>
+  <component name="ReaderModeSettings">
+    <option name="enabled" value="false" />
   </component>
   <component name="RunManager" selected="Kotlin.MainKt">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
