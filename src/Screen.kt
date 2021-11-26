@@ -1,7 +1,6 @@
 import org.tukaani.xz.SeekableFileInputStream
 import org.tukaani.xz.SeekableXZInputStream
 import java.awt.Graphics2D
-import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
@@ -241,7 +240,7 @@ object Screen {
 
   @Throws(IOException::class)
   fun saveImage(image: BufferedImage, fileName: String) {
-    val outputfile = File(OUT_DIR + fileName)
-    ImageIO.write(x3(image), "png", outputfile)
+    val outputFile = File(OUT_DIR + fileName)
+    ImageIO.write(x3(image), "png", outputFile)
   }
 }

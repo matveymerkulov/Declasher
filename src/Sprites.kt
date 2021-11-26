@@ -49,8 +49,8 @@ object Sprites {
       var bestSprite: Sprite = list.first
       list@ for(sprite in list) {
         val area = sprite.area[frame] ?: continue
-        val areaX1 = 0
-        val areaY1 = 0
+        val areaX1 = area.x shl 3
+        val areaY1 = area.y shl 3
         val areaX2 = (area.x + area.width) shl 3
         val areaY2 = (area.y + area.height) shl 3
 
@@ -61,7 +61,7 @@ object Sprites {
         for(dy in dy1..dy2) {
           val spriteY1 = Integer.max(0, -dy)
           val spriteY2 = Integer.min(spriteHeight, PIXEL_HEIGHT - dy)
-          if(spriteY1 < areaY1 || spriteY2 >= areaY2) continue
+          if(spriteY1 + dy < areaY1 || spriteY2 + dy >= areaY2) continue
 
           val areaHeight = spriteY2 - spriteY1
           if(areaHeight < MIN_DETECTION_HEIGHT) continue
@@ -70,7 +70,7 @@ object Sprites {
           dx@ for(dx in dx1..dx2) {
             val spriteX1 = Integer.max(0, -dx)
             val spriteX2 = Integer.min(spriteWidth, PIXEL_WIDTH - dx)
-            if(spriteX1 < areaX1 || spriteX2 >= areaX2) continue
+            if(spriteX1 + dx < areaX1 || spriteX2 + dx >= areaX2) continue
 
             val areaWidth = spriteX2 - spriteX1
             if(areaWidth < MIN_DETECTION_WIDTH
@@ -147,14 +147,14 @@ object Sprites {
   }
 
   private class Sprite(file: File) {
-    var data: Array<SpritePixelType>
-    var repainted: DefaultMap<Int, BufferedImage>
-    var area: DefaultMap<Int, Rect>
-    var width: Int
-    var height: Int
+    val data: Array<SpritePixelType>
+    val repainted: DefaultMap<Int, BufferedImage>
+    val area: DefaultMap<Int, Rect>
+    val width: Int
+    val height: Int
     var pixelsQuantity = 0
-    var maxErrors = 0
-    var minMatched = 0.0
+    val maxErrors: Int
+    val minMatched: Double
 
     fun load(fileName: String):BufferedImage {
       return ImageIO.read(File("$project/repainted/$fileName"))
@@ -163,12 +163,11 @@ object Sprites {
     init {
       val name = file.name
       val repaintedFile = File("$project/repainted/$name")
-      val repaintedImage
+      val defaultRepainted
           = if(repaintedFile.exists()) ImageIO.read(repaintedFile) else null
-      if(repaintedImage != null) println("$name is repainted")
-      var defaultRepainted = null
+      if(defaultRepainted != null) println("$name is repainted")
       var repaintedMap = emptyMap<Int, BufferedImage>()
-      var defaultArea = MAIN_SCREEN
+      var defaultArea = Rect(0, 0, 32, 18)
       var areaMap = emptyMap<Int, Rect>()
       when(name) {
         "arrow.png" -> {
@@ -176,11 +175,11 @@ object Sprites {
           maxErrors = 0
         } "island.png" -> {
           minMatched = 0.8
-          maxErrors = 15
+          maxErrors = 20
           val redIsland = load("island.png")
           val blueIsland = load("island2.png")
           val whiteIsland = load("island3.png")
-          val islandArea = Rect(0, 17, 32, 1)
+          val islandArea = Rect(0, 16, 32, 2)
           repaintedMap = mapOf(3012 to blueIsland
             , 23687 to whiteIsland, 24350 to redIsland, 45276 to redIsland)
           areaMap = mapOf(3012 to islandArea
@@ -191,6 +190,7 @@ object Sprites {
           maxErrors = 15
         }
       }
+
       repainted = DefaultMap(defaultRepainted, repaintedMap)
       area = DefaultMap(defaultArea, areaMap)
       val image = ImageIO.read(file)

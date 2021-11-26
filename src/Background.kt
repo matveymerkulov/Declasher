@@ -6,6 +6,7 @@ class Background {
   val fileName: String
   val hasForcedColor: Boolean
   val skip: Boolean
+  val frame: Int
 
   constructor(pixels: BooleanArray) {
     this.pixels = pixels
@@ -13,20 +14,23 @@ class Background {
     this.fileName = ""
     this.hasForcedColor = false
     this.skip = false
+    this.frame = -1
   }
 
   constructor(pixels: BooleanArray, image: BufferedImage?, fileName: String) {
-    val num = fileName.substring(0, fileName.indexOf(".")).toInt();
+    this.frame = fileName.substring(0, fileName.indexOf(".")).toInt();
     this.pixels = pixels
     this.image = image
     this.fileName = fileName
-    this.hasForcedColor = forcedColor.contains(num)
-    this.skip = skippedBackgrounds.contains(num)
+    this.hasForcedColor = forcedColor.contains(this.frame)
+    this.skip = skippedBackgrounds.contains(this.frame)
   }
 
   fun difference(screen: BooleanArray): Int {
     var difference = 0
-    for(i in 0 until MAIN_SCREEN.pixelSize()) if(pixels[i] != screen[i]) difference++
+    for(i in 0 until MAIN_SCREEN.pixelSize()) {
+      if(pixels[i] != screen[i]) difference++
+    }
     return difference
   }
 }

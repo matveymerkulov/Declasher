@@ -97,7 +97,8 @@ object ImageExtractor {
             } else {
               repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
                 , background.hasForcedColor)
-              Sprites.declash(screen.pixels, x1, y1, x2, y2, image, frame)
+              Sprites.declash(screen.pixels, x1, y1, x2, y2, image
+                , background.frame)
             }
           } else {
             repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
@@ -117,12 +118,12 @@ object ImageExtractor {
       for(x in x1 until x2) {
         val addr = x + yAddr
         if(pixels[addr] == imageNumber) {
-          image.setRGB(x, y, color[if(hasParticles) {
-            if(screen.pixels[addr]) PARTICLE_COLOR else 0
+          image.setRGB(x, y, if(hasParticles) {
+            if(screen.pixels[addr]) PARTICLE_COLOR else black
           } else {
             val attr = screen.attrs[yAttrSource or (x shr 3)]
-            if(screen.pixels[addr]) attr and 0xF else attr shr 4
-          }])
+            if(screen.pixels[addr]) color[attr and 0xF] else color[attr shr 4]
+          })
         } else if(SHOW_DETECTION_AREA) {
           image.setRGB(x, y, darkMagenta)
         }

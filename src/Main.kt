@@ -4,14 +4,15 @@ import java.io.IOException
 import java.io.File
 import java.awt.image.BufferedImage
 
+const val brig = 0x9F
 const val black = 0x000000
-const val darkBlue = 0x00009F
-const val darkRed = 0x9F0000
-const val darkMagenta = 0x9F009F
-const val darkGreen = 0x009F00
-const val darkCyan = 0x009F9F
-const val darkYellow = 0x9F9F00
-const val grey = 0x9F9F9F
+const val darkBlue = 0x000001 * brig
+const val darkRed = 0x010000 * brig
+const val darkMagenta = 0x010001 * brig
+const val darkGreen = 0x000100 * brig
+const val darkCyan = 0x000101 * brig
+const val darkYellow = 0x010100 * brig
+const val grey = 0x010101 * brig
 const val blue = 0x0000FF
 const val red = 0xFF0000
 const val magenta = 0xFF00FF
@@ -61,7 +62,7 @@ val PIXEL_SIZE = MAIN_SCREEN.pixelSize()
 const val BORDER_SIZE = 4
 const val MAX_DISTANCE = 3
 const val MIN_WIDTH = 10
-const val MAX_WIDTH = 48
+const val MAX_WIDTH = 64
 const val MIN_HEIGHT = 6
 const val MAX_HEIGHT = 90
 const val MAX_CHANGED_PIXELS = 900
@@ -71,38 +72,22 @@ const val MIN_FRAMES = 5
 const val FRAME_FREQUENCY = 1
 const val OUT_DIR = "D:/output/"
 
-
 enum class Mode {
   EXTRACT_SPRITES, EXTRACT_BACKGROUNDS, DECLASH, DETECT_MAX_SIZE
   , SHOW_DIFFERENCE, TO_BLACK_AND_WHITE, COLOR_BACKGROUNDS
 }
 
 // options
-@JvmField
 val mode = Mode.DECLASH
 
-@JvmField
-var SPRITE_COLOR = color[15]
-
-@JvmField
-var PARTICLE_COLOR = 15
-
-@JvmField
+var SPRITE_COLOR = white
+var PARTICLE_COLOR = white
 var PERCENT_ON = 0.7
-
-@JvmField
 var MIN_DETECTION_WIDTH = 8
-
-@JvmField
 var MIN_DETECTION_HEIGHT = 8
-
-@JvmField
 var MIN_DETECTION_PIXELS = 140
-
-@JvmField
 var MIN_BG_DIFFERENCE = 300
 
-@JvmField
 var project = "ratime"
 var forcedColor = listOf(2437, 3012, 34234, 57410)
 val skippedBackgrounds = intArrayOf()
@@ -120,23 +105,18 @@ fun main(args: Array<String>) {
   Screen.init()
   Sprites.load()
   for(file in File(OUT_DIR).listFiles()) file.delete()
+  //Screen.process()
+  //Screen.process(1800, 1830)
+  Screen.process(20000, 40000)
   when(mode) {
-    Mode.COLOR_BACKGROUNDS -> Screen.saveBackgrounds()
-    Mode.EXTRACT_BACKGROUNDS -> {
-      //Screen.process(23073);
-      //Screen.process(0, 10000, false);
-      Screen.process()
-    }
-    Mode.EXTRACT_SPRITES -> {
-      Screen.process(0, 1000)
-      //Screen.process()
+    Mode.COLOR_BACKGROUNDS -> {
+      Screen.saveBackgrounds()
+    } Mode.EXTRACT_BACKGROUNDS -> {
+    } Mode.EXTRACT_SPRITES -> {
       ImageExtractor.saveImages()
+    } Mode.DECLASH -> {
+    } else -> {
     }
-    Mode.DECLASH -> {
-      //Screen.process(800, 1000)
-      Screen.process()
-    }
-    else -> Screen.process()
   }
   println("Min sprite pixels is ${Sprites.minSpritePixels}")
   println("Min detection area size is ${Sprites.maxDetectionSize} pixels")
