@@ -70,6 +70,7 @@ const val MIN_MATCHED_PIXELS = 60
 const val MAX_BACKGROUND_DELAY = 10
 const val MIN_FRAMES = 5
 const val FRAME_FREQUENCY = 1
+const val MAX_BG_DIFFERENCE = 900
 const val OUT_DIR = "D:/output/"
 
 enum class Mode {
@@ -105,9 +106,9 @@ fun main(args: Array<String>) {
   Screen.init()
   Sprites.load()
   for(file in File(OUT_DIR).listFiles()) file.delete()
-  //Screen.process()
-  //Screen.process(1800, 1830)
-  Screen.process(20000, 40000)
+  Screen.process(34000, 35000,34234)
+  //Screen.process(0, 3000)
+  //Screen.process(20000, 40000)
   when(mode) {
     Mode.COLOR_BACKGROUNDS -> {
       Screen.saveBackgrounds()
@@ -123,6 +124,7 @@ fun main(args: Array<String>) {
   println("Max image is ${Image.maxSize} pixels")
   println("Max errors is ${Sprites.maxErrors}")
   println("Max difference is ${Sprites.maxDifference}")
+  println("Max background difference is ${Screen.maxBackgroundDifference}")
 }
 
 fun resizeImage(originalImage: BufferedImage, targetWidth: Int

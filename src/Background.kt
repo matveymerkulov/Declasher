@@ -29,7 +29,10 @@ class Background {
   fun difference(screen: BooleanArray): Int {
     var difference = 0
     for(i in 0 until MAIN_SCREEN.pixelSize()) {
-      if(pixels[i] != screen[i]) difference++
+      if(pixels[i] != screen[i]) {
+        difference++
+        if(difference > MAX_BG_DIFFERENCE) break
+      }
     }
     return difference
   }

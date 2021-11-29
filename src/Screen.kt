@@ -92,8 +92,10 @@ object Screen {
     }
   }
 
-  private fun findBackground(screen: BooleanArray): Background? {
-    var minDifference = PIXEL_SIZE
+  var maxBackgroundDifference = -1
+
+  private fun findBackground(screen: BooleanArray, frame: Int): Background? {
+    var minDifference = MAX_BG_DIFFERENCE
     var minBackground: Background? = null
     for(background in backgrounds) {
       val difference = background.difference(screen)
@@ -102,7 +104,10 @@ object Screen {
         minBackground = background
       }
     }
-    //System.out.println("Min difference is " + minDifference);
+    if(minBackground != null && maxBackgroundDifference < minDifference) {
+      maxBackgroundDifference = minDifference
+      System.out.println("Min difference for $frame is $minDifference");
+    }
     return minBackground
   }
 
@@ -116,13 +121,17 @@ object Screen {
   }
 
   // processing
-  @Throws(IOException::class)
-  fun process(vararg start: Int) {
-    for(j in start) process(j, -1, true)
+
+  fun process() {
+    process(0, -1)
+  }
+
+  fun process(backgroundNum: Int) {
+    process(0, -1, backgroundNum)
   }
 
   @Throws(IOException::class)
-  fun process(from: Int = 0, to: Int = -1, singleScreen: Boolean = false) {
+  fun process(from: Int, to: Int, backgroundNum: Int = -1) {
     var firstFrame = from
     var oldScreen: Area? = null
     var frame = from
@@ -155,7 +164,7 @@ object Screen {
           val frames = frame - firstFrame
           if(frames >= MIN_FRAMES) {
             val background = composeBackground(frames)
-            if(SAVE_SIMILAR || findBackground(background) == null) {
+            if(SAVE_SIMILAR || findBackground(background, frame) == null) {
               oldScreen = Area(background, oldScreen.attrs, oldScreen.area)
               saveImage(toImage(oldScreen, null), firstFrame)
               backgrounds.add(Background(background))
@@ -165,41 +174,48 @@ object Screen {
                   + " $difference and $frames frames")
             }
           }
-          if(singleScreen) return
           Arrays.fill(backgroundOn, 0)
           firstFrame = frame
         }
       } else if(mode == Mode.TO_BLACK_AND_WHITE) {
         saveImage(toImage(screen), frame)
       } else if(frame % FRAME_FREQUENCY == 0) {
-        val background = findBackground(screen.pixels)
+        val background = findBackground(screen.pixels, frame)
         if(background != null) {
-          when(mode) {
-            Mode.SHOW_DIFFERENCE
-                -> saveImage(toImage(screen, background.pixels), frame)
-            Mode.DECLASH, Mode.EXTRACT_SPRITES, Mode.DETECT_MAX_SIZE -> {
-              val image = if(background.image == null) toImage(screen
-                , null) else copyImage(background.image)
-              ImageExtractor.process(screen, background, frame, image)
-              if(mode == Mode.DECLASH) {
-                val screenImage = BufferedImage(SCREEN_WIDTH shl 3
-                  , SCREEN_HEIGHT shl 3, BufferedImage.TYPE_INT_RGB)
-                pasteToImage(screenImage, load(frame, STATUS_BAR)
-                  , STATUS_BAR.x shl 3, STATUS_BAR.y shl 3)
-                val g2d: Graphics2D = screenImage.createGraphics()
-                g2d.drawImage(image, MAIN_SCREEN.x shl 3
-                  , MAIN_SCREEN.y shl 3, null)
-                g2d.dispose()
-                saveImage(screenImage, frame)
+          if(backgroundNum < 0 || backgroundNum == background.frame) {
+            when(mode) {
+              Mode.SHOW_DIFFERENCE
+                  -> saveImage(toImage(screen, background.pixels), frame)
+              Mode.DECLASH, Mode.EXTRACT_SPRITES, Mode.DETECT_MAX_SIZE -> {
+                val image = if(background.image == null) toImage(screen)
+                    else copyImage(background.image)
+                ImageExtractor.process(screen, background, frame, image)
+                if(mode == Mode.DECLASH) {
+                  composeScreen(frame, image)
+                }
               }
             }
           }
+        } else if(mode == Mode.DECLASH && backgroundNum < 0) {
+          composeScreen(frame, toImage(screen))
         }
       }
 
       oldScreen = screen
       frame++
     }
+  }
+
+  private fun composeScreen(frame: Int, image: BufferedImage) {
+    val screenImage = BufferedImage(SCREEN_WIDTH shl 3
+      , SCREEN_HEIGHT shl 3, BufferedImage.TYPE_INT_RGB)
+    pasteToImage(screenImage, load(frame, STATUS_BAR)
+      , STATUS_BAR.x shl 3, STATUS_BAR.y shl 3)
+    val g2d: Graphics2D = screenImage.createGraphics()
+    g2d.drawImage(image, MAIN_SCREEN.x shl 3
+      , MAIN_SCREEN.y shl 3, null)
+    g2d.dispose()
+    saveImage(screenImage, frame)
   }
 
   // conversion and saving

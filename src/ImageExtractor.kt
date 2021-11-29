@@ -8,9 +8,9 @@ object ImageExtractor {
   val images = LinkedList<LinkedList<Image>>()
 
   @Throws(IOException::class)
-  fun process(screen: Area, background: Background, frame: Int
+  fun process(screen: Area, background: Background?, frame: Int
               , image: BufferedImage) {
-    if(background.skip) return
+    if(background == null || background.skip) return
 
     val SAME = 0
     val CHANGED = 1
@@ -119,7 +119,7 @@ object ImageExtractor {
         val addr = x + yAddr
         if(pixels[addr] == imageNumber) {
           image.setRGB(x, y, if(hasParticles) {
-            if(screen.pixels[addr]) PARTICLE_COLOR else black
+            PARTICLE_COLOR
           } else {
             val attr = screen.attrs[yAttrSource or (x shr 3)]
             if(screen.pixels[addr]) color[attr and 0xF] else color[attr shr 4]

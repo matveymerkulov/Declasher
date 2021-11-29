@@ -1,5 +1,4 @@
 import java.awt.Color
-import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
@@ -53,12 +52,14 @@ object Sprites {
         val areaY1 = area.y shl 3
         val areaX2 = (area.x + area.width) shl 3
         val areaY2 = (area.y + area.height) shl 3
+        val isBlock = sprite.isBlock
 
         val spriteWidth = sprite.width
         val spriteHeight = sprite.height
         val dy1 = y1 - MIN_DETECTION_HEIGHT - spriteHeight
         val dy2 = y1 + height - MIN_DETECTION_HEIGHT
         for(dy in dy1..dy2) {
+          if(isBlock && (dy % 8) != 0) continue
           val spriteY1 = Integer.max(0, -dy)
           val spriteY2 = Integer.min(spriteHeight, PIXEL_HEIGHT - dy)
           if(spriteY1 + dy < areaY1 || spriteY2 + dy >= areaY2) continue
@@ -68,6 +69,8 @@ object Sprites {
           val dx1 = x1 + MIN_DETECTION_WIDTH - spriteWidth
           val dx2 = x1 + width - MIN_DETECTION_WIDTH
           dx@ for(dx in dx1..dx2) {
+            if(isBlock && (dx % 8) != 0) continue
+
             val spriteX1 = Integer.max(0, -dx)
             val spriteX2 = Integer.min(spriteWidth, PIXEL_WIDTH - dx)
             if(spriteX1 + dx < areaX1 || spriteX2 + dx >= areaX2) continue
@@ -152,9 +155,10 @@ object Sprites {
     val area: DefaultMap<Int, Rect>
     val width: Int
     val height: Int
-    var pixelsQuantity = 0
     val maxErrors: Int
     val minMatched: Double
+    val isBlock: Boolean
+    var pixelsQuantity = 0
 
     fun load(fileName: String):BufferedImage {
       return ImageIO.read(File("$project/repainted/$fileName"))
@@ -162,6 +166,7 @@ object Sprites {
 
     init {
       val name = file.name
+      val image = ImageIO.read(file)
       val repaintedFile = File("$project/repainted/$name")
       val defaultRepainted
           = if(repaintedFile.exists()) ImageIO.read(repaintedFile) else null
@@ -193,7 +198,7 @@ object Sprites {
 
       repainted = DefaultMap(defaultRepainted, repaintedMap)
       area = DefaultMap(defaultArea, areaMap)
-      val image = ImageIO.read(file)
+      isBlock = name.contains("_block");
       width = image.width
       height = image.height
       data = Array<SpritePixelType>(width * height) { SpritePixelType.ANY }
