@@ -85,10 +85,11 @@ object Screen {
   @Throws(IOException::class)
   fun saveBackgrounds() {
     for(background in backgrounds) {
-      val number = background.fileName.substring(0
-          , background.fileName.indexOf('.')).toInt()
-      load(number + 1, MAIN_SCREEN)
-      //saveImage(toImage(background.pixels, null), background.fileName)
+      val frame = background.frame
+      val area = load(frame + 1, MAIN_SCREEN)
+      val image = toImage(area, null)
+      Sprites.highlightLocations(frame, image)
+      saveImage(image, background.fileName)
     }
   }
 
@@ -168,8 +169,8 @@ object Screen {
               oldScreen = Area(background, oldScreen.attrs, oldScreen.area)
               saveImage(toImage(oldScreen, null), firstFrame)
               backgrounds.add(Background(background))
-              //saveImage(toImage(oldScreen, null), frame - 1);
-              //saveImage(toImage(screen, null), frame);
+              //saveImage(toImage(oldScreen, null), frame - 1)
+              //saveImage(toImage(screen, null), frame)
               println("Saved background $firstFrame with difference"
                   + " $difference and $frames frames")
             }
@@ -183,16 +184,14 @@ object Screen {
         val background = findBackground(screen.pixels, frame)
         if(background != null) {
           if(backgroundNum < 0 || backgroundNum == background.frame) {
-            when(mode) {
-              Mode.SHOW_DIFFERENCE
-                  -> saveImage(toImage(screen, background.pixels), frame)
-              Mode.DECLASH, Mode.EXTRACT_SPRITES, Mode.DETECT_MAX_SIZE -> {
-                val image = if(background.image == null) toImage(screen)
-                    else copyImage(background.image)
-                ImageExtractor.process(screen, background, frame, image)
-                if(mode == Mode.DECLASH) {
-                  composeScreen(frame, image)
-                }
+            if(mode == Mode.SHOW_DIFFERENCE) {
+              saveImage(toImage(screen, background.pixels), frame)
+            } else {
+              val image = if(background.image == null) toImage(screen)
+                  else copyImage(background.image)
+              ImageExtractor.process(screen, background, frame, image)
+              if(mode == Mode.DECLASH) {
+                composeScreen(frame, image)
               }
             }
           }

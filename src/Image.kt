@@ -8,8 +8,9 @@ class Image {
   private class ImageEntry(val image: Image, val dx: Int, val dy: Int)
   private enum class PixelType(var value: Boolean
   , var cannotBeTransparent: Boolean) {
-    OFF(false, true), ON(true, true)
-    , OFF_OR_TRANSPARENT(false, false) {
+    OFF(false, true),
+    ON(true, true),
+    OFF_OR_TRANSPARENT(false, false) {
       override fun removeTransparency(): PixelType {
         return OFF
       }

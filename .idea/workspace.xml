@@ -2,14 +2,38 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9dcd0ae3-14a0-4f58-8655-2d30be363d32" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/Declasher.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Declasher.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/xz.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/xz.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Declasher.ipr" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.ipr" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/003012.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/003012.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Background.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Background.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ImageExtractor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/sevenzipjbinding-Windows-amd64.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/sevenzipjbinding.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/000752.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/000752.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/000921.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/000921.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/002041.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/002041.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/002246.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/002246.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/005652.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/005652.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/005796.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/005796.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/006309.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/006309.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/006541.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/006541.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/017627.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/017627.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/017732.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/017732.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/018227.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/018227.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/025632.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/025632.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/053521.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/053521.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/repainted/cheese_block.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/repainted/fish_block.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/repainted/plug_block.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/repainted/umbrella_block.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/sprites/cheese_block.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/sprites/fish_block.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/sprites/plug_block.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/sprites/umbrella_block.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Image.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Image.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Sprites.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/xz.jar" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,11 +53,12 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowDebug.ShowToolbar" value="false" />
-    <property name="last_opened_file_path" value="$KOTLIN_BUNDLED$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/lib/xz.jar" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -86,6 +111,9 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

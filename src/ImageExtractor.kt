@@ -148,6 +148,4 @@ object ImageExtractor {
       maxImage.save(listNum)
     }
   }
-
-  private class Coords(val x: Int, val y: Int)
 }
