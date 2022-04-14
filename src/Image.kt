@@ -62,7 +62,7 @@ class Image {
     + ", " + x2 + ", " + y2);*/
   }
 
-  constructor(pixels: IntArray, screen: BooleanArray, background: BooleanArray?
+  constructor(pixels: IntArray, screen: Array<Pixel>, background: Array<Pixel>?
               , x1: Int, y1: Int, x2: Int, y2: Int, imageNumber: Int) {
     val leftBorder = Integer.min(BORDER_SIZE, x1)
     val topBorder = Integer.min(BORDER_SIZE, y1)
@@ -74,7 +74,7 @@ class Image {
     this.y1 = topBorder
     this.x2 = width - rightBorder
     this.y2 = height - bottomBorder
-    data = Array<PixelType>(width * height) { PixelType.ON }
+    data = Array<PixelType>(width * height) { PixelType.OFF }
     val dx = x1 - leftBorder
     val dy = y1 - topBorder
     for(y in 0 until height) {
@@ -83,10 +83,11 @@ class Image {
       for(x in 0 until width) {
         val addr = yDestination + x
         if(pixels[addr] == imageNumber) {
-          data[x + ySource] = if(screen[addr]) PixelType.ON else PixelType.OFF
+          data[x + ySource] = if(screen[addr] == Pixel.ON) PixelType.ON else
+            PixelType.OFF
         } else {
-          data[x + ySource] = if(screen[addr]) PixelType.ON_OR_TRANSPARENT
-          else PixelType.OFF_OR_TRANSPARENT
+          data[x + ySource] = if(screen[addr] == Pixel.ON)
+            PixelType.ON_OR_TRANSPARENT else PixelType.OFF_OR_TRANSPARENT
         }
       }
     }

@@ -1,4 +1,4 @@
-val mode = Mode.FIND_SPRITE_POSITION
+val mode = Mode.DECLASH
 
 
 
@@ -54,7 +54,7 @@ const val OUT_DIR = "D:/output/"
 
 fun process() {
   if(mode == Mode.FIND_SPRITE_POSITION) {
-    Sprites.loadSeveral("static", 0.9, 15)
+    Sprites.loadSeveral("static", 0.9, 15, 1, 1)
     Screen.process()
     Screen.saveBackgrounds()
   } else {
@@ -91,22 +91,28 @@ fun process() {
       , 3012, 216, 112, 44041, 80, 72))
     Sprites.setLocations("wrench_block", listOf(13225, 136, 112))
 
-    val redIsland = loadRepainted("island.png")
-    val blueIsland = loadRepainted("island2.png")
-    val whiteIsland = loadRepainted("island3.png")
+    Sprites.loadSeveral("sprites/player", 0.9, 15
+      , 1, 1)
+
+    val planeArea = Rect(0, 0, 32, 18)
+    Sprites.load("sprites/plane", 0.9, 15
+      , 1, 1) { frame: Int -> if(frame <= 7) defaultArea else null }
+
     val islandArea = Rect(0, 16, 32, 2)
-
-    Sprites.loadSeveral("sprites/player", 0.9, 15)
-    Sprites.load("sprites/island", 0.8, 20
-      , mapOf(3012 to blueIsland, 23687 to whiteIsland, 24350 to redIsland
-        , 45276 to redIsland), mapOf(3012 to islandArea, 23687 to islandArea
-        , 24350 to islandArea, 45276 to Rect(14, 14, 8, 4)))
-    Sprites.load("sprites/plane", 0.9, 15)
-
+    Sprites.load("sprites/island1", 0.8, 20
+      , 1, 1) { frame: Int -> if(frame == 23687) islandArea else null }
+    Sprites.load("sprites/island2", 0.8, 20
+      , 1, 1) { frame: Int -> if(frame == 3012) islandArea else null }
+    Sprites.load("sprites/island3", 0.8, 20
+      , 1, 1) { frame: Int -> when(frame) {
+      24350 -> islandArea
+      45276 -> Rect(14, 14, 8, 4)
+      else -> null
+    }}
     //Screen.process(34000, 35000,34234)
-    //Screen.process(0, 3000)
+    Screen.process(1, 1000)
     //Screen.process(20000, 30000)
-    Screen.process()
+    //Screen.process()
     when(mode) {
       Mode.COLOR_BACKGROUNDS -> {
         Screen.saveBackgrounds()

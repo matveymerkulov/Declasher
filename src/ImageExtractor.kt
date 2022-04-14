@@ -122,7 +122,8 @@ object ImageExtractor {
             PARTICLE_COLOR
           } else {
             val attr = screen.attrs[yAttrSource or (x shr 3)]
-            if(screen.pixels[addr]) color[attr and 0xF] else color[attr shr 4]
+            if(screen.pixels[addr] == Pixel.ON)
+              color[attr and 0xF] else color[attr shr 4]
           })
         } else if(SHOW_DETECTION_AREA) {
           image.setRGB(x, y, darkMagenta)

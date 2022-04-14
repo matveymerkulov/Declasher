@@ -2,41 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c20d8dac-1e5b-41d6-8d15-c786566be6a8" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/Declasher.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Declasher.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/xz.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/xz.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Declasher.ipr" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.ipr" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/sevenzipjbinding-Windows-amd64.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/sevenzipjbinding.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/057410.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/057410.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/000752.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/000752.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/000921.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/000921.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/002041.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/002041.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/002246.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/002246.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/005652.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/005652.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/005796.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/005796.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/006309.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/006309.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/006541.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/006541.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/017627.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/017627.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/017732.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/017732.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/018227.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/018227.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/025632.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/025632.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/repainted/053521.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/repainted/053521.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/repainted/cheese_block.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/repainted/fish_block.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/repainted/plug_block.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/repainted/umbrella_block.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/cheese_block.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/fish_block.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/plug_block.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/umbrella_block.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/repainted/island.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/sprites/island.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Background.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Background.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Image.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Image.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ImageExtractor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Sprites.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/xz.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ratime.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ratime.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,6 +109,10 @@
         <breakpoint enabled="true" type="java-exception">
           <properties class="java.lang.NullPointerException" package="java.lang" />
           <option name="timeStamp" value="8" />
+        </breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="javax.imageio.IIOException" package="javax.imageio" />
+          <option name="timeStamp" value="9" />
         </breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>jar://C:/Program Files/Java/jdk-15.0.2/lib/src.zip!/java.desktop/sun/awt/image/ByteInterleavedRaster.java</url>

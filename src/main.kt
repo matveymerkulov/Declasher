@@ -26,7 +26,9 @@ val color = intArrayOf(black, darkBlue, darkRed, darkMagenta, darkGreen
   , darkCyan, darkYellow, grey, black, blue, red, magenta, green, cyan
   , yellow, white)
 
-class Area(val pixels: BooleanArray, val attrs: IntArray, val area: Rect)
+enum class Pixel {OFF, ON, ANY}
+
+class Area(val pixels: Array<Pixel>, val attrs: IntArray, val area: Rect)
 
 class Coords(val x: Int, val y: Int)
 
@@ -49,7 +51,7 @@ class Rect(val x: Int, val y:Int, val width: Int, val height: Int) {
 }
 
 fun loadRepainted(fileName: String):BufferedImage {
-  return ImageIO.read(File("$project/repainted/$fileName"))
+  return ImageIO.read(File("$project/repainted/$fileName.png"))
 }
 
 enum class Mode {

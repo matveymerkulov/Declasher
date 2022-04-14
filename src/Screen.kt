@@ -8,7 +8,6 @@ import java.util.*
 import javax.imageio.ImageIO
 import kotlin.math.floor
 
-
 object Screen {
   private val backgroundOn = IntArray(PIXEL_SIZE)
   private var inStream: SeekableXZInputStream? = null
@@ -23,7 +22,7 @@ object Screen {
   // loading
   @Throws(IOException::class)
   private fun load(num:Int, area: Rect): Area {
-    val data = BooleanArray(area.pixelSize())
+    val data = Array<Pixel>(area.pixelSize()) {Pixel.OFF}
     val attrs = IntArray(area.size())
     val byteScreen = ByteArray(FRAME_SIZE)
     inStream!!.seek((num * FRAME_SIZE).toLong())
@@ -38,13 +37,13 @@ object Screen {
     main@ for(part in 0..2) {
       val partSource = part shl 11
       val partDestination = part shl 3
-      for(y in 0..7) {
+      for(y in 0 until 8) {
         val ySource = partSource or (y shl 5)
         var yDestination = partDestination or y
         if(yDestination < area.y) continue
         if(yDestination >= area.y + area.height) break@main
         yDestination = yDestination - area.y shl 3
-        for(yy in 0..7) {
+        for(yy in 0 until 8) {
           val yySource = ySource or (yy shl 8)
           val yyDestination = (yDestination or yy) * area.width
           for(x in 0 until area.width) {
@@ -53,7 +52,7 @@ object Screen {
             var byteValue = byteScreen[source].toInt()
             for(xx in 7 downTo 0) {
               val addr = destination or xx
-              val pixelValue = byteValue and 1 > 0
+              val pixelValue = if(byteValue and 1 > 0) Pixel.ON else Pixel.OFF
               data[addr] = pixelValue
               byteValue = byteValue shr 1
             }
@@ -69,10 +68,11 @@ object Screen {
     for(file in File("$project/backgrounds").listFiles()) {
       if(file.isDirectory) continue
       val image = ImageIO.read(file)
-      val pixels = BooleanArray(PIXEL_SIZE)
+      val pixels = Array<Pixel>(PIXEL_SIZE) {Pixel.OFF}
       for(y in 0 until PIXEL_HEIGHT) {
         for(x in 0 until PIXEL_WIDTH) {
-          pixels[x + y * PIXEL_WIDTH] = image.getRGB(x, y) and 0xFF > 0x7F
+          pixels[x + y * PIXEL_WIDTH] =
+            if(image.getRGB(x, y) and 0xFF > 0x7F) Pixel.ON else Pixel.OFF
         }
       }
       val repainted = File("$project/backgrounds/repainted/"
@@ -95,7 +95,7 @@ object Screen {
 
   var maxBackgroundDifference = -1
 
-  private fun findBackground(screen: BooleanArray, frame: Int): Background? {
+  private fun findBackground(screen: Array<Pixel>, frame: Int): Background? {
     var minDifference = MAX_BG_DIFFERENCE
     var minBackground: Background? = null
     for(background in backgrounds) {
@@ -113,11 +113,12 @@ object Screen {
   }
 
   private val backgrounds = LinkedList<Background>()
-  private fun composeBackground(frames: Int): BooleanArray {
+  private fun composeBackground(frames: Int): Array<Pixel> {
     val minFrames = floor(PERCENT_ON * frames).toInt()
-    val background = BooleanArray(PIXEL_SIZE)
+    val background = Array<Pixel>(PIXEL_SIZE) {Pixel.OFF}
     for(addr in 0 until PIXEL_SIZE)
-      background[addr] = backgroundOn[addr] >= minFrames
+      background[addr] = if(backgroundOn[addr] >= minFrames) Pixel.ON else
+        Pixel.OFF
     return background
   }
 
@@ -152,7 +153,7 @@ object Screen {
         var difference = 0
         for(addr in 0 until PIXEL_SIZE) {
           val isChanged = screen.pixels[addr] != oldScreen.pixels[addr]
-          if(screen.pixels[addr]) backgroundOn[addr]++
+          if(screen.pixels[addr] == Pixel.ON) backgroundOn[addr]++
           if(isChanged) difference++
         }
 
@@ -218,7 +219,7 @@ object Screen {
   }
 
   // conversion and saving
-  private fun toImage(area: Area, bgData: BooleanArray? = null): BufferedImage {
+  private fun toImage(area: Area, bgData: Array<Pixel>? = null): BufferedImage {
     val image = BufferedImage(area.area.pixelWidth(), area.area.pixelHeight()
       , BufferedImage.TYPE_INT_RGB)
     pasteToImage(image, area, 0, 0, bgData)
@@ -226,7 +227,7 @@ object Screen {
   }
 
   private fun pasteToImage(image: BufferedImage, area: Area, x0: Int, y0: Int
-                           , bgData: BooleanArray? = null) {
+                           , bgData: Array<Pixel>? = null) {
     val width = area.area.pixelWidth()
     val height = area.area.pixelHeight()
     for(y in 0 until height) {
@@ -238,9 +239,10 @@ object Screen {
         val value = area.pixels[addr]
         var col: Int
         col = if(BLACK_AND_WHITE) {
-          if(value) white else black
+          if(value == Pixel.ON) white else black
         } else {
-          if(value) color[attr and 0b1111] else color[attr shr 4 and 0b1111]
+          if(value == Pixel.ON) color[attr and 0b1111] else
+            color[attr shr 4 and 0b1111]
         }
         if(bgData != null && value != bgData[addr]) col = magenta
         image.setRGB(x + x0, y + y0, col)
