@@ -4,10 +4,14 @@
     <list default="true" id="9dcd0ae3-14a0-4f58-8655-2d30be363d32" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/repainted/island.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/island.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/000001.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/000001.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/000002.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/000003.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/000004.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/000005.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/000006.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/000007.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Background.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Background.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Image.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Image.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ImageExtractor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Sprites.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />

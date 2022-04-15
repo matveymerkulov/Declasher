@@ -12,13 +12,17 @@ object ImageExtractor {
               , image: BufferedImage) {
     if(background == null || background.skip) return
 
+    //Sprites.removeStatic(background.frame, screen.pixels, image)
+
     val SAME = 0
     val CHANGED = 1
     val pixels = IntArray(PIXEL_SIZE)
     var changed = 0
     val backgroundValues = background.pixels
     for(addr in 0 until PIXEL_SIZE) {
-      val isChanged = screen.pixels[addr] != backgroundValues[addr]
+      val pixel = screen.pixels[addr]
+      var bgPixel = backgroundValues[addr]
+      val isChanged = bgPixel != Pixel.ANY && pixel != bgPixel
       pixels[addr] = if(isChanged) CHANGED else SAME
       if(isChanged) changed++
     }
@@ -28,6 +32,7 @@ object ImageExtractor {
       return
     }*/
 
+    val areas = LinkedList<ChangedArea>()
     var imageNumber = 1
     for(y in 0 until PIXEL_HEIGHT) {
       val ySource = y shl 8
@@ -65,6 +70,7 @@ object ImageExtractor {
               }
             }
           }
+
           x2++
           y2++
           if(Image.Companion.hasAcceptableSize(x1, y1, x2, y2)) {
@@ -73,6 +79,7 @@ object ImageExtractor {
                   " x ${y2 - y1} changed area.")
               continue
             }
+            areas.add(ChangedArea(imageNumber, x1, y1, x2, y2))
             if(mode === Mode.DETECT_MAX_SIZE) continue
             if(mode === Mode.EXTRACT_SPRITES) {
               val image = Image(pixels, screen.pixels, backgroundValues
@@ -97,8 +104,6 @@ object ImageExtractor {
             } else {
               repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
                 , background.hasForcedColor)
-              Sprites.declash(screen.pixels, x1, y1, x2, y2, image
-                , background.frame)
             }
           } else {
             repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
@@ -107,6 +112,9 @@ object ImageExtractor {
         }
       }
     }
+
+    if(mode == Mode.DECLASH)
+      Sprites.declash(screen.pixels, image, background.frame, areas)
   }
 
   private fun repaint(pixels: IntArray, imageNumber: Int, screen: Area
@@ -122,8 +130,13 @@ object ImageExtractor {
             PARTICLE_COLOR
           } else {
             val attr = screen.attrs[yAttrSource or (x shr 3)]
-            if(screen.pixels[addr] == Pixel.ON)
-              color[attr and 0xF] else color[attr shr 4]
+            if(SHOW_DETECTION_AREA && screen.pixels[addr] == Pixel.ANY) {
+              magenta
+            } else if(screen.pixels[addr] == Pixel.ON) {
+              color[attr and 0xF]
+            } else {
+              color[attr shr 4]
+            }
           })
         } else if(SHOW_DETECTION_AREA) {
           image.setRGB(x, y, darkMagenta)

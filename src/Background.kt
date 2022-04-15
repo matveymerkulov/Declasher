@@ -29,7 +29,8 @@ class Background {
   fun difference(screen: Array<Pixel>): Int {
     var difference = 0
     for(i in 0 until MAIN_SCREEN.pixelSize()) {
-      if(pixels[i] != screen[i]) {
+      val pixel = pixels[i]
+      if(pixel != screen[i] && pixel != Pixel.ANY) {
         difference++
         if(difference > MAX_BG_DIFFERENCE) break
       }

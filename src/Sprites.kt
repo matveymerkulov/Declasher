@@ -19,15 +19,89 @@ object Sprites {
     private set
   var maxDifference = 0.0
     private set
+
   private val spriteLists = LinkedList<SpriteList>()
   private val locations = HashMap<Int, LinkedList<SpritePos>>()
 
-  private class SpriteList(from: Int, to: Int) {
+  private class SpriteList(val alwaysSingle: Boolean) {
     val sprites = LinkedList<Sprite>()
   }
 
   private class SpritePos(val dx: Int, val dy: Int, val errors: Int
-                          , val matched: Int, val sprite: Sprite)
+                          , val matched: Int, val sprite: Sprite) {
+    fun repaint(screen: Array<Pixel>, image: BufferedImage, remove: Boolean) {
+      sprite.repaint(dx, dy, screen, image, remove)
+    }
+  }
+
+  fun declash(screen: Array<Pixel>, image: BufferedImage, frame: Int
+              , areas: LinkedList<ChangedArea>) {
+
+    //System.out.print(width + "x" + height + ", ");
+
+    for(list in spriteLists) {
+      var best: SpritePos = SpritePos(
+        0, 0, -1, 0, list.sprites.first
+      );
+
+      for(area in areas) {
+        for(sprite in list.sprites) {
+          best = sprite.check(best, area, frame, screen, list.alwaysSingle)
+        }
+        if(!list.alwaysSingle && best.errors >= 0) {
+          process(best, screen, image, frame, area)
+        }
+      }
+      if(list.alwaysSingle && best.errors >= 0) {
+        process(best, screen, image, frame, null)
+      }
+    }
+  }
+
+  private fun process(best: SpritePos, screen: Array<Pixel>
+                      , image: BufferedImage, frame: Int, area:ChangedArea?) {
+    if(SHOW_DETECTION_AREA) {
+      val gO = image.createGraphics()
+      gO.color = Color.white
+      gO.drawString("${100 * best.matched / best.sprite.pixelsQuantity}/${best.errors}"
+        , best.dx, best.dy - 3)
+    }
+
+    if(mode == Mode.FIND_SPRITE_POSITION) {
+      val map = best.sprite.positions
+      val positions:LinkedList<Coords>
+      if(map.containsKey(frame)) {
+        positions = map[frame]!!
+      } else {
+        positions = LinkedList()
+        map[frame] = positions
+      }
+
+      for(pos in positions) {
+        if(best.dx == pos.x && best.dy == pos.y) return
+      }
+
+      positions.add(Coords(best.dx, best.dy))
+      setSpritePos(frame, best.dx, best.dy, best.sprite)
+      return
+    }
+
+    if(area != null) {
+      val width = area.x2 - area.x1
+      val height = area.y2 - area.y1
+
+      maxErrors = Integer.max(maxErrors, best.errors)
+      maxDifference = max(
+        maxDifference,
+        (1.0 * best.sprite.pixelsQuantity - best.matched) / best.sprite.pixelsQuantity
+      )
+      minDetectionWidth = Integer.min(minDetectionWidth, width)
+      minDetectionHeight = Integer.min(minDetectionHeight, height)
+      minDetectionPixels = Integer.min(minDetectionPixels, width * height)
+    }
+
+    best.repaint(screen, image, false)
+  }
 
   private class Sprite(
     file: File,
@@ -80,8 +154,8 @@ object Sprites {
       }
     }
 
-    fun check(bestVal: SpritePos, x1: Int, y1: Int, x2: Int, y2: Int
-              , frame: Int, screen: Array<Pixel>): SpritePos {
+    fun check(bestVal: SpritePos, changed: ChangedArea, frame: Int
+              , screen: Array<Pixel>, alwaysSingle: Boolean): SpritePos {
       var best = bestVal
       val area = areaFunction(frame) ?: return best
       val areaX1 = area.x shl 3
@@ -89,9 +163,9 @@ object Sprites {
       val areaX2 = (area.x + area.width) shl 3
       val areaY2 = (area.y + area.height) shl 3
 
-      val dy1 = y1 - MIN_DETECTION_HEIGHT - height
-      val dy2 = y1 + height - MIN_DETECTION_HEIGHT
-      for(dy in dy1..dy2) {
+      val dy1 = changed.y1 - MIN_DETECTION_HEIGHT
+      val dy2 = changed.y2 - height + MIN_DETECTION_HEIGHT
+      for(dy in dy1 until dy2) {
         if(isBlock && (dy % 8) != 0) continue
         val spriteY1 = Integer.max(0, -dy)
         val spriteY2 = Integer.min(height, PIXEL_HEIGHT - dy)
@@ -99,9 +173,9 @@ object Sprites {
 
         val areaHeight = spriteY2 - spriteY1
         if(areaHeight < MIN_DETECTION_HEIGHT) continue
-        val dx1 = x1 + MIN_DETECTION_WIDTH - width
-        val dx2 = x1 + width - MIN_DETECTION_WIDTH
-        dx@ for(dx in dx1..dx2) {
+        val dx1 = changed.x1 - MIN_DETECTION_WIDTH
+        val dx2 = changed.x2 - width + MIN_DETECTION_WIDTH
+        dx@ for(dx in dx1 until dx2) {
           if(isBlock && (dx % 8) != 0) continue
 
           val spriteX1 = Integer.max(0, -dx)
@@ -113,6 +187,7 @@ object Sprites {
             || areaWidth * areaHeight < MIN_DETECTION_PIXELS) continue
           var errors = 0
           var matched = 0
+          var total = 0
           for(spriteY in spriteY1 until spriteY2) {
             val screenY = spriteY + dy
             val yScreen = screenY * PIXEL_WIDTH
@@ -123,15 +198,23 @@ object Sprites {
               val spriteValue = data[spriteX + ySprite]
               val screenValue = screen[screenX + yScreen]
               when(spriteValue) {
-                SpritePixelType.ON ->
-                  if(screenValue != Pixel.OFF) matched++ else errors++
-                SpritePixelType.OFF ->
-                  if(screenValue != Pixel.ON) matched++
+                SpritePixelType.ON -> {
+                  if(screenValue == Pixel.ON) {
+                    matched++
+                  } else {
+                    errors++
+                  }
+                  total++
+                }
+                SpritePixelType.OFF -> {
+                  if(screenValue == Pixel.OFF) matched++
+                  total++
+                }
               }
               if(errors > maxErrors) continue@dx
             }
           }
-          if(1.0 * matched / pixelsQuantity < minMatched) continue
+          if(1.0 * matched / total < minMatched) continue
           if(best.errors < 0 || errors < best.errors) {
             best = SpritePos(dx, dy, errors, matched, this)
             if(errors == 0) return best
@@ -139,6 +222,38 @@ object Sprites {
         }
       }
       return best
+    }
+
+    fun repaint(dx: Int, dy: Int, screen: Array<Pixel>, image: BufferedImage
+                , remove:Boolean) {
+      for(spriteY in 0 until height) {
+        val screenY = spriteY + dy
+        if(screenY < 0 || screenY >= PIXEL_HEIGHT) continue
+        val ySprite = spriteY * width
+        for(spriteX in 0 until width) {
+          val screenX = spriteX + dx
+          if(screenX < 0 || screenX >= PIXEL_WIDTH) continue
+          if(remove) {
+            if(data[spriteX + ySprite] == SpritePixelType.ON) {
+              screen[screenX + PIXEL_WIDTH * screenY] = Pixel.ANY
+              if(SHOW_DETECTION_AREA) image.setRGB(screenX, screenY
+                , 0xFFBF7F)
+            }
+          } else if(repainted == null) {
+            when(data[spriteX + ySprite]) {
+              SpritePixelType.ON -> {
+                image.setRGB(screenX, screenY, SPRITE_COLOR)
+              }
+              SpritePixelType.OFF -> {
+                image.setRGB(screenX, screenY, black)
+              }
+            }
+          } else {
+            val value = repainted!!.getRGB(spriteX, spriteY)
+            if(value != -0xff01) image.setRGB(screenX, screenY, value)
+          }
+        }
+      }
     }
   }
 
@@ -148,8 +263,8 @@ object Sprites {
 
   @Throws(IOException::class)
   fun load(fileName: String, minMatched: Double, maxErrors: Int
-           , from: Int, to: Int, areaFunction: (Int) -> Rect? = {defaultArea}) {
-    val list = SpriteList(from, to)
+           , alwaysSingle: Boolean, areaFunction: (Int) -> Rect? = {defaultArea}) {
+    val list = SpriteList(alwaysSingle)
     list.sprites.add(Sprite(File("$project/$fileName.png")
       , minMatched, maxErrors, areaFunction))
     spriteLists.add(list)
@@ -157,87 +272,13 @@ object Sprites {
 
   @Throws(IOException::class)
   fun loadSeveral(fileName: String, minMatched: Double, maxErrors: Int
-                  , from: Int, to: Int
-                  , areaFunction: (Int) -> Rect = {defaultArea}) {
+                  , alwaysSingle: Boolean, areaFunction: (Int) -> Rect = {defaultArea}) {
     val folder = File("$project/$fileName")
-    val list = SpriteList(from, to)
+    val list = SpriteList(alwaysSingle)
     for(file in folder.listFiles()) {
       list.sprites.add(Sprite(file, minMatched, maxErrors, areaFunction))
     }
     spriteLists.add(list)
-  }
-
-  fun declash(screen: Array<Pixel>, x1: Int, y1: Int, x2: Int, y2: Int
-              , image: BufferedImage, frame: Int) {
-    val width = x2 - x1
-    val height = y2 - y1
-
-    //System.out.print(width + "x" + height + ", ");
-
-    all@ for(list in spriteLists) {
-      var best: SpritePos = SpritePos(0, 0, -1, 0
-        , list.sprites.first);
-      for(sprite in list.sprites) {
-        best = sprite.check(best, x1, y1, x2, y2, frame, screen)
-      }
-      if(best.errors < 0) continue
-      if(SHOW_DETECTION_AREA) {
-        val gO = image.createGraphics()
-        gO.color = Color.white
-        gO.drawString("${best.matched}/${best.errors}"
-          , best.dx, best.dy - 3)
-      }
-      if(mode == Mode.FIND_SPRITE_POSITION) {
-        val map = best.sprite.positions
-        var positions:LinkedList<Coords>
-        if(map.containsKey(frame)) {
-          positions = map[frame]!!
-        } else {
-          positions = LinkedList()
-          map[frame] = positions
-        }
-
-        for(pos in positions) {
-          if(best.dx == pos.x && best.dy == pos.y) continue@all
-        }
-
-        positions.add(Coords(best.dx, best.dy))
-        setSpritePos(frame, best.dx, best.dy, best.sprite)
-        continue@all
-      }
-      maxErrors = Integer.max(maxErrors, best.errors)
-      maxDifference = max(maxDifference, (1.0 * best.sprite.pixelsQuantity
-          - best.matched) / best.sprite.pixelsQuantity)
-      minDetectionWidth = Integer.min(minDetectionWidth, width)
-      minDetectionHeight = Integer.min(minDetectionHeight, height)
-      minDetectionPixels = Integer.min(minDetectionPixels, width * height)
-      val spriteWidth = best.sprite.width
-      val spriteHeight = best.sprite.height
-      val repainted = best.sprite.repainted
-      for(spriteY in 0 until spriteHeight) {
-        val screenY = spriteY + best.dy
-        if(screenY < 0 || screenY >= PIXEL_HEIGHT) continue
-        val ySprite = spriteY * spriteWidth
-        for(spriteX in 0 until spriteWidth) {
-          val screenX = spriteX + best.dx
-          if(screenX < 0 || screenX >= PIXEL_WIDTH) continue
-          screen[screenX + PIXEL_WIDTH * screenY] = Pixel.ANY
-          if(repainted == null) {
-            when(best.sprite.data[spriteX + ySprite]) {
-              SpritePixelType.ON -> {
-                image.setRGB(screenX, screenY, SPRITE_COLOR)
-              }
-              SpritePixelType.OFF -> {
-                image.setRGB(screenX, screenY, black)
-              }
-            }
-          } else {
-            val value = repainted.getRGB(spriteX, spriteY)
-            if(value != -0xff01) image.setRGB(screenX, screenY, value)
-          }
-        }
-      }
-    }
   }
 
   fun highlightLocations(frame: Int, image: BufferedImage) {
@@ -287,5 +328,10 @@ object Sprites {
     }
 
     positions += SpritePos(x, y, 0, 0, sprite)
+  }
+
+  fun removeStatic(frame: Int, screen: Array<Pixel>, image: BufferedImage) {
+    val list = locations[frame] ?: return
+    for(pos in list) pos.repaint(screen, image, true)
   }
 }

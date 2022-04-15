@@ -18,7 +18,7 @@ var defaultArea = Rect(0, 0, 32, 18)
 
 // debug
 const val SAVE_COLORED = false
-const val SHOW_DETECTION_AREA = false
+const val SHOW_DETECTION_AREA = true
 const val RESIZED = false
 const val BLACK_AND_WHITE = false
 const val SAVE_SIMILAR = true
@@ -54,7 +54,7 @@ const val OUT_DIR = "D:/output/"
 
 fun process() {
   if(mode == Mode.FIND_SPRITE_POSITION) {
-    Sprites.loadSeveral("static", 0.9, 15, 1, 1)
+    Sprites.loadSeveral("static", 0.9, 15, false)
     Screen.process()
     Screen.saveBackgrounds()
   } else {
@@ -91,26 +91,26 @@ fun process() {
       , 3012, 216, 112, 44041, 80, 72))
     Sprites.setLocations("wrench_block", listOf(13225, 136, 112))
 
-    Sprites.loadSeveral("sprites/player", 0.9, 15
-      , 1, 1)
+    Sprites.loadSeveral("sprites/player", 0.65, 1000
+      , true)
 
     val planeArea = Rect(0, 0, 32, 18)
-    Sprites.load("sprites/plane", 0.9, 15
-      , 1, 1) { frame: Int -> if(frame <= 7) defaultArea else null }
+    Sprites.load("sprites/plane", 0.4, 1000
+      , true) { frame: Int -> if(frame == 1) defaultArea else null }
 
     val islandArea = Rect(0, 16, 32, 2)
     Sprites.load("sprites/island1", 0.8, 20
-      , 1, 1) { frame: Int -> if(frame == 23687) islandArea else null }
+      , false) { frame: Int -> if(frame == 23687) islandArea else null }
     Sprites.load("sprites/island2", 0.8, 20
-      , 1, 1) { frame: Int -> if(frame == 3012) islandArea else null }
+      , false) { frame: Int -> if(frame == 3012) islandArea else null }
     Sprites.load("sprites/island3", 0.8, 20
-      , 1, 1) { frame: Int -> when(frame) {
+      , false) { frame: Int -> when(frame) {
       24350 -> islandArea
       45276 -> Rect(14, 14, 8, 4)
       else -> null
     }}
     //Screen.process(34000, 35000,34234)
-    Screen.process(1, 1000)
+    Screen.process(660, 900)
     //Screen.process(20000, 30000)
     //Screen.process()
     when(mode) {

@@ -71,8 +71,15 @@ object Screen {
       val pixels = Array<Pixel>(PIXEL_SIZE) {Pixel.OFF}
       for(y in 0 until PIXEL_HEIGHT) {
         for(x in 0 until PIXEL_WIDTH) {
-          pixels[x + y * PIXEL_WIDTH] =
-            if(image.getRGB(x, y) and 0xFF > 0x7F) Pixel.ON else Pixel.OFF
+          val pos = x + y * PIXEL_WIDTH
+          val pixel = image.getRGB(x, y)
+          if(pixel and 0xFF < 0x80) {
+            pixels[pos] = Pixel.OFF
+          } else if(pixel and 0xFF00 >= 0x80) {
+            pixels[pos] = Pixel.ON
+          } else {
+            pixels[pos] = Pixel.ANY
+          }
         }
       }
       val repainted = File("$project/backgrounds/repainted/"
