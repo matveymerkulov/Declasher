@@ -29,12 +29,12 @@ object Sprites {
 
   private class SpritePos(val dx: Int, val dy: Int, val errors: Int
                           , val matched: Int, val sprite: Sprite) {
-    fun repaint(screen: Array<Pixel>, image: BufferedImage, remove: Boolean) {
+    fun repaint(screen: Area, image: BufferedImage, remove: Boolean) {
       sprite.repaint(dx, dy, screen, image, remove)
     }
   }
 
-  fun declash(screen: Array<Pixel>, image: BufferedImage, frame: Int
+  fun declash(screen: Area, image: BufferedImage, frame: Int
               , areas: LinkedList<ChangedArea>) {
 
     //System.out.print(width + "x" + height + ", ");
@@ -58,7 +58,7 @@ object Sprites {
     }
   }
 
-  private fun process(best: SpritePos, screen: Array<Pixel>
+  private fun process(best: SpritePos, screen: Area
                       , image: BufferedImage, frame: Int, area:ChangedArea?) {
     if(SHOW_DETECTION_AREA) {
       val gO = image.createGraphics()
@@ -91,10 +91,8 @@ object Sprites {
       val height = area.y2 - area.y1
 
       maxErrors = Integer.max(maxErrors, best.errors)
-      maxDifference = max(
-        maxDifference,
-        (1.0 * best.sprite.pixelsQuantity - best.matched) / best.sprite.pixelsQuantity
-      )
+      maxDifference = max(maxDifference,(1.0 * best.sprite.pixelsQuantity
+          - best.matched) / best.sprite.pixelsQuantity)
       minDetectionWidth = Integer.min(minDetectionWidth, width)
       minDetectionHeight = Integer.min(minDetectionHeight, height)
       minDetectionPixels = Integer.min(minDetectionPixels, width * height)
@@ -155,7 +153,7 @@ object Sprites {
     }
 
     fun check(bestVal: SpritePos, changed: ChangedArea, frame: Int
-              , screen: Array<Pixel>, alwaysSingle: Boolean): SpritePos {
+              , screen: Area, alwaysSingle: Boolean): SpritePos {
       var best = bestVal
       val area = areaFunction(frame) ?: return best
       val areaX1 = area.x shl 3
@@ -196,7 +194,7 @@ object Sprites {
               val screenX = spriteX + dx
               if(screenX < 0 || screenX >= PIXEL_WIDTH) continue
               val spriteValue = data[spriteX + ySprite]
-              val screenValue = screen[screenX + yScreen]
+              val screenValue = screen.pixels[screenX + yScreen]
               when(spriteValue) {
                 SpritePixelType.ON -> {
                   if(screenValue == Pixel.ON) {
@@ -224,7 +222,7 @@ object Sprites {
       return best
     }
 
-    fun repaint(dx: Int, dy: Int, screen: Array<Pixel>, image: BufferedImage
+    fun repaint(dx: Int, dy: Int, screen: Area, image: BufferedImage
                 , remove:Boolean) {
       for(spriteY in 0 until height) {
         val screenY = spriteY + dy
@@ -233,11 +231,17 @@ object Sprites {
         for(spriteX in 0 until width) {
           val screenX = spriteX + dx
           if(screenX < 0 || screenX >= PIXEL_WIDTH) continue
+          val screenPos = screenX + PIXEL_WIDTH * screenY
           if(remove) {
+            val yAttrSource = (screenY shr 3) shl 5
+            val attr = screen.attrs[yAttrSource or (screenX shr 3)]
+            if(screen.pixels[screenPos] == Pixel.ON) {
+              image.setRGB(screenX, screenY, color[attr and 0xF])
+            } else {
+              image.setRGB(screenX, screenY, color[attr shr 4])
+            }
             if(data[spriteX + ySprite] == SpritePixelType.ON) {
-              screen[screenX + PIXEL_WIDTH * screenY] = Pixel.ANY
-              if(SHOW_DETECTION_AREA) image.setRGB(screenX, screenY
-                , 0xFFBF7F)
+              screen.pixels[screenPos] = Pixel.ANY
             }
           } else if(repainted == null) {
             when(data[spriteX + ySprite]) {
@@ -250,7 +254,7 @@ object Sprites {
             }
           } else {
             val value = repainted!!.getRGB(spriteX, spriteY)
-            if(value != -0xff01) image.setRGB(screenX, screenY, value)
+            if(value < 0) image.setRGB(screenX, screenY, value)
           }
         }
       }
@@ -330,8 +334,14 @@ object Sprites {
     positions += SpritePos(x, y, 0, 0, sprite)
   }
 
-  fun removeStatic(frame: Int, screen: Array<Pixel>, image: BufferedImage) {
+  fun removeStatic(frame: Int, screen: Area, image: BufferedImage) {
+    //System.out.println(frame)
     val list = locations[frame] ?: return
-    for(pos in list) pos.repaint(screen, image, true)
+    for(pos in list) {
+      if(pos.sprite.name == "cheese_block.png") {
+        val a = 0
+      }
+      pos.repaint(screen, image, true)
+    }
   }
 }

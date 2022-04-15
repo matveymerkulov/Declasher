@@ -12,7 +12,7 @@ object ImageExtractor {
               , image: BufferedImage) {
     if(background == null || background.skip) return
 
-    //Sprites.removeStatic(background.frame, screen.pixels, image)
+    Sprites.removeStatic(background.frame, screen, image)
 
     val SAME = 0
     val CHANGED = 1
@@ -101,7 +101,7 @@ object ImageExtractor {
               val newList = LinkedList<Image>()
               newList.add(image)
               images.add(newList)
-            } else {
+            } else if(background.hasForcedColor) {
               repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
                 , background.hasForcedColor)
             }
@@ -114,7 +114,7 @@ object ImageExtractor {
     }
 
     if(mode == Mode.DECLASH)
-      Sprites.declash(screen.pixels, image, background.frame, areas)
+      Sprites.declash(screen, image, background.frame, areas)
   }
 
   private fun repaint(pixels: IntArray, imageNumber: Int, screen: Area
@@ -126,18 +126,18 @@ object ImageExtractor {
       for(x in x1 until x2) {
         val addr = x + yAddr
         if(pixels[addr] == imageNumber) {
-          image.setRGB(x, y, if(hasParticles) {
-            PARTICLE_COLOR
+          var col = 0
+          val attr = screen.attrs[yAttrSource or (x shr 3)]
+          if(screen.pixels[addr] == Pixel.ANY) {
+            col = if(SHOW_DETECTION_AREA) magenta else color[attr and 0xF]
+          } else if(hasParticles) {
+            col = PARTICLE_COLOR
+          } else if(screen.pixels[addr] == Pixel.ON) {
+            col = color[attr and 0xF]
           } else {
-            val attr = screen.attrs[yAttrSource or (x shr 3)]
-            if(SHOW_DETECTION_AREA && screen.pixels[addr] == Pixel.ANY) {
-              magenta
-            } else if(screen.pixels[addr] == Pixel.ON) {
-              color[attr and 0xF]
-            } else {
-              color[attr shr 4]
-            }
-          })
+            col = color[attr shr 4]
+          }
+          image.setRGB(x, y, col)
         } else if(SHOW_DETECTION_AREA) {
           image.setRGB(x, y, darkMagenta)
         }

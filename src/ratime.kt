@@ -18,7 +18,7 @@ var defaultArea = Rect(0, 0, 32, 18)
 
 // debug
 const val SAVE_COLORED = false
-const val SHOW_DETECTION_AREA = true
+const val SHOW_DETECTION_AREA = false
 const val RESIZED = false
 const val BLACK_AND_WHITE = false
 const val SAVE_SIMILAR = true
@@ -65,7 +65,7 @@ fun process() {
       , 28366, 176, 104, 752, 96, 112, 53521, 88, 112, 53521, 136, 112
       , 53521, 184, 112, 5652, 40, 112, 5652, 128, 112, 5302, 88, 104
       , 5302, 152, 104, 5302, 184, 104, 14646, 8, 112, 57206, 56, 104
-      , 57206, 128, 104, 3192, 176, 112, 2041, 80, 104, 2041, 80, 112
+      , 57206, 128, 104, 3192, 176, 112, 2041, 80, 104
       , 20249, 120, 96, 52858, 176, 112, 52858, 224, 112, 5371, 88, 104
       , 5371, 120, 104, 5371, 216, 104, 17627, 96, 112, 17627, 176, 104
       , 13052, 144, 104, 25310, 96, 104, 2655, 200, 112))
@@ -91,7 +91,7 @@ fun process() {
       , 3012, 216, 112, 44041, 80, 72))
     Sprites.setLocations("wrench_block", listOf(13225, 136, 112))
 
-    Sprites.loadSeveral("sprites/player", 0.65, 1000
+    Sprites.loadSeveral("sprites/player", 0.7, 1000
       , true)
 
     val planeArea = Rect(0, 0, 32, 18)
@@ -110,7 +110,7 @@ fun process() {
       else -> null
     }}
     //Screen.process(34000, 35000,34234)
-    Screen.process(660, 900)
+    Screen.process(2430, 5000)
     //Screen.process(20000, 30000)
     //Screen.process()
     when(mode) {

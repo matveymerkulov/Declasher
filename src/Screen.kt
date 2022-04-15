@@ -204,7 +204,7 @@ object Screen {
             }
           }
         } else if(mode == Mode.DECLASH && backgroundNum < 0) {
-          composeScreen(frame, toImage(screen))
+          //composeScreen(frame, toImage(screen))
         }
       }
 
