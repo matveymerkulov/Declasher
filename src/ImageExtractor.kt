@@ -1,4 +1,5 @@
 import Image.Comparsion
+import java.awt.Color
 import java.awt.image.BufferedImage
 import java.io.IOException
 import java.util.*
@@ -10,7 +11,7 @@ object ImageExtractor {
   @Throws(IOException::class)
   fun process(screen: Area, background: Background?, frame: Int
               , image: BufferedImage) {
-    if(background == null || background.skip) return
+    if(background == null) return
 
     Sprites.removeStatic(background.frame, screen, image)
 
@@ -22,7 +23,8 @@ object ImageExtractor {
     for(addr in 0 until PIXEL_SIZE) {
       val pixel = screen.pixels[addr]
       var bgPixel = backgroundValues[addr]
-      val isChanged = bgPixel != Pixel.ANY && pixel != bgPixel
+      val isChanged = bgPixel != Pixel.ANY && pixel != Pixel.ANY
+          && pixel != bgPixel
       pixels[addr] = if(isChanged) CHANGED else SAME
       if(isChanged) changed++
     }
@@ -101,13 +103,15 @@ object ImageExtractor {
               val newList = LinkedList<Image>()
               newList.add(image)
               images.add(newList)
-            } else if(background.hasForcedColor) {
-              repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
-                , background.hasForcedColor)
+            } else {
+              if(background.particlesArea != null) {
+                repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
+                  , background.particlesArea)
+              }
             }
           } else {
             repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
-              , background.hasForcedColor)
+              , background.particlesArea)
           }
         }
       }
@@ -119,25 +123,26 @@ object ImageExtractor {
 
   private fun repaint(pixels: IntArray, imageNumber: Int, screen: Area
                       , x1: Int, y1: Int, x2: Int, y2: Int
-                      , image: BufferedImage, hasParticles: Boolean) {
+                      , image: BufferedImage, particlesArea: Rect?) {
+    if(SHOW_DETECTION_AREA && particlesArea != null) {
+      particlesArea.draw(image)
+    }
     for(y in y1 until y2) {
       val yAddr = y * PIXEL_WIDTH
       val yAttrSource = (y shr 3) shl 5
       for(x in x1 until x2) {
         val addr = x + yAddr
         if(pixels[addr] == imageNumber) {
-          var col = 0
           val attr = screen.attrs[yAttrSource or (x shr 3)]
-          if(screen.pixels[addr] == Pixel.ANY) {
-            col = if(SHOW_DETECTION_AREA) magenta else color[attr and 0xF]
-          } else if(hasParticles) {
-            col = PARTICLE_COLOR
+          image.setRGB(x, y, if(screen.pixels[addr] == Pixel.ANY) {
+            if(SHOW_DETECTION_AREA) magenta else color[attr and 0xF]
+          } else if(particlesArea != null && particlesArea.has(x, y)) {
+            PARTICLE_COLOR
           } else if(screen.pixels[addr] == Pixel.ON) {
-            col = color[attr and 0xF]
+            color[attr and 0xF]
           } else {
-            col = color[attr shr 4]
-          }
-          image.setRGB(x, y, col)
+            color[attr shr 4]
+          })
         } else if(SHOW_DETECTION_AREA) {
           image.setRGB(x, y, darkMagenta)
         }

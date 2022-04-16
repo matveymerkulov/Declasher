@@ -131,19 +131,15 @@ object Sprites {
       for(y in 0 until height) {
         val yAddr = y * width
         for(x in 0 until width) {
-          when(image.getRGB(x, y) and 0xFFFFFF) {
-            0 -> {
-              data[yAddr + x] = SpritePixelType.OFF
-              pixelsQuantity++
-            }
-            0xFFFFFF -> {
-              data[yAddr + x] = SpritePixelType.ON
-              pixelsQuantity++
-            }
-            0xFF00FF -> data[yAddr + x] = SpritePixelType.ANY
-            else -> {
-              throw Exception("Invalid color")
-            }
+          val pixel = image.getRGB(x, y)
+          if(pixel and 0xFF < 0x80) {
+            data[yAddr + x] = SpritePixelType.OFF
+            pixelsQuantity++
+          } else if(pixel and 0xFF00 < 0x8000) {
+            data[yAddr + x] = SpritePixelType.ANY
+          } else {
+            data[yAddr + x] = SpritePixelType.ON
+            pixelsQuantity++
           }
         }
       }
@@ -178,7 +174,7 @@ object Sprites {
 
           val spriteX1 = Integer.max(0, -dx)
           val spriteX2 = Integer.min(width, PIXEL_WIDTH - dx)
-          if(spriteX1 + dx < areaX1 || spriteX2 + dx >= areaX2) continue
+          if(spriteX1 + dx < areaX1 || spriteX2 + dx > areaX2) continue
 
           val areaWidth = spriteX2 - spriteX1
           if(areaWidth < MIN_DETECTION_WIDTH
@@ -193,11 +189,11 @@ object Sprites {
             for(spriteX in spriteX1 until spriteX2) {
               val screenX = spriteX + dx
               if(screenX < 0 || screenX >= PIXEL_WIDTH) continue
-              val spriteValue = data[spriteX + ySprite]
-              val screenValue = screen.pixels[screenX + yScreen]
-              when(spriteValue) {
+              val spritePixel = data[spriteX + ySprite]
+              val screenPixel = screen.pixels[screenX + yScreen]
+              when(spritePixel) {
                 SpritePixelType.ON -> {
-                  if(screenValue == Pixel.ON) {
+                  if(screenPixel == Pixel.ON) {
                     matched++
                   } else {
                     errors++
@@ -205,7 +201,7 @@ object Sprites {
                   total++
                 }
                 SpritePixelType.OFF -> {
-                  if(screenValue == Pixel.OFF) matched++
+                  if(screenPixel == Pixel.OFF) matched++
                   total++
                 }
               }
@@ -235,13 +231,26 @@ object Sprites {
           if(remove) {
             val yAttrSource = (screenY shr 3) shl 5
             val attr = screen.attrs[yAttrSource or (screenX shr 3)]
-            if(screen.pixels[screenPos] == Pixel.ON) {
-              image.setRGB(screenX, screenY, color[attr and 0xF])
-            } else {
-              image.setRGB(screenX, screenY, color[attr shr 4])
-            }
-            if(data[spriteX + ySprite] == SpritePixelType.ON) {
-              screen.pixels[screenPos] = Pixel.ANY
+            when(data[spriteX + ySprite]) {
+              SpritePixelType.ON -> {
+                if(screen.pixels[screenPos] == Pixel.ON) {
+                  image.setRGB(screenX, screenY, color[attr and 0xF])
+                  screen.pixels[screenPos] = Pixel.ANY
+                }
+              }
+              SpritePixelType.OFF -> {
+                image.setRGB(screenX, screenY, if(SHOW_DETECTION_AREA)
+                  cyan else color[attr shr 4])
+              }
+              SpritePixelType.ANY -> {
+                image.setRGB(screenX, screenY, if(SHOW_DETECTION_AREA) {
+                  cyan
+                } else if(screen.pixels[screenPos] == Pixel.ON) {
+                  color[attr and 0xF]
+                } else {
+                  color[attr shr 4]
+                })
+              }
             }
           } else if(repainted == null) {
             when(data[spriteX + ySprite]) {

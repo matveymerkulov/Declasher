@@ -1,3 +1,4 @@
+import java.awt.Color
 import kotlin.Throws
 import java.io.IOException
 import java.io.File
@@ -50,6 +51,19 @@ class Rect(val x: Int, val y:Int, val width: Int, val height: Int) {
   fun pixelSize(): Int {
     return size() shl 6
   }
+
+  fun has(x0:Int, y0:Int): Boolean {
+    return x0 >= x && y0 >= y && x0 < x + width && y0 < y + height
+  }
+
+  fun draw(image: BufferedImage) {
+    val g = image.createGraphics()
+    g.color = Color.cyan
+    g.drawLine(x, y, x + width - 1, y)
+    g.drawLine(x + width - 1, y, x + width - 1, y + height - 1)
+    g.drawLine(x + width - 1, y + height - 1, x, y + height - 1)
+    g.drawLine(x, y + height - 1, x, y)
+  }
 }
 
 fun loadRepainted(fileName: String):BufferedImage {
@@ -58,7 +72,7 @@ fun loadRepainted(fileName: String):BufferedImage {
 
 enum class Mode {
   EXTRACT_SPRITES, EXTRACT_BACKGROUNDS, DECLASH, DETECT_MAX_SIZE
-  , SHOW_DIFFERENCE, TO_BLACK_AND_WHITE, COLOR_BACKGROUNDS, FIND_SPRITE_POSITION
+  , SHOW_DIFFERENCE, SCREENSHOTS, COLOR_BACKGROUNDS, FIND_SPRITE_POSITION
 }
 
 // main

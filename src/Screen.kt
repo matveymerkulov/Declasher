@@ -103,7 +103,7 @@ object Screen {
   var maxBackgroundDifference = -1
 
   private fun findBackground(screen: Array<Pixel>, frame: Int): Background? {
-    var minDifference = MAX_BG_DIFFERENCE
+    var minDifference = 100000
     var minBackground: Background? = null
     for(background in backgrounds) {
       val difference = background.difference(screen)
@@ -112,11 +112,13 @@ object Screen {
         minBackground = background
       }
     }
-    if(minBackground != null && maxBackgroundDifference < minDifference) {
+    if(minDifference > MAX_BG_DIFFERENCE) {
+      println("$frame is too different ($minDifference)");
+    } else if(minBackground != null && maxBackgroundDifference < minDifference) {
       maxBackgroundDifference = minDifference
-      System.out.println("Min difference for $frame is $minDifference");
+      return minBackground
     }
-    return minBackground
+    return null
   }
 
   private val backgrounds = LinkedList<Background>()
@@ -153,6 +155,7 @@ object Screen {
       if(oldScreen == null) {
         oldScreen = screen
         frame++
+        //System.out.println("$frame background switch")
         continue
       }
 
@@ -186,10 +189,11 @@ object Screen {
           Arrays.fill(backgroundOn, 0)
           firstFrame = frame
         }
-      } else if(mode == Mode.TO_BLACK_AND_WHITE) {
+      } else if(mode == Mode.SCREENSHOTS) {
         saveImage(toImage(screen), frame)
       } else if(frame % FRAME_FREQUENCY == 0) {
         val background = findBackground(screen.pixels, frame)
+
         if(background != null) {
           if(backgroundNum < 0 || backgroundNum == background.frame) {
             if(mode == Mode.SHOW_DIFFERENCE) {
@@ -204,7 +208,7 @@ object Screen {
             }
           }
         } else if(mode == Mode.DECLASH && backgroundNum < 0) {
-          //composeScreen(frame, toImage(screen))
+          composeScreen(frame, toImage(screen))
         }
       }
 
