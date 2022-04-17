@@ -50,9 +50,9 @@ object Sprites {
       for(area in areas) {
         for(sprite in list.sprites) {
           best = sprite.check(best, area, frame, screen)
-        }
-        if(!list.alwaysSingle && best.errors >= 0) {
-          process(best, screen, image, frame, area)
+          if(!list.alwaysSingle && best.errors >= 0) {
+            process(best, screen, image, frame, area)
+          }
         }
       }
       if(list.alwaysSingle && best.errors >= 0) {

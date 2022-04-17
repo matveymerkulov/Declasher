@@ -168,7 +168,7 @@ object Screen {
       if(oldScreen == null) {
         oldScreen = screen
         frame++
-        //System.out.println("$frame background switch")
+        //println("$frame background switch")
         continue
       }
 
@@ -181,8 +181,7 @@ object Screen {
         }
 
         if(difference < MAX_DIFFERENCE_FOR_ALL_BG) {
-          System.out.println(
-            "Processing sequence $firstFrame - $frame "
+          println("Processing sequence $firstFrame - $frame "
                 + if(mode === Mode.EXTRACT_SPRITES) ", "
                 + ImageExtractor.images.size else ""
           )
