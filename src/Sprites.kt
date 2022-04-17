@@ -5,7 +5,7 @@ import java.io.IOException
 import java.lang.Double.max
 import java.util.*
 import javax.imageio.ImageIO
-import kotlin.collections.HashMap
+import kotlin.system.exitProcess
 
 object Sprites {
   var minSpritePixels = -1
@@ -21,7 +21,6 @@ object Sprites {
     private set
 
   private val spriteLists = LinkedList<SpriteList>()
-  private val locations = HashMap<Int, LinkedList<SpritePos>>()
 
   private class SpriteList(val alwaysSingle: Boolean) {
     val sprites = LinkedList<Sprite>()
@@ -42,11 +41,15 @@ object Sprites {
     for(list in spriteLists) {
       var best: SpritePos = SpritePos(
         0, 0, -1, 0, list.sprites.first
-      );
+      )
+
+      if(SHOW_DETECTION_AREA) {
+        list.sprites.first.areaFunction(frame)?.draw(image)
+      }
 
       for(area in areas) {
         for(sprite in list.sprites) {
-          best = sprite.check(best, area, frame, screen, list.alwaysSingle)
+          best = sprite.check(best, area, frame, screen)
         }
         if(!list.alwaysSingle && best.errors >= 0) {
           process(best, screen, image, frame, area)
@@ -61,29 +64,10 @@ object Sprites {
   private fun process(best: SpritePos, screen: Area
                       , image: BufferedImage, frame: Int, area:ChangedArea?) {
     if(SHOW_DETECTION_AREA) {
-      val gO = image.createGraphics()
-      gO.color = Color.white
-      gO.drawString("${100 * best.matched / best.sprite.pixelsQuantity}/${best.errors}"
+      val g = image.createGraphics()
+      g.color = Color.white
+      g.drawString("${100 * best.matched / best.sprite.pixelsQuantity}/${best.errors}"
         , best.dx, best.dy - 3)
-    }
-
-    if(mode == Mode.FIND_SPRITE_POSITION) {
-      val map = best.sprite.positions
-      val positions:LinkedList<Coords>
-      if(map.containsKey(frame)) {
-        positions = map[frame]!!
-      } else {
-        positions = LinkedList()
-        map[frame] = positions
-      }
-
-      for(pos in positions) {
-        if(best.dx == pos.x && best.dy == pos.y) return
-      }
-
-      positions.add(Coords(best.dx, best.dy))
-      setSpritePos(frame, best.dx, best.dy, best.sprite)
-      return
     }
 
     if(area != null) {
@@ -113,49 +97,52 @@ object Sprites {
     val width: Int
     val height: Int
     val isBlock: Boolean
-    val positions: HashMap<Int, LinkedList<Coords>> = HashMap()
     var pixelsQuantity = 0
 
     init {
       name = file.name
-      val image = ImageIO.read(file)
-      val repaintedFile = File("$project/repainted/$name")
-      if(repaintedFile.exists()) {
-        repainted = ImageIO.read(repaintedFile)
-        println("$name is repainted")
-      }
-      isBlock = name.contains("_block")
-      width = image.width
-      height = image.height
-      data = Array(width * height) { SpritePixelType.ANY }
-      for(y in 0 until height) {
-        val yAddr = y * width
-        for(x in 0 until width) {
-          val pixel = image.getRGB(x, y)
-          if(pixel and 0xFF < 0x80) {
-            data[yAddr + x] = SpritePixelType.OFF
-            pixelsQuantity++
-          } else if(pixel and 0xFF00 < 0x8000) {
-            data[yAddr + x] = SpritePixelType.ANY
-          } else {
-            data[yAddr + x] = SpritePixelType.ON
-            pixelsQuantity++
+      try {
+        val image = ImageIO.read(file)
+        val repaintedFile = File("$project/repainted/$name")
+        if(repaintedFile.exists()) {
+          repainted = ImageIO.read(repaintedFile)
+          println("$name is repainted")
+        }
+        isBlock = name.contains("_block")
+        width = image.width
+        height = image.height
+        data = Array(width * height) { SpritePixelType.ANY }
+        for(y in 0 until height) {
+          val yAddr = y * width
+          for(x in 0 until width) {
+            val pixel = image.getRGB(x, y)
+            if(pixel and 0xFF < 0x80) {
+              data[yAddr + x] = SpritePixelType.OFF
+              pixelsQuantity++
+            } else if(pixel and 0xFF00 < 0x8000) {
+              data[yAddr + x] = SpritePixelType.ANY
+            } else {
+              data[yAddr + x] = SpritePixelType.ON
+              pixelsQuantity++
+            }
           }
         }
-      }
-      if(minSpritePixels < 0 || pixelsQuantity < minSpritePixels) {
-        minSpritePixels = pixelsQuantity
+        if(minSpritePixels < 0 || pixelsQuantity < minSpritePixels) {
+          minSpritePixels = pixelsQuantity
+        }
+      } catch(ex: Exception) {
+        throw Exception("Cannot load file $name")
       }
     }
 
     fun check(bestVal: SpritePos, changed: ChangedArea, frame: Int
-              , screen: Area, alwaysSingle: Boolean): SpritePos {
+              , screen: Area): SpritePos {
       var best = bestVal
       val area = areaFunction(frame) ?: return best
-      val areaX1 = area.x shl 3
-      val areaY1 = area.y shl 3
-      val areaX2 = (area.x + area.width) shl 3
-      val areaY2 = (area.y + area.height) shl 3
+      val areaX1 = area.x
+      val areaY1 = area.y
+      val areaX2 = area.x + area.width
+      val areaY2 = area.y + area.height
 
       val dy1 = changed.y1 - MIN_DETECTION_HEIGHT
       val dy2 = changed.y2 - height + MIN_DETECTION_HEIGHT
@@ -163,7 +150,7 @@ object Sprites {
         if(isBlock && (dy % 8) != 0) continue
         val spriteY1 = Integer.max(0, -dy)
         val spriteY2 = Integer.min(height, PIXEL_HEIGHT - dy)
-        if(spriteY1 + dy < areaY1 || spriteY2 + dy >= areaY2) continue
+        if(spriteY1 + dy < areaY1 || spriteY2 + dy > areaY2) continue
 
         val areaHeight = spriteY2 - spriteY1
         if(areaHeight < MIN_DETECTION_HEIGHT) continue
@@ -243,13 +230,14 @@ object Sprites {
                   cyan else color[attr shr 4])
               }
               SpritePixelType.ANY -> {
-                image.setRGB(screenX, screenY, if(SHOW_DETECTION_AREA) {
+                if(SHOW_DETECTION_AREA) image.setRGB(screenX, screenY, cyan)
+                /*image.setRGB(screenX, screenY, if(SHOW_DETECTION_AREA) {
                   cyan
                 } else if(screen.pixels[screenPos] == Pixel.ON) {
                   color[attr and 0xF]
                 } else {
                   color[attr shr 4]
-                })
+                })*/
               }
             }
           } else if(repainted == null) {
@@ -278,7 +266,7 @@ object Sprites {
   fun load(fileName: String, minMatched: Double, maxErrors: Int
            , alwaysSingle: Boolean, areaFunction: (Int) -> Rect? = {defaultArea}) {
     val list = SpriteList(alwaysSingle)
-    list.sprites.add(Sprite(File("$project/$fileName.png")
+    list.sprites.add(Sprite(File("$project/sprites/$fileName.png")
       , minMatched, maxErrors, areaFunction))
     spriteLists.add(list)
   }
@@ -286,7 +274,7 @@ object Sprites {
   @Throws(IOException::class)
   fun loadSeveral(fileName: String, minMatched: Double, maxErrors: Int
                   , alwaysSingle: Boolean, areaFunction: (Int) -> Rect = {defaultArea}) {
-    val folder = File("$project/$fileName")
+    val folder = File("$project/sprites/$fileName")
     val list = SpriteList(alwaysSingle)
     for(file in folder.listFiles()) {
       list.sprites.add(Sprite(file, minMatched, maxErrors, areaFunction))
@@ -294,63 +282,21 @@ object Sprites {
     spriteLists.add(list)
   }
 
-  fun highlightLocations(frame: Int, image: BufferedImage) {
-    val gO = image.createGraphics()
-    gO.color = Color.white
-    val list = locations[frame]
-    if(list != null) {
-      for(pos in list) {
-        gO.drawRect(pos.dx, pos.dy, pos.sprite.width, pos.sprite.height)
-      }
-    }
-  }
-
-  fun printLocations() {
-    for(list in spriteLists) {
-      for(sprite in list.sprites) {
-        val name = sprite.name.removeSuffix(".png")
-        var data = ""
-        for((frame, coords) in sprite.positions) {
-          for(pos in coords) {
-            data += "$frame, ${pos.x}, ${pos.y}, "
-          }
-        }
-        if(data.isEmpty()) continue
-        data = data.removeSuffix(", ")
-        println("Sprites.setLocations(\"$name\", listOf($data))")
-      }
-    }
-  }
-
   fun setLocations(fileName: String, list: List<Int>) {
     val sprite = Sprite(File("$project/static/$fileName.png")
       , 0.0, 0, {defaultArea})
     for(n in list.indices step 3) {
-      setSpritePos(list[n], list[n + 1], list[n + 2], sprite)
-    }
-  }
-
-  private fun setSpritePos(frame: Int, x: Int, y: Int, sprite: Sprite) {
-    val frame = frame
-    var positions:LinkedList<SpritePos>
-    if(locations.containsKey(frame)) {
-      positions = locations[frame]!!
-    } else {
-      positions = LinkedList()
-      locations[frame] = positions
-    }
-
-    positions += SpritePos(x, y, 0, 0, sprite)
-  }
-
-  fun removeStatic(frame: Int, screen: Area, image: BufferedImage) {
-    //System.out.println(frame)
-    val list = locations[frame] ?: return
-    for(pos in list) {
-      if(pos.sprite.name == "cheese_block.png") {
-        val a = 0
+      val bg = Screen.getBackground(list[n])
+      val x0 = list[n + 1]
+      val y0 = list[n + 2]
+      val pixels = bg.pixels
+      for(y in 0 until sprite.height) {
+        for(x in 0 until sprite.width) {
+          if(sprite.data[x + y * sprite.width] == SpritePixelType.ON) {
+            pixels[x0 + x + (y0 + y) * PIXEL_WIDTH] = Pixel.ANY
+          }
+        }
       }
-      pos.repaint(screen, image, true)
     }
   }
 }

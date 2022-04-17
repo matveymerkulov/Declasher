@@ -1,5 +1,6 @@
 import org.tukaani.xz.SeekableFileInputStream
 import org.tukaani.xz.SeekableXZInputStream
+import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import java.io.File
@@ -95,7 +96,6 @@ object Screen {
       val frame = background.frame
       val area = load(frame + 1, MAIN_SCREEN)
       val image = toImage(area, null)
-      Sprites.highlightLocations(frame, image)
       saveImage(image, background.fileName)
     }
   }
@@ -103,22 +103,35 @@ object Screen {
   var maxBackgroundDifference = -1
 
   private fun findBackground(screen: Array<Pixel>, frame: Int): Background? {
-    var minDifference = 100000
+    var minDifference = if(SHOW_BG_DIFFERENCE) 100000
+        else MAX_DIFFERENCE_FOR_ALL_BG
     var minBackground: Background? = null
     for(background in backgrounds) {
-      val difference = background.difference(screen)
-      if(difference < minDifference) {
+      val max = if(SHOW_BG_DIFFERENCE) 100000
+          else MAX_BG_DIFFERENCE[background.frame]
+      val difference = background.difference(screen, if(SHOW_BG_DIFFERENCE)
+        100000 else max)
+      if(difference < minDifference && difference < max) {
         minDifference = difference
         minBackground = background
       }
     }
-    if(minDifference > MAX_BG_DIFFERENCE) {
+
+    if(minBackground == null) {
       println("$frame is too different ($minDifference)");
-    } else if(minBackground != null && maxBackgroundDifference < minDifference) {
-      maxBackgroundDifference = minDifference
-      return minBackground
+      return null
     }
-    return null
+
+    if(maxBackgroundDifference < minDifference) {
+      maxBackgroundDifference = minDifference
+    }
+
+    return minBackground
+  }
+
+  fun getBackground(frame: Int): Background {
+    for(background in backgrounds) if(background.frame == frame) return background
+    throw Exception("Background is not found")
   }
 
   private val backgrounds = LinkedList<Background>()
@@ -167,7 +180,7 @@ object Screen {
           if(isChanged) difference++
         }
 
-        if(difference >= MIN_BG_DIFFERENCE) {
+        if(difference < MAX_DIFFERENCE_FOR_ALL_BG) {
           System.out.println(
             "Processing sequence $firstFrame - $frame "
                 + if(mode === Mode.EXTRACT_SPRITES) ", "
@@ -193,8 +206,8 @@ object Screen {
         saveImage(toImage(screen), frame)
       } else if(frame % FRAME_FREQUENCY == 0) {
         val background = findBackground(screen.pixels, frame)
-
         if(background != null) {
+          if(ONLY_BACKGROUND >= 0 && background.frame != ONLY_BACKGROUND) continue
           if(backgroundNum < 0 || backgroundNum == background.frame) {
             if(mode == Mode.SHOW_DIFFERENCE) {
               saveImage(toImage(screen, background.pixels), frame)
@@ -255,7 +268,10 @@ object Screen {
           if(value == Pixel.ON) color[attr and 0b1111] else
             color[attr shr 4 and 0b1111]
         }
-        if(bgData != null && value != bgData[addr]) col = magenta
+        if(bgData != null && value != bgData[addr]
+          && bgData[addr] != Pixel.ANY && value != Pixel.ANY) {
+          col = magenta
+        }
         image.setRGB(x + x0, y + y0, col)
       }
     }

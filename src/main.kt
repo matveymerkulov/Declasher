@@ -33,7 +33,11 @@ class Area(val pixels: Array<Pixel>, val attrs: IntArray, val area: Rect)
 
 class Coords(val x: Int, val y: Int)
 
-class ChangedArea(val num: Int, val x1: Int, val y1: Int, val x2: Int, val y2: Int)
+class ChangedArea(val num: Int, val x1: Int, val y1: Int, val x2: Int, val y2: Int) {
+  fun draw(image: BufferedImage) {
+    Rect(x1, y1, x2 - x1, y2 - y1).draw(image)
+  }
+}
 
 class Rect(val x: Int, val y:Int, val width: Int, val height: Int) {
   fun pixelWidth(): Int {
@@ -88,7 +92,6 @@ fun main(args: Array<String>) {
   println("Max errors is ${Sprites.maxErrors}")
   println("Max difference is ${Sprites.maxDifference}")
   println("Max background difference is ${Screen.maxBackgroundDifference}")
-  if(mode == Mode.FIND_SPRITE_POSITION) Sprites.printLocations()
 }
 
 fun resizeImage(originalImage: BufferedImage, targetWidth: Int

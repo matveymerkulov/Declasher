@@ -13,8 +13,6 @@ object ImageExtractor {
               , image: BufferedImage) {
     if(background == null) return
 
-    Sprites.removeStatic(background.frame, screen, image)
-
     val SAME = 0
     val CHANGED = 1
     val pixels = IntArray(PIXEL_SIZE)
@@ -22,9 +20,8 @@ object ImageExtractor {
     val backgroundValues = background.pixels
     for(addr in 0 until PIXEL_SIZE) {
       val pixel = screen.pixels[addr]
-      var bgPixel = backgroundValues[addr]
-      val isChanged = bgPixel != Pixel.ANY && pixel != Pixel.ANY
-          && pixel != bgPixel
+      val bgPixel = backgroundValues[addr]
+      var isChanged = pixel != bgPixel
       pixels[addr] = if(isChanged) CHANGED else SAME
       if(isChanged) changed++
     }
@@ -104,10 +101,8 @@ object ImageExtractor {
               newList.add(image)
               images.add(newList)
             } else {
-              if(background.particlesArea != null) {
-                repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
-                  , background.particlesArea)
-              }
+              repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
+                , background.particlesArea)
             }
           } else {
             repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image

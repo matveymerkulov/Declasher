@@ -23,11 +23,14 @@ class Background {
     this.particlesArea = particles[this.frame]
   }
 
-  fun difference(screen: Array<Pixel>): Int {
+  fun difference(screen: Array<Pixel>, maxDifference: Int): Int {
     var difference = 0
     for(i in 0 until MAIN_SCREEN.pixelSize()) {
       val pixel = pixels[i]
-      if(pixel != screen[i] && pixel != Pixel.ANY) difference++
+      if(pixel != screen[i] && pixel != Pixel.ANY) {
+        difference++
+        if(difference > maxDifference) return difference
+      }
     }
     return difference
   }
