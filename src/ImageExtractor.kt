@@ -21,7 +21,7 @@ object ImageExtractor {
     for(addr in 0 until PIXEL_SIZE) {
       val pixel = screen.pixels[addr]
       val bgPixel = backgroundValues[addr]
-      var isChanged = pixel != bgPixel
+      var isChanged = pixel != bgPixel && (ANY_IS_CHANGED || bgPixel != Pixel.ANY)
       pixels[addr] = if(isChanged) CHANGED else SAME
       if(isChanged) changed++
     }

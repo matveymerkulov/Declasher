@@ -102,11 +102,13 @@ object Screen {
 
   var maxBackgroundDifference = -1
 
-  private fun findBackground(screen: Array<Pixel>, frame: Int): Background? {
+  private fun findBackground(screen: Array<Pixel>, frame: Int
+                             , only:Boolean): Background? {
     var minDifference = if(SHOW_BG_DIFFERENCE) 100000
         else MAX_DIFFERENCE_FOR_ALL_BG
     var minBackground: Background? = null
     for(background in backgrounds) {
+      if(only && background.frame != ONLY_BACKGROUND) continue
       val max = if(SHOW_BG_DIFFERENCE) 100000
           else MAX_BG_DIFFERENCE[background.frame]
       val difference = background.difference(screen, if(SHOW_BG_DIFFERENCE)
@@ -114,11 +116,14 @@ object Screen {
       if(difference < minDifference && difference < max) {
         minDifference = difference
         minBackground = background
+        if(only) break
       }
     }
 
+
+
     if(minBackground == null) {
-      println("$frame is too different ($minDifference)");
+      if(!only) println("$frame is too different ($minDifference)");
       return null
     }
 
@@ -150,12 +155,8 @@ object Screen {
     process(0, -1)
   }
 
-  fun process(backgroundNum: Int) {
-    process(0, -1, backgroundNum)
-  }
-
   @Throws(IOException::class)
-  fun process(from: Int, to: Int, backgroundNum: Int = -1) {
+  fun process(from: Int, to: Int) {
     var firstFrame = from
     var oldScreen: Area? = null
     var frame = from
@@ -172,42 +173,45 @@ object Screen {
         continue
       }
 
-      if(mode === Mode.EXTRACT_BACKGROUNDS) {
-        var difference = 0
-        for(addr in 0 until PIXEL_SIZE) {
-          val isChanged = screen.pixels[addr] != oldScreen.pixels[addr]
-          if(screen.pixels[addr] == Pixel.ON) backgroundOn[addr]++
-          if(isChanged) difference++
-        }
-
-        if(difference < MAX_DIFFERENCE_FOR_ALL_BG) {
-          println("Processing sequence $firstFrame - $frame "
-                + if(mode === Mode.EXTRACT_SPRITES) ", "
-                + ImageExtractor.images.size else ""
-          )
-          val frames = frame - firstFrame
-          if(frames >= MIN_FRAMES) {
-            val background = composeBackground(frames)
-            if(SAVE_SIMILAR || findBackground(background, frame) == null) {
-              oldScreen = Area(background, oldScreen.attrs, oldScreen.area)
-              saveImage(toImage(oldScreen, null), firstFrame)
-              backgrounds.add(Background(background))
-              //saveImage(toImage(oldScreen, null), frame - 1)
-              //saveImage(toImage(screen, null), frame)
-              println("Saved background $firstFrame with difference"
-                  + " $difference and $frames frames")
-            }
+      if(!ONLY_ABSENT || !File("D:\\output_final\\$frame.png").exists()) {
+        if(mode === Mode.EXTRACT_BACKGROUNDS) {
+          var difference = 0
+          for(addr in 0 until PIXEL_SIZE) {
+            val isChanged = screen.pixels[addr] != oldScreen.pixels[addr]
+            if(screen.pixels[addr] == Pixel.ON) backgroundOn[addr]++
+            if(isChanged) difference++
           }
-          Arrays.fill(backgroundOn, 0)
-          firstFrame = frame
-        }
-      } else if(mode == Mode.SCREENSHOTS) {
-        saveImage(toImage(screen), frame)
-      } else if(frame % FRAME_FREQUENCY == 0) {
-        val background = findBackground(screen.pixels, frame)
-        if(background != null) {
-          if(ONLY_BACKGROUND >= 0 && background.frame != ONLY_BACKGROUND) continue
-          if(backgroundNum < 0 || backgroundNum == background.frame) {
+
+          if(difference < MAX_DIFFERENCE_FOR_ALL_BG) {
+            println("Processing sequence $firstFrame - $frame "
+                  + if(mode === Mode.EXTRACT_SPRITES) ", "
+                  + ImageExtractor.images.size else ""
+            )
+            val frames = frame - firstFrame
+            if(frames >= MIN_FRAMES) {
+              val background = composeBackground(frames)
+              if(SAVE_SIMILAR || findBackground(background, frame, false) == null) {
+                oldScreen = Area(background, oldScreen.attrs, oldScreen.area)
+                saveImage(toImage(oldScreen, null), firstFrame)
+                backgrounds.add(Background(background))
+                //saveImage(toImage(oldScreen, null), frame - 1)
+                //saveImage(toImage(screen, null), frame)
+                println("Saved background $firstFrame with difference"
+                    + " $difference and $frames frames")
+              }
+            }
+            Arrays.fill(backgroundOn, 0)
+            firstFrame = frame
+          }
+        } else if(mode == Mode.SCREENSHOTS) {
+          if(ONLY_BACKGROUND < 0 || findBackground(screen.pixels, frame
+              , true) != null) {
+            saveImage(toImage(screen), frame)
+          }
+        } else if(frame % FRAME_FREQUENCY == 0) {
+          val background = findBackground(screen.pixels, frame
+            , ONLY_BACKGROUND >= 0)
+          if(background != null) {
             if(mode == Mode.SHOW_DIFFERENCE) {
               saveImage(toImage(screen, background.pixels), frame)
             } else {
@@ -218,9 +222,9 @@ object Screen {
                 composeScreen(frame, image)
               }
             }
+          } else if(mode == Mode.DECLASH && ONLY_BACKGROUND < 0) {
+            composeScreen(frame, toImage(screen))
           }
-        } else if(mode == Mode.DECLASH && backgroundNum < 0) {
-          composeScreen(frame, toImage(screen))
         }
       }
 

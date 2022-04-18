@@ -79,6 +79,12 @@ enum class Mode {
   , SHOW_DIFFERENCE, SCREENSHOTS, COLOR_BACKGROUNDS, FIND_SPRITE_POSITION
 }
 
+const val SCREEN_WIDTH = 32
+const val SCREEN_HEIGHT = 24
+const val SCREEN_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT
+const val BYTE_SIZE = SCREEN_SIZE * 8
+const val FRAME_SIZE = BYTE_SIZE + SCREEN_SIZE
+
 // main
 @Throws(IOException::class)
 fun main(args: Array<String>) {

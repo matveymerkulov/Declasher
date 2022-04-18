@@ -26,7 +26,7 @@ object Sprites {
     val sprites = LinkedList<Sprite>()
   }
 
-  private class SpritePos(val dx: Int, val dy: Int, val errors: Int
+  private class SpritePos(val dx: Int, val dy: Int, var errors: Int
                           , val matched: Int, val sprite: Sprite) {
     fun repaint(screen: Area, image: BufferedImage, remove: Boolean) {
       sprite.repaint(dx, dy, screen, image, remove)
@@ -52,6 +52,7 @@ object Sprites {
           best = sprite.check(best, area, frame, screen)
           if(!list.alwaysSingle && best.errors >= 0) {
             process(best, screen, image, frame, area)
+            best.errors = -1
           }
         }
       }

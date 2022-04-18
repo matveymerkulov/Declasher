@@ -1,11 +1,8 @@
-var SPRITE_COLOR = white
-var PARTICLE_COLOR = white
-var PERCENT_ON = 0.7
-var MIN_DETECTION_WIDTH = 6
-var MIN_DETECTION_HEIGHT = 6
-var MIN_DETECTION_PIXELS = 140
-var MIN_BG_DIFFERENCE = 900
-val MAX_DIFFERENCE_FOR_ALL_BG = 2000
+const val PERCENT_ON = 0.7
+const val MIN_DETECTION_WIDTH = 6
+const val MIN_DETECTION_HEIGHT = 6
+const val MIN_DETECTION_PIXELS = 140
+const val MAX_DIFFERENCE_FOR_ALL_BG = 2000
 
 var project = "ratime"
 
@@ -14,14 +11,6 @@ const val SAVE_COLORED = false
 const val RESIZED = false
 const val BLACK_AND_WHITE = false
 const val SAVE_SIMILAR = true
-
-
-
-const val SCREEN_WIDTH = 32
-const val SCREEN_HEIGHT = 24
-const val SCREEN_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT
-const val BYTE_SIZE = SCREEN_SIZE * 8
-const val FRAME_SIZE = BYTE_SIZE + SCREEN_SIZE
 
 val STATUS_BAR = Rect(0, 0, 32, 6)
 val MAIN_SCREEN = Rect(0, 6, 32, 18)
@@ -40,12 +29,15 @@ const val MIN_FRAMES = 5
 const val FRAME_FREQUENCY = 1
 const val OUT_DIR = "D:/output/"
 
-var defaultArea = Rect(0, 0, 256, 144)
+var defaultArea = Rect(0, 0
+  , MAIN_SCREEN.pixelWidth(), MAIN_SCREEN.pixelHeight())
 
-val MAX_BG_DIFFERENCE = DefaultMap(300, mapOf(3012 to 900
-  , 24350 to 900, 27654 to 900, 28366 to 900, 34454 to 900, 55614 to 900
+val MAX_BG_DIFFERENCE = DefaultMap(300, mapOf(1 to 900
+  , 3012 to 700, 6915 to 1500, 24350 to 900, 27654 to 900
+  , 28366 to 900, 34454 to 900, 55614 to 900
   , 57410 to 900, 38878 to 900, 45276 to 900, 46957 to 900, 50377 to 900
-  , 56547 to 1500, 53902 to 900, 54125 to 900, 53902 to 900))
+  , 56547 to 1500, 53902 to 900, 54125 to 900, 53902 to 900, 57206 to 900
+  , 57410 to 1500))
 
 var particles = mapOf(
     2437 to Rect(40, 88, 64, 48)
@@ -62,6 +54,7 @@ var particles = mapOf(
   , 50377 to Rect(48, 136, 40, 8)
   , 53902 to Rect(56, 136, 120, 8)
   , 56547 to Rect(48, 136, 144, 8)
+  , 57410 to defaultArea
 )
 
 const val SHOW_DETECTION_AREA = false
@@ -71,53 +64,49 @@ const val SHOW_BG_DIFFERENCE = false
 val mode = Mode.DECLASH
 //val mode = Mode.SHOW_DIFFERENCE
 //val mode = Mode.SCREENSHOTS
-const val ONLY_BACKGROUND = 3012
+const val ONLY_BACKGROUND = 6915
+const val ONLY_ABSENT = false
+//const val ONLY_ABSENT = true
+//const val ANY_IS_CHANGED = false
+const val ANY_IS_CHANGED = true
+const val SPRITE_COLOR = white
+const val PARTICLE_COLOR = white
 
 fun process() {
   locations()
 
-  // 1, 3012, 6915, 57206
-  //Screen.process(58089 - 1, 70000)
-  Screen.process(1363, 1367)
-  //Screen.process()
+  Screen.process()
 
   when(mode) {
     Mode.COLOR_BACKGROUNDS -> {
       Screen.saveBackgrounds()
-    } Mode.EXTRACT_BACKGROUNDS -> {
     } Mode.EXTRACT_SPRITES -> {
       ImageExtractor.saveImages()
-    } Mode.DECLASH -> {
-    } else -> {
     }
   }
 }
 
 fun locations() {
-  Sprites.loadSeveral("player", 0.7, 1000
-    , true)
+  /*Sprites.loadSeveral("player", 0.7, 1000
+    , true)*/
 
-  val planeArea = Rect(0, 0, 32, 18)
-  Sprites.load("plane", 0.4, 1000
+  Sprites.load("plane", 0.7, 1000
     , true) { frame: Int -> if(frame == 1) defaultArea else null }
 
   Sprites.load("cyan_island", 0.6, 200
     , false) { frame: Int -> if(frame == 3012)
       Rect(0, 128, 256, 16) else null }
-  Sprites.load("cyan_island2", 0.6, 200
-    , false) { frame: Int -> if(frame == 3012)
-    Rect(0, 128, 256, 16) else null }
   Sprites.load("white_island", 0.6, 100
     , true) { frame: Int -> if(frame == 23687)
       Rect(72, 128, 112, 16) else null }
-  /*Sprites.load("red_island", 0.6, 100
+  Sprites.load("red_island", 0.6, 100
     , true) { frame: Int -> when(frame) {
     24350 -> Rect(0, 128, 256, 16)
     43658 -> Rect(128, 120, 32, 24)
     45276 -> Rect(112, 112, 64, 32)
     53902 -> Rect(48, 132, 136, 16)
     else -> null
-  }}*/
+  }}
   Sprites.load("croc", 0.6, 100
     , true) {frame: Int -> if(frame == 53902)
     Rect(52, 128, 128, 16) else null}
