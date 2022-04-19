@@ -1,3 +1,4 @@
+/*
 const val PERCENT_ON = 0.7
 const val MIN_DETECTION_WIDTH = 6
 const val MIN_DETECTION_HEIGHT = 6
@@ -64,9 +65,9 @@ const val SHOW_BG_DIFFERENCE = false
 val mode = Mode.DECLASH
 //val mode = Mode.SHOW_DIFFERENCE
 //val mode = Mode.SCREENSHOTS
-const val ONLY_BACKGROUND = 6915
-const val ONLY_ABSENT = false
-//const val ONLY_ABSENT = true
+const val ONLY_BACKGROUND = -1
+//const val ONLY_ABSENT = false
+const val ONLY_ABSENT = true
 //const val ANY_IS_CHANGED = false
 const val ANY_IS_CHANGED = true
 const val SPRITE_COLOR = white
@@ -87,8 +88,8 @@ fun process() {
 }
 
 fun locations() {
-  /*Sprites.loadSeveral("player", 0.7, 1000
-    , true)*/
+  Sprites.loadSeveral("player", 0.7, 1000
+    , true)
 
   Sprites.load("plane", 0.7, 1000
     , true) { frame: Int -> if(frame == 1) defaultArea else null }
@@ -196,3 +197,4 @@ fun locations() {
   Sprites.setLocations("salt_block", listOf(
     44041, 80, 72))
 }
+*/

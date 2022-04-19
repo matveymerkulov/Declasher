@@ -2,13 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c20d8dac-1e5b-41d6-8d15-c786566be6a8" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/057410.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/057410.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/repainted/cyan_island2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/cyan_island.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/sprites/cyan_island.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/cyan_island2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Background.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Background.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ImageExtractor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Packer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Packer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Sprites.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ratime.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ratime.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -59,9 +60,16 @@
       <recent name="D:\Dropbox\Declasher\src" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Kotlin.MainKt">
     <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="MainKt" />
+      <module name="Declasher" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Packer" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Packer" />
       <module name="Declasher" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -70,6 +78,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Kotlin.MainKt" />
+        <item itemvalue="Kotlin.Packer" />
       </list>
     </recent_temporary>
   </component>

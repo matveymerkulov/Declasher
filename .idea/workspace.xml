@@ -4,20 +4,20 @@
     <list default="true" id="9dcd0ae3-14a0-4f58-8655-2d30be363d32" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/057410.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/backgrounds/057410.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/repainted/cyan_island2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/cyan_island.png" beforeDir="false" afterPath="$PROJECT_DIR$/ratime/sprites/cyan_island.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/cyan_island2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ImageExtractor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Sprites.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ratime.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ratime.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -27,6 +27,9 @@
     <setting file="jar://$PROJECT_DIR$/lib/kotlin-stdlib-sources.jar!/common/kotlin/collections/Collections.kt" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="20eSDtLvmq2ssem1Aqd7k8QAAFL" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />

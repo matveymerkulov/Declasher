@@ -17,7 +17,7 @@ object Packer {
     while(true) {
       if(i % 100 == 0) println(i)
       val buf = ByteArray(blockSize)
-      val inFile = File("D:/temp2/ratime/"
+      val inFile = File("D:/sync/dumps/sceptre/"
           + String.format("%05d", i) + ".scr")
       if(!inFile.exists()) break
       val inStream = BufferedInputStream(

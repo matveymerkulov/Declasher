@@ -5,7 +5,6 @@ import java.io.IOException
 import java.lang.Double.max
 import java.util.*
 import javax.imageio.ImageIO
-import kotlin.system.exitProcess
 
 object Sprites {
   var minSpritePixels = -1
@@ -33,7 +32,7 @@ object Sprites {
     }
   }
 
-  fun declash(screen: Area, image: BufferedImage, frame: Int
+  fun declash(screen: Area, image: BufferedImage, name: String
               , areas: LinkedList<ChangedArea>) {
 
     //System.out.print(width + "x" + height + ", ");
@@ -44,26 +43,26 @@ object Sprites {
       )
 
       if(SHOW_DETECTION_AREA) {
-        list.sprites.first.areaFunction(frame)?.draw(image)
+        list.sprites.first.areaFunction(name)?.draw(image)
       }
 
       for(area in areas) {
         for(sprite in list.sprites) {
-          best = sprite.check(best, area, frame, screen)
+          best = sprite.check(best, area, name, screen)
           if(!list.alwaysSingle && best.errors >= 0) {
-            process(best, screen, image, frame, area)
+            process(best, screen, image, area)
             best.errors = -1
           }
         }
       }
       if(list.alwaysSingle && best.errors >= 0) {
-        process(best, screen, image, frame, null)
+        process(best, screen, image, null)
       }
     }
   }
 
   private fun process(best: SpritePos, screen: Area
-                      , image: BufferedImage, frame: Int, area:ChangedArea?) {
+                      , image: BufferedImage, area:ChangedArea?) {
     if(SHOW_DETECTION_AREA) {
       val g = image.createGraphics()
       g.color = Color.white
@@ -90,7 +89,7 @@ object Sprites {
     file: File,
     val minMatched: Double,
     val maxErrors: Int,
-    val areaFunction: (Int) -> Rect?
+    val areaFunction: (String) -> Rect?
   ) {
     val name: String
     var repainted: BufferedImage? = null
@@ -136,10 +135,10 @@ object Sprites {
       }
     }
 
-    fun check(bestVal: SpritePos, changed: ChangedArea, frame: Int
+    fun check(bestVal: SpritePos, changed: ChangedArea, name: String
               , screen: Area): SpritePos {
       var best = bestVal
-      val area = areaFunction(frame) ?: return best
+      val area = areaFunction(name) ?: return best
       val areaX1 = area.x
       val areaY1 = area.y
       val areaX2 = area.x + area.width
@@ -265,7 +264,8 @@ object Sprites {
 
   @Throws(IOException::class)
   fun load(fileName: String, minMatched: Double, maxErrors: Int
-           , alwaysSingle: Boolean, areaFunction: (Int) -> Rect? = {defaultArea}) {
+           , alwaysSingle: Boolean
+           , areaFunction: (String) -> Rect? = {defaultArea}) {
     val list = SpriteList(alwaysSingle)
     list.sprites.add(Sprite(File("$project/sprites/$fileName.png")
       , minMatched, maxErrors, areaFunction))
@@ -274,7 +274,8 @@ object Sprites {
 
   @Throws(IOException::class)
   fun loadSeveral(fileName: String, minMatched: Double, maxErrors: Int
-                  , alwaysSingle: Boolean, areaFunction: (Int) -> Rect = {defaultArea}) {
+                  , alwaysSingle: Boolean
+                  , areaFunction: (String) -> Rect = {defaultArea}) {
     val folder = File("$project/sprites/$fileName")
     val list = SpriteList(alwaysSingle)
     for(file in folder.listFiles()) {
@@ -283,13 +284,14 @@ object Sprites {
     spriteLists.add(list)
   }
 
-  fun setLocations(fileName: String, list: List<Int>) {
+  fun setLocations(fileName: String, list: String) {
     val sprite = Sprite(File("$project/static/$fileName.png")
-      , 0.0, 0, {defaultArea})
-    for(n in list.indices step 3) {
-      val bg = Screen.getBackground(list[n])
-      val x0 = list[n + 1]
-      val y0 = list[n + 2]
+      , 0.0, 0) { defaultArea }
+    for(n in list.split(";")) {
+      val vars = list.split(",")
+      val bg = Screen.getBackground(vars[0].trim())
+      val x0 = vars[1].trim().toInt()
+      val y0 = vars[2].trim().toInt()
       val pixels = bg.pixels
       for(y in 0 until sprite.height) {
         for(x in 0 until sprite.width) {

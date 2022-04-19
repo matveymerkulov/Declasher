@@ -113,7 +113,7 @@ object ImageExtractor {
     }
 
     if(mode == Mode.DECLASH)
-      Sprites.declash(screen, image, background.frame, areas)
+      Sprites.declash(screen, image, background.name, areas)
   }
 
   private fun repaint(pixels: IntArray, imageNumber: Int, screen: Area

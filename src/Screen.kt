@@ -1,6 +1,5 @@
 import org.tukaani.xz.SeekableFileInputStream
 import org.tukaani.xz.SeekableXZInputStream
-import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import java.io.File
@@ -93,8 +92,7 @@ object Screen {
   @Throws(IOException::class)
   fun saveBackgrounds() {
     for(background in backgrounds) {
-      val frame = background.frame
-      val area = load(frame + 1, MAIN_SCREEN)
+      val area = load(background.frame, MAIN_SCREEN)
       val image = toImage(area, null)
       saveImage(image, background.fileName)
     }
@@ -108,9 +106,9 @@ object Screen {
         else MAX_DIFFERENCE_FOR_ALL_BG
     var minBackground: Background? = null
     for(background in backgrounds) {
-      if(only && background.frame != ONLY_BACKGROUND) continue
+      if(only && background.name != ONLY_BACKGROUND) continue
       val max = if(SHOW_BG_DIFFERENCE) 100000
-          else MAX_BG_DIFFERENCE[background.frame]
+          else MAX_BG_DIFFERENCE[background.name]
       val difference = background.difference(screen, if(SHOW_BG_DIFFERENCE)
         100000 else max)
       if(difference < minDifference && difference < max) {
@@ -134,15 +132,17 @@ object Screen {
     return minBackground
   }
 
-  fun getBackground(frame: Int): Background {
-    for(background in backgrounds) if(background.frame == frame) return background
+  fun getBackground(name: String): Background {
+    for(background in backgrounds) {
+      if(background.name == name) return background
+    }
     throw Exception("Background is not found")
   }
 
   private val backgrounds = LinkedList<Background>()
   private fun composeBackground(frames: Int): Array<Pixel> {
     val minFrames = floor(PERCENT_ON * frames).toInt()
-    val background = Array<Pixel>(PIXEL_SIZE) {Pixel.OFF}
+    val background = Array<Pixel>(PIXEL_SIZE) { Pixel.OFF }
     for(addr in 0 until PIXEL_SIZE)
       background[addr] = if(backgroundOn[addr] >= minFrames) Pixel.ON else
         Pixel.OFF
@@ -169,12 +169,13 @@ object Screen {
       if(oldScreen == null) {
         oldScreen = screen
         frame++
-        //println("$frame background switch")
+        println("$frame background switch")
         continue
       }
 
-      if(!ONLY_ABSENT || !File("D:\\output_final\\$frame.png").exists()) {
-        if(mode === Mode.EXTRACT_BACKGROUNDS) {
+      if(!ONLY_ABSENT || !File("D:\\output_final\\"
+            + String.format("%06d", frame) + ".png").exists()) {
+        if(mode == Mode.EXTRACT_BACKGROUNDS) {
           var difference = 0
           for(addr in 0 until PIXEL_SIZE) {
             val isChanged = screen.pixels[addr] != oldScreen.pixels[addr]
@@ -182,7 +183,7 @@ object Screen {
             if(isChanged) difference++
           }
 
-          if(difference < MAX_DIFFERENCE_FOR_ALL_BG) {
+          if(difference > MAX_DIFFERENCE_FOR_ALL_BG) {
             println("Processing sequence $firstFrame - $frame "
                   + if(mode === Mode.EXTRACT_SPRITES) ", "
                   + ImageExtractor.images.size else ""
@@ -203,14 +204,16 @@ object Screen {
             Arrays.fill(backgroundOn, 0)
             firstFrame = frame
           }
+        } else if(mode == Mode.FIND_PIXELS_TO_SKIP) {
         } else if(mode == Mode.SCREENSHOTS) {
-          if(ONLY_BACKGROUND < 0 || findBackground(screen.pixels, frame
+          if(ONLY_BACKGROUND.isEmpty() || findBackground(screen.pixels, frame
               , true) != null) {
             saveImage(toImage(screen), frame)
           }
         } else if(frame % FRAME_FREQUENCY == 0) {
           val background = findBackground(screen.pixels, frame
-            , ONLY_BACKGROUND >= 0)
+            , ONLY_BACKGROUND.isNotEmpty()
+          )
           if(background != null) {
             if(mode == Mode.SHOW_DIFFERENCE) {
               saveImage(toImage(screen, background.pixels), frame)
@@ -222,7 +225,7 @@ object Screen {
                 composeScreen(frame, image)
               }
             }
-          } else if(mode == Mode.DECLASH && ONLY_BACKGROUND < 0) {
+          } else if(mode == Mode.DECLASH && ONLY_BACKGROUND.isEmpty()) {
             composeScreen(frame, toImage(screen))
           }
         }
