@@ -77,14 +77,6 @@ fun process() {
   locations()
 
   Screen.process()
-
-  when(mode) {
-    Mode.COLOR_BACKGROUNDS -> {
-      Screen.saveBackgrounds()
-    } Mode.EXTRACT_SPRITES -> {
-      ImageExtractor.saveImages()
-    }
-  }
 }
 
 fun locations() {

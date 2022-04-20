@@ -154,7 +154,7 @@ class Image {
     return Comparsion.DIFFERENT
   }
 
-  private fun toBufferedImage(): BufferedImage {
+  private fun toBufferedImage(colored: Boolean): BufferedImage {
     val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
     for(y in 0 until height) {
       for(x in 0 until width) {
@@ -162,7 +162,7 @@ class Image {
           PixelType.OFF -> 0
           PixelType.ON -> 15
           PixelType.OFF_OR_TRANSPARENT -> 11
-          else -> if(SAVE_COLORED) 12 else 11
+          else -> if(colored) 12 else 11
         }
         image.setRGB(x, y, color[colIndex])
       }
@@ -179,7 +179,7 @@ class Image {
         + String.format("%03d", weight) + "_"
         + String.format("%03d", num) + "_"
         + String.format("%06d", outnum) + ".png")
-    ImageIO.write(merge().toBufferedImage(), "png", outputfile)
+    ImageIO.write(merge().toBufferedImage(true), "png", outputfile)
   }
 
   private fun merge(): Image {

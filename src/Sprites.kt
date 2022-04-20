@@ -27,13 +27,14 @@ object Sprites {
 
   private class SpritePos(val dx: Int, val dy: Int, var errors: Int
                           , val matched: Int, val sprite: Sprite) {
-    fun repaint(screen: Area, image: BufferedImage, remove: Boolean) {
-      sprite.repaint(dx, dy, screen, image, remove)
+    fun repaint(screen: Area, image: BufferedImage, remove: Boolean
+                , background: Background) {
+      sprite.repaint(dx, dy, screen, image, remove, background)
     }
   }
 
   fun declash(screen: Area, image: BufferedImage, name: String
-              , areas: LinkedList<ChangedArea>) {
+              , areas: LinkedList<ChangedArea>, background: Background) {
 
     //System.out.print(width + "x" + height + ", ");
 
@@ -48,26 +49,26 @@ object Sprites {
 
       for(area in areas) {
         for(sprite in list.sprites) {
-          best = sprite.check(best, area, name, screen)
+          best = sprite.check(best, area, name, screen, background)
           if(!list.alwaysSingle && best.errors >= 0) {
-            process(best, screen, image, area)
+            process(best, screen, image, area, background)
             best.errors = -1
           }
         }
       }
       if(list.alwaysSingle && best.errors >= 0) {
-        process(best, screen, image, null)
+        process(best, screen, image, null, background)
       }
     }
   }
 
   private fun process(best: SpritePos, screen: Area
-                      , image: BufferedImage, area:ChangedArea?) {
+          , image: BufferedImage, area:ChangedArea?, background: Background) {
     if(SHOW_DETECTION_AREA) {
       val g = image.createGraphics()
       g.color = Color.white
-      g.drawString("${100 * best.matched / best.sprite.pixelsQuantity}/${best.errors}"
-        , best.dx, best.dy - 3)
+      g.drawString("${100 * best.matched / best.sprite.pixelsQuantity}" +
+          "/${best.errors}", best.dx, best.dy - 3)
     }
 
     if(area != null) {
@@ -82,25 +83,24 @@ object Sprites {
       minDetectionPixels = Integer.min(minDetectionPixels, width * height)
     }
 
-    best.repaint(screen, image, false)
+    best.repaint(screen, image, false, background)
   }
 
   private class Sprite(
     file: File,
     val minMatched: Double,
     val maxErrors: Int,
-    val areaFunction: (String) -> Rect?
-  ) {
+    val areaFunction: (String) -> Rect?,
     val name: String
+  ) {
     var repainted: BufferedImage? = null
-    val data: Array<SpritePixelType>
+    val data: Array<Pixel>
     val width: Int
     val height: Int
     val isBlock: Boolean
     var pixelsQuantity = 0
 
     init {
-      name = file.name
       try {
         val image = ImageIO.read(file)
         val repaintedFile = File("$project/repainted/$name")
@@ -111,18 +111,18 @@ object Sprites {
         isBlock = name.contains("_block")
         width = image.width
         height = image.height
-        data = Array(width * height) { SpritePixelType.ANY }
+        data = Array(width * height) { Pixel.ANY }
         for(y in 0 until height) {
           val yAddr = y * width
           for(x in 0 until width) {
             val pixel = image.getRGB(x, y)
             if(pixel and 0xFF < 0x80) {
-              data[yAddr + x] = SpritePixelType.OFF
+              data[yAddr + x] = Pixel.OFF
               pixelsQuantity++
             } else if(pixel and 0xFF00 < 0x8000) {
-              data[yAddr + x] = SpritePixelType.ANY
+              data[yAddr + x] = Pixel.ANY
             } else {
-              data[yAddr + x] = SpritePixelType.ON
+              data[yAddr + x] = Pixel.ON
               pixelsQuantity++
             }
           }
@@ -136,7 +136,7 @@ object Sprites {
     }
 
     fun check(bestVal: SpritePos, changed: ChangedArea, name: String
-              , screen: Area): SpritePos {
+              , screen: Area, background: Background): SpritePos {
       var best = bestVal
       val area = areaFunction(name) ?: return best
       val areaX1 = area.x
@@ -178,8 +178,18 @@ object Sprites {
               if(screenX < 0 || screenX >= PIXEL_WIDTH) continue
               val spritePixel = data[spriteX + ySprite]
               val screenPixel = screen.pixels[screenX + yScreen]
-              when(spritePixel) {
-                SpritePixelType.ON -> {
+              if(XOR) {
+                val backgroundPixel = background.pixels[screenX + yScreen]
+                val chang = screenPixel != backgroundPixel
+                if((chang && spritePixel == Pixel.ON)
+                  || (!chang && spritePixel != Pixel.ON)) {
+                  matched++
+                } else {
+                  errors++
+                }
+                total++
+              } else when(spritePixel) {
+                Pixel.ON -> {
                   if(screenPixel == Pixel.ON) {
                     matched++
                   } else {
@@ -187,7 +197,7 @@ object Sprites {
                   }
                   total++
                 }
-                SpritePixelType.OFF -> {
+                Pixel.OFF -> {
                   if(screenPixel == Pixel.OFF) matched++
                   total++
                 }
@@ -206,7 +216,7 @@ object Sprites {
     }
 
     fun repaint(dx: Int, dy: Int, screen: Area, image: BufferedImage
-                , remove:Boolean) {
+                , remove:Boolean, background: Background) {
       for(spriteY in 0 until height) {
         val screenY = spriteY + dy
         if(screenY < 0 || screenY >= PIXEL_HEIGHT) continue
@@ -218,18 +228,19 @@ object Sprites {
           if(remove) {
             val yAttrSource = (screenY shr 3) shl 5
             val attr = screen.attrs[yAttrSource or (screenX shr 3)]
+            val screenPixel = screen.pixels[screenPos]
             when(data[spriteX + ySprite]) {
-              SpritePixelType.ON -> {
-                if(screen.pixels[screenPos] == Pixel.ON) {
+              Pixel.ON -> {
+                if(screenPixel == Pixel.ON) {
                   image.setRGB(screenX, screenY, color[attr and 0xF])
                   screen.pixels[screenPos] = Pixel.ANY
                 }
               }
-              SpritePixelType.OFF -> {
+              Pixel.OFF -> {
                 image.setRGB(screenX, screenY, if(SHOW_DETECTION_AREA)
                   cyan else color[attr shr 4])
               }
-              SpritePixelType.ANY -> {
+              Pixel.ANY -> {
                 if(SHOW_DETECTION_AREA) image.setRGB(screenX, screenY, cyan)
                 /*image.setRGB(screenX, screenY, if(SHOW_DETECTION_AREA) {
                   cyan
@@ -242,10 +253,10 @@ object Sprites {
             }
           } else if(repainted == null) {
             when(data[spriteX + ySprite]) {
-              SpritePixelType.ON -> {
-                image.setRGB(screenX, screenY, SPRITE_COLOR)
+              Pixel.ON -> {
+                image.setRGB(screenX, screenY, SPRITE_COLOR[name])
               }
-              SpritePixelType.OFF -> {
+              Pixel.OFF -> {
                 image.setRGB(screenX, screenY, black)
               }
             }
@@ -258,17 +269,13 @@ object Sprites {
     }
   }
 
-  private enum class SpritePixelType {
-    ON, OFF, ANY
-  }
-
   @Throws(IOException::class)
   fun load(fileName: String, minMatched: Double, maxErrors: Int
            , alwaysSingle: Boolean
            , areaFunction: (String) -> Rect? = {defaultArea}) {
     val list = SpriteList(alwaysSingle)
     list.sprites.add(Sprite(File("$project/sprites/$fileName.png")
-      , minMatched, maxErrors, areaFunction))
+      , minMatched, maxErrors, areaFunction, fileName))
     spriteLists.add(list)
   }
 
@@ -279,14 +286,15 @@ object Sprites {
     val folder = File("$project/sprites/$fileName")
     val list = SpriteList(alwaysSingle)
     for(file in folder.listFiles()) {
-      list.sprites.add(Sprite(file, minMatched, maxErrors, areaFunction))
+      list.sprites.add(Sprite(file, minMatched, maxErrors, areaFunction
+        , fileName))
     }
     spriteLists.add(list)
   }
 
   fun setLocations(fileName: String, list: String) {
     val sprite = Sprite(File("$project/static/$fileName.png")
-      , 0.0, 0) { defaultArea }
+      , 0.0, 0, { defaultArea }, fileName)
     for(n in list.split(";")) {
       val vars = list.split(",")
       val bg = Screen.getBackground(vars[0].trim())
@@ -295,7 +303,7 @@ object Sprites {
       val pixels = bg.pixels
       for(y in 0 until sprite.height) {
         for(x in 0 until sprite.width) {
-          if(sprite.data[x + y * sprite.width] == SpritePixelType.ON) {
+          if(sprite.data[x + y * sprite.width] == Pixel.ON) {
             pixels[x0 + x + (y0 + y) * PIXEL_WIDTH] = Pixel.ANY
           }
         }

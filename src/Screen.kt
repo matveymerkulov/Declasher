@@ -89,15 +89,6 @@ object Screen {
     }
   }
 
-  @Throws(IOException::class)
-  fun saveBackgrounds() {
-    for(background in backgrounds) {
-      val area = load(background.frame, MAIN_SCREEN)
-      val image = toImage(area, null)
-      saveImage(image, background.fileName)
-    }
-  }
-
   var maxBackgroundDifference = -1
 
   private fun findBackground(screen: Array<Pixel>, frame: Int
@@ -117,8 +108,6 @@ object Screen {
         if(only) break
       }
     }
-
-
 
     if(minBackground == null) {
       if(!only) println("$frame is too different ($minDifference)");
@@ -169,13 +158,16 @@ object Screen {
       if(oldScreen == null) {
         oldScreen = screen
         frame++
-        println("$frame background switch")
         continue
       }
+
+      if(frame % 1000 == 0) println(frame)
 
       if(!ONLY_ABSENT || !File("D:\\output_final\\"
             + String.format("%06d", frame) + ".png").exists()) {
         if(mode == Mode.EXTRACT_BACKGROUNDS) {
+          println("$frame background switch")
+
           var difference = 0
           for(addr in 0 until PIXEL_SIZE) {
             val isChanged = screen.pixels[addr] != oldScreen.pixels[addr]
@@ -191,9 +183,10 @@ object Screen {
             val frames = frame - firstFrame
             if(frames >= MIN_FRAMES) {
               val background = composeBackground(frames)
-              if(SAVE_SIMILAR || findBackground(background, frame, false) == null) {
+              if(SAVE_SIMILAR || findBackground(background, frame
+                  , false) == null) {
                 oldScreen = Area(background, oldScreen.attrs, oldScreen.area)
-                saveImage(toImage(oldScreen, null), firstFrame)
+                saveImage(toImage(oldScreen, false), firstFrame)
                 backgrounds.add(Background(background))
                 //saveImage(toImage(oldScreen, null), frame - 1)
                 //saveImage(toImage(screen, null), frame)
@@ -205,28 +198,38 @@ object Screen {
             firstFrame = frame
           }
         } else if(mode == Mode.FIND_PIXELS_TO_SKIP) {
+          val background = findBackground(screen.pixels, frame
+            , ONLY_BACKGROUND.isNotEmpty())
+          if(background != null) {
+            background.frame = frame
+            background.total++
+            for(addr in 0 until PIXEL_SIZE) {
+              if(screen.pixels[addr] != background.pixels[addr]) {
+                background.changed!![addr]++
+              }
+            }
+          }
         } else if(mode == Mode.SCREENSHOTS) {
           if(ONLY_BACKGROUND.isEmpty() || findBackground(screen.pixels, frame
               , true) != null) {
-            saveImage(toImage(screen), frame)
+            saveImage(toImage(screen, true), frame)
           }
         } else if(frame % FRAME_FREQUENCY == 0) {
           val background = findBackground(screen.pixels, frame
-            , ONLY_BACKGROUND.isNotEmpty()
-          )
+            , ONLY_BACKGROUND.isNotEmpty())
           if(background != null) {
             if(mode == Mode.SHOW_DIFFERENCE) {
-              saveImage(toImage(screen, background.pixels), frame)
+              saveImage(toImage(screen, true, background.pixels), frame)
             } else {
-              val image = if(background.image == null) toImage(screen)
-                  else copyImage(background.image)
+              val image = if(background.image == null) toImage(screen
+                , true) else copyImage(background.image)
               ImageExtractor.process(screen, background, frame, image)
               if(mode == Mode.DECLASH) {
                 composeScreen(frame, image)
               }
             }
           } else if(mode == Mode.DECLASH && ONLY_BACKGROUND.isEmpty()) {
-            composeScreen(frame, toImage(screen))
+            composeScreen(frame, toImage(screen, true))
           }
         }
       }
@@ -234,13 +237,47 @@ object Screen {
       oldScreen = screen
       frame++
     }
+    when(mode) {
+      Mode.FIND_PIXELS_TO_SKIP -> {
+        for(background in backgrounds) {
+          var maxChanged = 0
+          if(background.frame < 0) continue
+          val area = load(background.frame, MAIN_SCREEN)
+          for(addr in 0 until PIXEL_SIZE) {
+            if(background.changed!![addr] > maxChanged) {
+              maxChanged = background.changed!![addr]
+            }
+            if(1.0 * background.changed!![addr] / background.total
+              >= MIN_BG_CHANGED) {
+              area.pixels[addr] = Pixel.ANY
+            } else {
+              area.pixels[addr] = background.pixels[addr]
+            }
+          }
+          println("Background ${background.name} max changed $maxChanged)" +
+              " of ${background.total}")
+          val image = toImage(area, false)
+          saveImage(image, background.fileName)
+        }
+      } Mode.COLOR_BACKGROUNDS -> {
+        for(background in backgrounds) {
+          if(background.frame < 0) continue
+          val area = load(background.frame, MAIN_SCREEN)
+          val image = toImage(area, true)
+          saveImage(image, background.fileName)
+        }
+      } Mode.EXTRACT_SPRITES -> {
+        ImageExtractor.saveImages()
+      }
+    }
+
   }
 
   private fun composeScreen(frame: Int, image: BufferedImage) {
     val screenImage = BufferedImage(SCREEN_WIDTH shl 3
       , SCREEN_HEIGHT shl 3, BufferedImage.TYPE_INT_RGB)
     pasteToImage(screenImage, load(frame, STATUS_BAR)
-      , STATUS_BAR.x shl 3, STATUS_BAR.y shl 3)
+      , STATUS_BAR.x shl 3, STATUS_BAR.y shl 3, true)
     val g2d: Graphics2D = screenImage.createGraphics()
     g2d.drawImage(image, MAIN_SCREEN.x shl 3
       , MAIN_SCREEN.y shl 3, null)
@@ -249,15 +286,16 @@ object Screen {
   }
 
   // conversion and saving
-  private fun toImage(area: Area, bgData: Array<Pixel>? = null): BufferedImage {
+  private fun toImage(area: Area, colored: Boolean
+                      , bgData: Array<Pixel>? = null): BufferedImage {
     val image = BufferedImage(area.area.pixelWidth(), area.area.pixelHeight()
       , BufferedImage.TYPE_INT_RGB)
-    pasteToImage(image, area, 0, 0, bgData)
+    pasteToImage(image, area, 0, 0, colored, bgData)
     return image
   }
 
   private fun pasteToImage(image: BufferedImage, area: Area, x0: Int, y0: Int
-                           , bgData: Array<Pixel>? = null) {
+                           , colored: Boolean, bgData: Array<Pixel>? = null) {
     val width = area.area.pixelWidth()
     val height = area.area.pixelHeight()
     for(y in 0 until height) {
@@ -268,15 +306,21 @@ object Screen {
         val addr = ySource or x
         val value = area.pixels[addr]
         var col: Int
-        col = if(BLACK_AND_WHITE) {
-          if(value == Pixel.ON) white else black
-        } else {
-          if(value == Pixel.ON) color[attr and 0b1111] else
-            color[attr shr 4 and 0b1111]
-        }
-        if(bgData != null && value != bgData[addr]
+        col = if(bgData != null && value != bgData[addr]
           && bgData[addr] != Pixel.ANY && value != Pixel.ANY) {
-          col = magenta
+          magenta
+        } else if(colored) {
+          if(value == Pixel.ON) {
+            color[attr and 0b1111]
+          } else {
+            color[attr shr 4 and 0b1111]
+          }
+        } else if(value == Pixel.ANY) {
+          magenta
+        } else if(value == Pixel.ON) {
+          white
+        } else {
+          black
         }
         image.setRGB(x + x0, y + y0, col)
       }
