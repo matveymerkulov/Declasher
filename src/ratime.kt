@@ -1,4 +1,4 @@
-/*
+
 const val PERCENT_ON = 0.7
 const val MIN_DETECTION_WIDTH = 6
 const val MIN_DETECTION_HEIGHT = 6
@@ -189,4 +189,3 @@ fun locations() {
   Sprites.setLocations("salt_block", listOf(
     44041, 80, 72))
 }
-*/

@@ -4,37 +4,64 @@
     <list default="true" id="c20d8dac-1e5b-41d6-8d15-c786566be6a8" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/balcony.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/balcony.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/bed.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/bed.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/books.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/books.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/bull.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/bull.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/fountain.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/fountain.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/hive.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/hive.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/inside_fountain.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/inside_fountain.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/island.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/island.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/magician.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/magician.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/man.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/monkey.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/monkey.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/columns.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/pool.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/pool.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/rock.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/rock.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/rope.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/rope.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/sky.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/sky.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/stairs.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/stairs.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/stairs2.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/stairs2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/start.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/start.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/sun.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/sun.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/swords.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/swords.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/table_and_arms.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/table_and_arms.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/throne.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/throne.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/trapdoor.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/trapdoor.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/wadrobes.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/wadrobes.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/waterfall.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/waterfall.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/windows.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/windows.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Background.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Background.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Image.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Image.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ImageExtractor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/176_4662_002741.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/176_4663_002742.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/177_4664_002743.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/212_9962_003738.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/215_9964_003739.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/230_9966_003740.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/355_6372_003001.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/angel_bow.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/angel_wings.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/ball1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/ball2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/ball3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/fish1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/fish2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/fish3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/fish4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/flower1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/flower2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/shake3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/shark1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/shark2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/shark3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/shark4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/snake1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/snake2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/soldier1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/soldier2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/soldier3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/soldier4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/1-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/1-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/1-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/1-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/1-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/1-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/1-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/2-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/2-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/2-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/2-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/2-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/2-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/2-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/3-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/3-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/3-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/4-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/4-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/4-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/5-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/5-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Packer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Packer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Sprites.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ratime.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ratime.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/sceptre.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/sceptre.kt" afterDir="false" />
     </list>
@@ -46,8 +73,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Kotlin Class" />
         <option value="Kotlin File" />
+        <option value="Kotlin Class" />
       </list>
     </option>
   </component>
@@ -87,6 +114,13 @@
     </key>
   </component>
   <component name="RunManager" selected="Kotlin.MainKt">
+    <configuration name="EdgingKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="EdgingKt" />
+      <module name="Declasher" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="MainKt" />
       <module name="Declasher" />
@@ -104,6 +138,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Kotlin.MainKt" />
+        <item itemvalue="Kotlin.EdgingKt" />
         <item itemvalue="Kotlin.Packer" />
       </list>
     </recent_temporary>
@@ -150,11 +185,6 @@
           <url>jar://C:/Program Files/Java/jdk-15.0.2/lib/src.zip!/java.desktop/sun/awt/image/ByteInterleavedRaster.java</url>
           <line>312</line>
           <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>jar://C:/Program Files/Java/jdk-15.0.2/lib/src.zip!/java.desktop/javax/imageio/ImageIO.java</url>
-          <line>1307</line>
-          <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

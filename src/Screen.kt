@@ -150,6 +150,14 @@ object Screen {
     var oldScreen: Area? = null
     var frame = from
     while(frame <= to || to < 0) {
+      if(frame % 1000 == 0) println(frame)
+
+      if(mode == Mode.SCREENSHOTS) {
+        saveImage(toImage(load(frame, WHOLE_SCREEN), true), frame)
+        frame++
+        continue
+      }
+
       val screen: Area = try {
         load(frame, MAIN_SCREEN)
       } catch(ex: IOException) {
@@ -160,8 +168,6 @@ object Screen {
         frame++
         continue
       }
-
-      if(frame % 1000 == 0) println(frame)
 
       if(!ONLY_ABSENT || !File("D:\\output_final\\"
             + String.format("%06d", frame) + ".png").exists()) {
@@ -208,11 +214,6 @@ object Screen {
                 background.changed!![addr]++
               }
             }
-          }
-        } else if(mode == Mode.SCREENSHOTS) {
-          if(ONLY_BACKGROUND.isEmpty() || findBackground(screen.pixels, frame
-              , true) != null) {
-            saveImage(toImage(screen, true), frame)
           }
         } else if(frame % FRAME_FREQUENCY == 0) {
           val background = findBackground(screen.pixels, frame
@@ -305,24 +306,26 @@ object Screen {
         val attr = area.attrs[yAttrSource or (x shr 3)]
         val addr = ySource or x
         val value = area.pixels[addr]
-        var col: Int
-        col = if(bgData != null && value != bgData[addr]
-          && bgData[addr] != Pixel.ANY && value != Pixel.ANY) {
-          magenta
-        } else if(colored) {
-          if(value == Pixel.ON) {
-            color[attr and 0b1111]
+        image.setRGB(x + x0, y + y0,
+          if(BLACK_AND_WHITE) {
+            if(value == Pixel.ON) white else black
+          } else if(bgData != null && value != bgData[addr]
+            && bgData[addr] != Pixel.ANY && value != Pixel.ANY) {
+            magenta
+          } else if(colored) {
+            if(value == Pixel.ON) {
+              color[attr and 0b1111]
+            } else {
+              color[attr shr 4 and 0b1111]
+            }
+          } else if(value == Pixel.ANY) {
+            magenta
+          } else if(value == Pixel.ON) {
+            white
           } else {
-            color[attr shr 4 and 0b1111]
+            black
           }
-        } else if(value == Pixel.ANY) {
-          magenta
-        } else if(value == Pixel.ON) {
-          white
-        } else {
-          black
-        }
-        image.setRGB(x + x0, y + y0, col)
+        )
       }
     }
   }

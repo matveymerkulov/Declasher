@@ -84,6 +84,7 @@ const val SCREEN_HEIGHT = 24
 const val SCREEN_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT
 const val BYTE_SIZE = SCREEN_SIZE * 8
 const val FRAME_SIZE = BYTE_SIZE + SCREEN_SIZE
+val WHOLE_SCREEN = Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
 // main
 @Throws(IOException::class)

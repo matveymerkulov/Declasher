@@ -4,33 +4,15 @@
     <list default="true" id="9dcd0ae3-14a0-4f58-8655-2d30be363d32" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/balcony.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/balcony.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/bed.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/bed.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/books.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/books.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/fountain.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/fountain.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/hive.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/hive.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/inside_fountain.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/inside_fountain.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/island.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/island.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/magician.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/magician.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/monkey.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/monkey.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/columns.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/pool.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/pool.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/rock.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/rock.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/rope.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/rope.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/sky.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/sky.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/stairs.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/stairs.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/stairs2.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/stairs2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/start.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/start.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/sun.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/sun.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/swords.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/swords.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/table_and_arms.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/table_and_arms.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/throne.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/throne.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/wadrobes.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/wadrobes.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/waterfall.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/waterfall.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/windows.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/windows.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Background.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Background.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Image.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Image.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/fish1.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/sprites/enemies/fish1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/fish2.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/sprites/enemies/fish2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/fish3.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/sprites/enemies/fish3.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/5-1.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/sprites/player/5-1.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ratime.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ratime.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Sprites.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/sceptre.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/sceptre.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -130,11 +112,6 @@
           <properties class="java.lang.NoClassDefFoundError" package="java.lang" />
           <option name="timeStamp" value="1" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/src/Screen.kt</url>
-          <line>185</line>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>

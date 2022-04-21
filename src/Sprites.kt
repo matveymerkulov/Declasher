@@ -89,9 +89,10 @@ object Sprites {
   private class Sprite(
     file: File,
     val minMatched: Double,
-    val maxErrors: Int,
+    val maxErrors: Double,
     val areaFunction: (String) -> Rect?,
-    val name: String
+    val name: String,
+    mirrored: Boolean
   ) {
     var repainted: BufferedImage? = null
     val data: Array<Pixel>
@@ -112,17 +113,19 @@ object Sprites {
         width = image.width
         height = image.height
         data = Array(width * height) { Pixel.ANY }
+
         for(y in 0 until height) {
           val yAddr = y * width
           for(x in 0 until width) {
             val pixel = image.getRGB(x, y)
+            val xx = yAddr + if(mirrored) width - 1 - x else x
             if(pixel and 0xFF < 0x80) {
-              data[yAddr + x] = Pixel.OFF
+              data[xx] = Pixel.OFF
               pixelsQuantity++
             } else if(pixel and 0xFF00 < 0x8000) {
-              data[yAddr + x] = Pixel.ANY
+              data[xx] = Pixel.ANY
             } else {
-              data[yAddr + x] = Pixel.ON
+              data[xx] = Pixel.ON
               pixelsQuantity++
             }
           }
@@ -202,7 +205,7 @@ object Sprites {
                   total++
                 }
               }
-              if(errors > maxErrors) continue@dx
+              if(1.0 * errors / pixelsQuantity > maxErrors) continue@dx
             }
           }
           if(1.0 * matched / total < minMatched) continue
@@ -269,32 +272,48 @@ object Sprites {
     }
   }
 
+  private fun oneOrBoth(
+    sprites: LinkedList<Sprites.Sprite>,
+    file: File,
+    minMatched: Double,
+    maxErrors: Double,
+    areaFunction: (String) -> Rect?,
+    name: String
+  ) {
+    sprites.add(Sprite(file, minMatched, maxErrors, areaFunction, name
+      , false))
+    if(file.name.endsWith("_both.png")) {
+      sprites.add(Sprite(file, minMatched, maxErrors, areaFunction, name
+        , true))
+    }
+  }
+
   @Throws(IOException::class)
-  fun load(fileName: String, minMatched: Double, maxErrors: Int
+  fun load(fileName: String, minMatched: Double, maxErrors: Double
            , alwaysSingle: Boolean
            , areaFunction: (String) -> Rect? = {defaultArea}) {
     val list = SpriteList(alwaysSingle)
-    list.sprites.add(Sprite(File("$project/sprites/$fileName.png")
-      , minMatched, maxErrors, areaFunction, fileName))
+    oneOrBoth(list.sprites, File("$project/sprites/$fileName.png")
+      , minMatched, maxErrors, areaFunction, fileName)
     spriteLists.add(list)
   }
 
   @Throws(IOException::class)
-  fun loadSeveral(fileName: String, minMatched: Double, maxErrors: Int
+  fun loadSeveral(fileName: String, minMatched: Double, maxErrors: Double
                   , alwaysSingle: Boolean
-                  , areaFunction: (String) -> Rect = {defaultArea}) {
+                  , areaFunction: (String) -> Rect? = {defaultArea}) {
     val folder = File("$project/sprites/$fileName")
     val list = SpriteList(alwaysSingle)
     for(file in folder.listFiles()) {
-      list.sprites.add(Sprite(file, minMatched, maxErrors, areaFunction
-        , fileName))
+      oneOrBoth(list.sprites, file, minMatched, maxErrors, areaFunction
+        , fileName)
     }
     spriteLists.add(list)
   }
 
   fun setLocations(fileName: String, list: String) {
     val sprite = Sprite(File("$project/static/$fileName.png")
-      , 0.0, 0, { defaultArea }, fileName)
+      , 0.0, 0.0, { defaultArea }, fileName, false)
     for(n in list.split(";")) {
       val vars = list.split(",")
       val bg = Screen.getBackground(vars[0].trim())
