@@ -1,4 +1,4 @@
-
+/*
 const val PERCENT_ON = 0.7
 const val MIN_DETECTION_WIDTH = 6
 const val MIN_DETECTION_HEIGHT = 6
@@ -8,8 +8,8 @@ const val MAX_DIFFERENCE_FOR_ALL_BG = 2000
 var project = "ratime"
 
 // debug
-const val SAVE_COLORED = false
-const val RESIZED = false
+const val TWO_FRAMES = true
+const val RESIZED = true
 const val BLACK_AND_WHITE = false
 const val SAVE_SIMILAR = true
 
@@ -28,34 +28,35 @@ const val MIN_HEIGHT = 6
 const val MAX_HEIGHT = 90
 const val MIN_FRAMES = 5
 const val FRAME_FREQUENCY = 1
+const val MIN_BG_CHANGED = 0.55
 const val OUT_DIR = "D:/output/"
 
 var defaultArea = Rect(0, 0
   , MAIN_SCREEN.pixelWidth(), MAIN_SCREEN.pixelHeight())
 
-val MAX_BG_DIFFERENCE = DefaultMap(300, mapOf(1 to 900
-  , 3012 to 700, 6915 to 1500, 24350 to 900, 27654 to 900
-  , 28366 to 900, 34454 to 900, 55614 to 900
-  , 57410 to 900, 38878 to 900, 45276 to 900, 46957 to 900, 50377 to 900
-  , 56547 to 1500, 53902 to 900, 54125 to 900, 53902 to 900, 57206 to 900
-  , 57410 to 1500))
+val MAX_BG_DIFFERENCE = DefaultMap(300, mapOf("1" to 900
+  , "03012" to 700, "006915" to 1500, "024350" to 900, "027654" to 900
+  , "028366" to 900, "034454" to 900, "055614" to 900, "057410" to 900
+  , "038878" to 900, "045276" to 900, "046957" to 900, "050377" to 900
+  , "056547" to 1500, "053902" to 900, "054125" to 900, "053902" to 900
+  , "057206" to 900, "057410" to 1500))
 
 var particles = mapOf(
-    2437 to Rect(40, 88, 64, 48)
-  , 3012 to Rect(32, 136, 168, 8)
-  , 14848 to Rect(48, 80, 64, 64)
-  , 23687 to Rect(80, 136, 104, 8)
-  , 24350 to Rect(88, 60, 128, 88)
-  , 34234 to defaultArea
-  , 43658 to defaultArea
-  , 45276 to Rect(104, 120, 72, 24)
-  , 45623 to defaultArea
-  , 46091 to defaultArea
-  , 50159 to defaultArea
-  , 50377 to Rect(48, 136, 40, 8)
-  , 53902 to Rect(56, 136, 120, 8)
-  , 56547 to Rect(48, 136, 144, 8)
-  , 57410 to defaultArea
+   "002437" to Rect(40, 88, 64, 48)
+  , "003012" to Rect(32, 136, 168, 8)
+  , "014848" to Rect(48, 80, 64, 64)
+  , "023687" to Rect(80, 136, 104, 8)
+  , "024350" to Rect(88, 60, 128, 88)
+  , "034234" to defaultArea
+  , "043658" to defaultArea
+  , "045276" to Rect(104, 120, 72, 24)
+  , "045623" to defaultArea
+  , "046091" to defaultArea
+  , "050159" to defaultArea
+  , "050377" to Rect(48, 136, 40, 8)
+  , "053902" to Rect(56, 136, 120, 8)
+  , "056547" to Rect(48, 136, 144, 8)
+  , "057410" to defaultArea
 )
 
 const val SHOW_DETECTION_AREA = false
@@ -65,53 +66,55 @@ const val SHOW_BG_DIFFERENCE = false
 val mode = Mode.DECLASH
 //val mode = Mode.SHOW_DIFFERENCE
 //val mode = Mode.SCREENSHOTS
-const val ONLY_BACKGROUND = -1
+const val ONLY_BACKGROUND = "034234"
 //const val ONLY_ABSENT = false
 const val ONLY_ABSENT = true
 //const val ANY_IS_CHANGED = false
 const val ANY_IS_CHANGED = true
-const val SPRITE_COLOR = white
+const val XOR = false
+
+val SPRITE_COLOR = DefaultMap<String, Int>(white, mapOf())
 const val PARTICLE_COLOR = white
 
 fun process() {
   locations()
 
-  Screen.process()
+  Screen.process(34000, 35000)
 }
 
 fun locations() {
-  Sprites.loadSeveral("player", 0.7, 1000
+  Sprites.loadSeveral("player", 0.6, 0.9
     , true)
 
-  Sprites.load("plane", 0.7, 1000
-    , true) { frame: Int -> if(frame == 1) defaultArea else null }
+  Sprites.load("plane", 0.7, 0.4
+    , true) { name: String -> if(name == "000001") defaultArea else null }
 
-  Sprites.load("cyan_island", 0.6, 200
-    , false) { frame: Int -> if(frame == 3012)
+  Sprites.load("cyan_island", 0.6, 0.3
+    , false) { name: String -> if(name == "003012")
       Rect(0, 128, 256, 16) else null }
-  Sprites.load("white_island", 0.6, 100
-    , true) { frame: Int -> if(frame == 23687)
+  Sprites.load("white_island", 0.6, 0.2
+    , true) { name: String -> if(name == "023687")
       Rect(72, 128, 112, 16) else null }
-  Sprites.load("red_island", 0.6, 100
-    , true) { frame: Int -> when(frame) {
-    24350 -> Rect(0, 128, 256, 16)
-    43658 -> Rect(128, 120, 32, 24)
-    45276 -> Rect(112, 112, 64, 32)
-    53902 -> Rect(48, 132, 136, 16)
+  Sprites.load("red_island", 0.6, 0.2
+    , true) { name: String -> when(name) {
+    "024350" -> Rect(0, 128, 256, 16)
+    "043658" -> Rect(128, 120, 32, 24)
+    "045276" -> Rect(112, 112, 64, 32)
+    "053902" -> Rect(48, 132, 136, 16)
     else -> null
   }}
-  Sprites.load("croc", 0.6, 100
-    , true) {frame: Int -> if(frame == 53902)
+  Sprites.load("croc", 0.6, 0.2
+    , true) {name: String -> if(name == "053902")
     Rect(52, 128, 128, 16) else null}
 
-  Sprites.load("wall", 0.8, 10
-    , true) {frame: Int -> if(frame == 27654)
+  Sprites.load("wall", 0.8, 0.1
+    , true) {name: String -> if(name == "027654")
     Rect(104, 112, 16, 32) else null}
-  Sprites.load("stone", 0.8, 10
-    , true) {frame: Int -> if(frame == 27654)
+  Sprites.load("stone", 0.8, 0.1
+    , true) {name: String -> if(name == "027654")
     Rect(28, 112, 60, 16) else null}
-  Sprites.load("sand_bag", 0.8, 10
-    , true) {frame: Int -> if(frame == 27654)
+  Sprites.load("sand_bag", 0.8, 0.1
+    , true) {name: String -> if(name == "027654")
     Rect(104, 96, 16, 32) else null}
 
   Sprites.setLocations("arrow_block", listOf(
@@ -189,3 +192,4 @@ fun locations() {
   Sprites.setLocations("salt_block", listOf(
     44041, 80, 72))
 }
+*/

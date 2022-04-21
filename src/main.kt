@@ -70,8 +70,8 @@ class Rect(val x: Int, val y:Int, val width: Int, val height: Int) {
   }
 }
 
-fun loadRepainted(fileName: String):BufferedImage {
-  return ImageIO.read(File("$project/repainted/$fileName.png"))
+fun format(num: Int): String {
+  return String.format("%06d", num)
 }
 
 enum class Mode {

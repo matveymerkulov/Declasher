@@ -1,4 +1,4 @@
-/*
+
 var project = "sceptre"
 
 val MAIN_SCREEN = Rect(0, 0, 32, 20)
@@ -56,6 +56,7 @@ const val ONLY_ABSENT = false
 const val ANY_IS_CHANGED = false
 //const val ANY_IS_CHANGED = true
 const val BLACK_AND_WHITE = false
+const val TWO_FRAMES = true
 
 val SPRITE_COLOR = DefaultMap(white, mapOf("yellow" to yellow))
 const val PARTICLE_COLOR = white
@@ -82,4 +83,3 @@ fun locations() {
   Sprites.loadSeveral("fish", 0.1, 0.5
     , true) {  name -> if(name == "pool") defaultArea else null  }
 }
-*/

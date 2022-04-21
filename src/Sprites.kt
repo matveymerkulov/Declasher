@@ -14,7 +14,7 @@ object Sprites {
   private var minDetectionPixels = MAX_WIDTH * MAX_HEIGHT
   val maxDetectionSize: String
     get() = "$minDetectionWidth x $minDetectionHeight $minDetectionPixels"
-  var maxErrors = 0
+  var maxErrors = 0.0
     private set
   var maxDifference = 0.0
     private set
@@ -25,8 +25,8 @@ object Sprites {
     val sprites = LinkedList<Sprite>()
   }
 
-  private class SpritePos(val dx: Int, val dy: Int, var errors: Int
-                          , val matched: Int, val sprite: Sprite) {
+  private class SpritePos(val dx: Int, val dy: Int, var errors: Double
+                          , val matched: Double, val sprite: Sprite) {
     fun repaint(screen: Area, image: BufferedImage, remove: Boolean
                 , background: Background) {
       sprite.repaint(dx, dy, screen, image, remove, background)
@@ -40,7 +40,7 @@ object Sprites {
 
     for(list in spriteLists) {
       var best: SpritePos = SpritePos(
-        0, 0, -1, 0, list.sprites.first
+        0, 0, 2.0, -1.0, list.sprites.first
       )
 
       if(SHOW_DETECTION_AREA) {
@@ -50,13 +50,13 @@ object Sprites {
       for(area in areas) {
         for(sprite in list.sprites) {
           best = sprite.check(best, area, name, screen, background)
-          if(!list.alwaysSingle && best.errors >= 0) {
+          if(!list.alwaysSingle && best.errors < 1.0) {
             process(best, screen, image, area, background)
-            best.errors = -1
+            best.errors = 2.0
           }
         }
       }
-      if(list.alwaysSingle && best.errors >= 0) {
+      if(list.alwaysSingle && best.errors < 1.0) {
         process(best, screen, image, null, background)
       }
     }
@@ -67,15 +67,17 @@ object Sprites {
     if(SHOW_DETECTION_AREA) {
       val g = image.createGraphics()
       g.color = Color.white
-      g.drawString("${100 * best.matched / best.sprite.pixelsQuantity}" +
-          "/${best.errors}", best.dx, best.dy - 3)
+      g.drawString("${format((10000 * best.matched
+          / best.sprite.pixelsQuantity).toInt())}" +
+          "/${format((10000 * best.errors).toInt())}"
+        , best.dx, best.dy - 3)
     }
 
     if(area != null) {
       val width = area.x2 - area.x1
       val height = area.y2 - area.y1
 
-      maxErrors = Integer.max(maxErrors, best.errors)
+      maxErrors = max(maxErrors, best.errors)
       maxDifference = max(maxDifference,(1.0 * best.sprite.pixelsQuantity
           - best.matched) / best.sprite.pixelsQuantity)
       minDetectionWidth = Integer.min(minDetectionWidth, width)
@@ -208,9 +210,11 @@ object Sprites {
               if(1.0 * errors / pixelsQuantity > maxErrors) continue@dx
             }
           }
-          if(1.0 * matched / total < minMatched) continue
-          if(best.errors < 0 || errors < best.errors) {
-            best = SpritePos(dx, dy, errors, matched, this)
+          val matchedPercent = 1.0 * matched / total
+          val errorPercent = 1.0 * errors / pixelsQuantity
+          if(matchedPercent < minMatched) continue
+          if(best.errors < 0 || errorPercent < best.errors) {
+            best = SpritePos(dx, dy, errorPercent, matchedPercent, this)
             if(errors == 0) return best
           }
         }
@@ -280,18 +284,18 @@ object Sprites {
     areaFunction: (String) -> Rect?,
     name: String
   ) {
-    sprites.add(Sprite(file, minMatched, maxErrors, areaFunction, name
-      , false))
     if(file.name.endsWith("_both.png")) {
       sprites.add(Sprite(file, minMatched, maxErrors, areaFunction, name
         , true))
+    } else {
+      sprites.add(Sprite(file, minMatched, maxErrors, areaFunction, name
+        , false))
     }
   }
 
   @Throws(IOException::class)
   fun load(fileName: String, minMatched: Double, maxErrors: Double
-           , alwaysSingle: Boolean
-           , areaFunction: (String) -> Rect? = {defaultArea}) {
+   , alwaysSingle: Boolean, areaFunction: (String) -> Rect? = {defaultArea}) {
     val list = SpriteList(alwaysSingle)
     oneOrBoth(list.sprites, File("$project/sprites/$fileName.png")
       , minMatched, maxErrors, areaFunction, fileName)
@@ -311,14 +315,13 @@ object Sprites {
     spriteLists.add(list)
   }
 
-  fun setLocations(fileName: String, list: String) {
+  fun setLocations(fileName: String, list: List<Int>) {
     val sprite = Sprite(File("$project/static/$fileName.png")
       , 0.0, 0.0, { defaultArea }, fileName, false)
-    for(n in list.split(";")) {
-      val vars = list.split(",")
-      val bg = Screen.getBackground(vars[0].trim())
-      val x0 = vars[1].trim().toInt()
-      val y0 = vars[2].trim().toInt()
+    for(n in list.indices step 3) {
+      val bg = Screen.getBackground(format(list[n]))
+      val x0 = list[n + 1]
+      val y0 = list[n + 2]
       val pixels = bg.pixels
       for(y in 0 until sprite.height) {
         for(x in 0 until sprite.width) {

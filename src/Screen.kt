@@ -1,5 +1,6 @@
 import org.tukaani.xz.SeekableFileInputStream
 import org.tukaani.xz.SeekableXZInputStream
+import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import java.io.File
@@ -125,6 +126,7 @@ object Screen {
     for(background in backgrounds) {
       if(background.name == name) return background
     }
+    println("Background $name is not found")
     throw Exception("Background is not found")
   }
 
@@ -275,15 +277,46 @@ object Screen {
   }
 
   private fun composeScreen(frame: Int, image: BufferedImage) {
-    val screenImage = BufferedImage(SCREEN_WIDTH shl 3
-      , SCREEN_HEIGHT shl 3, BufferedImage.TYPE_INT_RGB)
-    pasteToImage(screenImage, load(frame, STATUS_BAR)
-      , STATUS_BAR.x shl 3, STATUS_BAR.y shl 3, true)
-    val g2d: Graphics2D = screenImage.createGraphics()
-    g2d.drawImage(image, MAIN_SCREEN.x shl 3
-      , MAIN_SCREEN.y shl 3, null)
+    val i = if(TWO_FRAMES) 1 else 0
+    val screenWidth = WHOLE_SCREEN.pixelWidth()
+    val screenHeight = WHOLE_SCREEN.pixelHeight()
+    val width = screenWidth * 2 + 7
+    val height = width * 9 / 16
+    val newImage = if(TWO_FRAMES) {
+      BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+    } else {
+      BufferedImage(
+        screenHeight, screenHeight,
+        BufferedImage.TYPE_INT_RGB
+      )
+    }
+
+    val dy = if(TWO_FRAMES) (height - (SCREEN_HEIGHT shl 3) - 4) / 2 else 0
+
+    val g2d: Graphics2D = newImage.createGraphics()
+    if(TWO_FRAMES) {
+      g2d.color = Color.black
+      g2d.fillRect(0, 0, newImage.width, newImage.height)
+      g2d.color = Color.white
+      g2d.drawRect(0, dy - 1, newImage.width - 1
+        , screenHeight + 2)
+      g2d.drawRect(screenWidth + 3, dy - 1, 0
+        , screenHeight + 2)
+      g2d.drawString("NEW", 120, 206 + dy)
+      g2d.drawString("ORIGINAL", 100 + 256, 206 + dy)
+    }
+
+    pasteToImage(newImage, load(frame, STATUS_BAR)
+      , (STATUS_BAR.x shl 3) + i * 2, (STATUS_BAR.y shl 3) + dy, true)
+    g2d.drawImage(image, (MAIN_SCREEN.x shl 3) + i * 2
+      , (MAIN_SCREEN.y shl 3) + dy, null)
+    if(TWO_FRAMES) {
+      g2d.drawImage(toImage(load(frame, WHOLE_SCREEN), true)
+        , screenWidth + 5 * i, dy, null)
+    }
+
     g2d.dispose()
-    saveImage(screenImage, frame)
+    saveImage(newImage, frame)
   }
 
   // conversion and saving
@@ -332,7 +365,7 @@ object Screen {
 
   @Throws(IOException::class)
   fun saveImage(image: BufferedImage, fileNumber: Int) {
-    saveImage(image, String.format("%06d", fileNumber) + ".png")
+    saveImage(image, format(fileNumber) + ".png")
   }
 
   @Throws(IOException::class)
