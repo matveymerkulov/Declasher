@@ -102,25 +102,27 @@ object ImageExtractor {
               images.add(newList)
             } else {
               repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
-                , background.particlesArea)
+                , background)
             }
           } else {
             repaint(pixels, imageNumber, screen, x1, y1, x2, y2, image
-              , background.particlesArea)
+              , background)
           }
         }
       }
     }
 
-    if(mode == Mode.DECLASH)
+    if(mode == Mode.DECLASH) {
       Sprites.declash(screen, image, background.name, areas, background)
+    }
   }
 
   private fun repaint(pixels: IntArray, imageNumber: Int, screen: Area
                       , x1: Int, y1: Int, x2: Int, y2: Int
-                      , image: BufferedImage, particlesArea: Rect?) {
+                      , image: BufferedImage, background: Background) {
+    val particlesArea = background.particlesArea
     if(SHOW_DETECTION_AREA && particlesArea != null) {
-      particlesArea.draw(image)
+      particlesArea!!.draw(image)
     }
     for(y in y1 until y2) {
       val yAddr = y * PIXEL_WIDTH
@@ -132,7 +134,7 @@ object ImageExtractor {
           image.setRGB(x, y, if(screen.pixels[addr] == Pixel.ANY) {
             if(SHOW_DETECTION_AREA) magenta else color[attr and 0xF]
           } else if(particlesArea != null && particlesArea.has(x, y)) {
-            PARTICLE_COLOR
+            background.particlesColor
           } else if(screen.pixels[addr] == Pixel.ON) {
             color[attr and 0xF]
           } else {

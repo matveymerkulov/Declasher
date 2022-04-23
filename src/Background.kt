@@ -4,17 +4,20 @@ class Background {
   val pixels: Array<Pixel>
   val image: BufferedImage?
   val fileName: String
-  val particlesArea: Rect?
   val name: String
+
   var frame: Int = -1
   var changed:Array<Int>? = null
   var total: Int = 0
+
+  var particlesColor: Int = white
+  var particlesArea: Rect? = null
+  var maxDifference: Int = MAX_BG_DIFFERENCE
 
   constructor(pixels: Array<Pixel>) {
     this.pixels = pixels
     this.image = null
     this.fileName = ""
-    this.particlesArea = null
     this.name = ""
   }
 
@@ -24,7 +27,6 @@ class Background {
     this.pixels = pixels
     this.image = image
     this.fileName = fileName
-    this.particlesArea = particles[this.name]
     if(mode == Mode.FIND_PIXELS_TO_SKIP) changed = Array(PIXEL_SIZE) { 0 }
   }
 

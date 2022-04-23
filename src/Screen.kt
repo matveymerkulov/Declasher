@@ -1,6 +1,7 @@
 import org.tukaani.xz.SeekableFileInputStream
 import org.tukaani.xz.SeekableXZInputStream
 import java.awt.Color
+import java.awt.FontMetrics
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import java.io.File
@@ -95,12 +96,12 @@ object Screen {
   private fun findBackground(screen: Array<Pixel>, frame: Int
                              , only:Boolean): Background? {
     var minDifference = if(SHOW_BG_DIFFERENCE) 100000
-        else MAX_DIFFERENCE_FOR_ALL_BG
+        else MAX_BG_DIFFERENCE
     var minBackground: Background? = null
     for(background in backgrounds) {
       if(only && background.name != ONLY_BACKGROUND) continue
       val max = if(SHOW_BG_DIFFERENCE) 100000
-          else MAX_BG_DIFFERENCE[background.name]
+          else background.maxDifference
       val difference = background.difference(screen, if(SHOW_BG_DIFFERENCE)
         100000 else max)
       if(difference < minDifference && difference < max) {
@@ -147,7 +148,7 @@ object Screen {
   }
 
   @Throws(IOException::class)
-  fun process(from: Int, to: Int) {
+  fun process(from: Int, to: Int, frequency: Int = 1) {
     var firstFrame = from
     var oldScreen: Area? = null
     var frame = from
@@ -173,7 +174,10 @@ object Screen {
 
       if(!ONLY_ABSENT || !File("D:\\output_final\\"
             + String.format("%06d", frame) + ".png").exists()) {
-        if(mode == Mode.EXTRACT_BACKGROUNDS) {
+        if(mode == Mode.COLOR_BACKGROUNDS) {
+          val background = findBackground(screen.pixels, frame, false)
+          if(background != null && background.frame < 0) background.frame = frame;
+        } else if(mode == Mode.EXTRACT_BACKGROUNDS) {
           println("$frame background switch")
 
           var difference = 0
@@ -183,7 +187,7 @@ object Screen {
             if(isChanged) difference++
           }
 
-          if(difference > MAX_DIFFERENCE_FOR_ALL_BG) {
+          if(difference > MAX_BG_DIFFERENCE) {
             println("Processing sequence $firstFrame - $frame "
                   + if(mode === Mode.EXTRACT_SPRITES) ", "
                   + ImageExtractor.images.size else ""
@@ -217,15 +221,18 @@ object Screen {
               }
             }
           }
-        } else if(frame % FRAME_FREQUENCY == 0) {
+        } else if(frame % frequency == 0) {
           val background = findBackground(screen.pixels, frame
             , ONLY_BACKGROUND.isNotEmpty())
           if(background != null) {
             if(mode == Mode.SHOW_DIFFERENCE) {
               saveImage(toImage(screen, true, background.pixels), frame)
             } else {
-              val image = if(background.image == null) toImage(screen
-                , true) else copyImage(background.image)
+              val image = if(background.image == null) {
+                toImage(screen, true)
+              } else {
+                copyImage(background.image)
+              }
               ImageExtractor.process(screen, background, frame, image)
               if(mode == Mode.DECLASH) {
                 composeScreen(frame, image)
@@ -285,10 +292,7 @@ object Screen {
     val newImage = if(TWO_FRAMES) {
       BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
     } else {
-      BufferedImage(
-        screenHeight, screenHeight,
-        BufferedImage.TYPE_INT_RGB
-      )
+      BufferedImage(screenWidth, screenHeight,BufferedImage.TYPE_INT_RGB)
     }
 
     val dy = if(TWO_FRAMES) (height - (SCREEN_HEIGHT shl 3) - 4) / 2 else 0
@@ -298,12 +302,16 @@ object Screen {
       g2d.color = Color.black
       g2d.fillRect(0, 0, newImage.width, newImage.height)
       g2d.color = Color.white
-      g2d.drawRect(0, dy - 1, newImage.width - 1
-        , screenHeight + 2)
-      g2d.drawRect(screenWidth + 3, dy - 1, 0
-        , screenHeight + 2)
-      g2d.drawString("NEW", 120, 206 + dy)
-      g2d.drawString("ORIGINAL", 100 + 256, 206 + dy)
+      g2d.drawRect(0, dy - 2, newImage.width - 1
+        , screenHeight + 3)
+      g2d.drawRect(screenWidth + 3, dy - 2, 0
+        , screenHeight + 3)
+
+      val fm: FontMetrics = g2d.getFontMetrics(g2d.font)
+      g2d.drawString("NEW", 130 - fm.stringWidth("NEW") / 2
+        , 206 + dy)
+      g2d.drawString("ORIGINAL", 130 + 256
+          - fm.stringWidth("ORIGINAL") / 2, 206 + dy)
     }
 
     pasteToImage(newImage, load(frame, STATUS_BAR)
@@ -373,4 +381,15 @@ object Screen {
     val outputFile = File(OUT_DIR + fileName)
     ImageIO.write(x3(image), "png", outputFile)
   }
+}
+
+fun setParticles(name: String, area: Rect, color: Int = white) {
+  val bg = Screen.getBackground(name)
+  bg.particlesArea = area
+  bg.particlesColor = color
+}
+
+fun setMaxDifference(name: String, diff: Int) {
+  val bg = Screen.getBackground(name)
+  bg.maxDifference = diff
 }

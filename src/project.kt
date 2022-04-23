@@ -1,4 +1,4 @@
-
+/*
 // screen areas
 
 val MAIN_SCREEN = Rect(0, 0, 32, 20)
@@ -13,6 +13,8 @@ var project = "sceptre"
 const val OUT_DIR = "D:/output/"
 const val XOR = true
 const val RESIZED = false
+const val ONLY_BACKGROUND = ""
+//const val ONLY_BACKGROUND = "swords"
 const val BLACK_AND_WHITE = false
 const val ONLY_ABSENT = false
 //const val ONLY_ABSENT = true
@@ -50,28 +52,12 @@ const val SHOW_DETECTION_AREA = false
 const val ANY_IS_CHANGED = false
 //const val ANY_IS_CHANGED = true
 
-//const val ONLY_BACKGROUND = "pool"
-const val ONLY_BACKGROUND = ""
-
 fun process() {
   sprites()
-  //throne
-  Screen.process(0, 5000)
-  //Screen.process(5597 - 1, 10000)
+  //Screen-.process(5597 - 1, 10000)
   //Screen.process()
 }
 
 fun sprites() {
-  Sprites.loadSeveral(
-    "player", 0.6, 0.5, true, white
-  , defaultArea, emptyMap())
-
-  Sprites.loadSeveral("yellow", 0.3, 0.1
-    , false, yellow, defaultArea, mapOf("pool" to null))
-
-  Sprites.loadSeveral("white", 0.3, 0.1
-    , false, white, defaultArea, mapOf("pool" to null))
-
-  Sprites.loadSeveral("fish", 0.1, 0.5
-    , true, white, null, mapOf("pool" to defaultArea))
 }
+*/

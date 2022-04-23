@@ -3,7 +3,6 @@ import kotlin.Throws
 import java.io.IOException
 import java.io.File
 import java.awt.image.BufferedImage
-import javax.imageio.ImageIO
 
 const val brig = 0x9F
 const val black = 0x000000
@@ -70,10 +69,6 @@ class Rect(val x: Int, val y:Int, val width: Int, val height: Int) {
   }
 }
 
-fun format(num: Int): String {
-  return String.format("%06d", num)
-}
-
 enum class Mode {
   EXTRACT_SPRITES, EXTRACT_BACKGROUNDS, DECLASH, DETECT_MAX_SIZE
   , SHOW_DIFFERENCE, SCREENSHOTS, COLOR_BACKGROUNDS, FIND_PIXELS_TO_SKIP
@@ -85,6 +80,9 @@ const val SCREEN_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT
 const val BYTE_SIZE = SCREEN_SIZE * 8
 const val FRAME_SIZE = BYTE_SIZE + SCREEN_SIZE
 val WHOLE_SCREEN = Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+val defaultArea = Rect(0, 0
+  , MAIN_SCREEN.pixelWidth(), MAIN_SCREEN.pixelHeight())
 
 // main
 @Throws(IOException::class)
@@ -99,6 +97,10 @@ fun main(args: Array<String>) {
   println("Max errors is ${Sprites.maxErrors}")
   println("Max difference is ${Sprites.maxDifference}")
   println("Max background difference is ${Screen.maxBackgroundDifference}")
+}
+
+fun format(num: Int): String {
+  return String.format("%06d", num)
 }
 
 fun resizeImage(originalImage: BufferedImage, targetWidth: Int

@@ -3,16 +3,18 @@
   <component name="ChangeListManager">
     <list default="true" id="9dcd0ae3-14a0-4f58-8655-2d30be363d32" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/columns.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/pool.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/pool.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/fish1.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/sprites/enemies/fish1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/fish2.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/sprites/enemies/fish2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/sprites/enemies/fish3.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/sprites/enemies/fish3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/sprites/player/5-1.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/sprites/player/5-1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/man1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/man2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/medusa0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/medusa1.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/medusa1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/medusa2.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/medusa2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/white/bee1_both.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/white/bee2_both.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/white/bee3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/white/bee4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/yellow/355_6372_003001.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Sprites.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/sceptre.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/sceptre.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -48,7 +50,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowDebug.ShowToolbar" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/lib/xz.jar" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Elasmotherium" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -65,6 +67,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="EdgingKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="EdgingKt" />
+      <module name="Declasher" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="MainKt" />
       <module name="Declasher" />
@@ -75,6 +84,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Kotlin.MainKt" />
+        <item itemvalue="Kotlin.EdgingKt" />
         <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>

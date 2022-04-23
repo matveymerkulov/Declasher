@@ -2,22 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c20d8dac-1e5b-41d6-8d15-c786566be6a8" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/backgrounds/21450.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/016_002_000001.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/017_002_000001.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/018_002_000001.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/049_115_000022.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/167_027_000012.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/188_114_000021.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/275_067_000020.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/300_058_000019.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/331_045_000017.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/334_052_000018.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/339_043_000016.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/344_028_000013.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/370_036_000015.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ratime/sprites/player/452_034_000014.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/man1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/man2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/medusa0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/medusa1.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/medusa1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/medusa2.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/medusa2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/swords.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/swords.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/throne.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/white/bee1_both.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/white/bee2_both.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/white/bee3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/white/bee4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/yellow/355_6372_003001.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Background.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Background.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ImageExtractor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Sprites.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.kt" afterDir="false" />
@@ -63,7 +63,7 @@
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="project.propDebugger" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -144,11 +144,6 @@
           <url>jar://C:/Program Files/Java/jdk-15.0.2/lib/src.zip!/java.desktop/sun/awt/image/ByteInterleavedRaster.java</url>
           <line>312</line>
           <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/src/Screen.kt</url>
-          <line>128</line>
-          <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
