@@ -1,3 +1,4 @@
+import Background.Companion.maxBackgroundDifference
 import java.awt.Color
 import kotlin.Throws
 import java.io.IOException
@@ -96,7 +97,7 @@ fun main(args: Array<String>) {
   println("Max image is ${Image.maxSize} pixels")
   println("Max errors is ${Sprites.maxErrors}")
   println("Max difference is ${Sprites.maxDifference}")
-  println("Max background difference is ${Screen.maxBackgroundDifference}")
+  println("Max background difference is $maxBackgroundDifference")
 }
 
 fun format(num: Int): String {

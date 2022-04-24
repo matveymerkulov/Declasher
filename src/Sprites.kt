@@ -1,3 +1,4 @@
+import Background.Companion.getBackground
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.io.File
@@ -316,7 +317,7 @@ object Sprites {
       , 0.0, 0.0, white, false, fileName
       , DefaultMap(defaultArea, emptyMap()))
     for(n in list.indices step 3) {
-      val bg = Screen.getBackground(format(list[n]))
+      val bg = getBackground(format(list[n]))
       val x0 = list[n + 1]
       val y0 = list[n + 2]
       val pixels = bg.pixels

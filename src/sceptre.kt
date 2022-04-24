@@ -1,3 +1,5 @@
+import Background.Companion.addScope
+import Sprites.loadSeveral
 
 // screen areas
 
@@ -50,28 +52,24 @@ const val SHOW_DETECTION_AREA = false
 const val ANY_IS_CHANGED = false
 //const val ANY_IS_CHANGED = true
 
-//const val ONLY_BACKGROUND = "pool"
-const val ONLY_BACKGROUND = ""
+const val ONLY_BACKGROUND = "throne_2"
+//const val ONLY_BACKGROUND = ""
 
 fun process() {
   sprites()
   //throne
-  Screen.process(0, 5000)
-  //Screen.process(5597 - 1, 10000)
+  //Screen.process(0, 5000)
+  Screen.process(4690 - 1, 15000)
   //Screen.process()
 }
 
 fun sprites() {
-  Sprites.loadSeveral(
-    "player", 0.6, 0.5, true, white
-  , defaultArea, emptyMap())
-
-  Sprites.loadSeveral("yellow", 0.3, 0.1
-    , false, yellow, defaultArea, mapOf("pool" to null))
-
-  Sprites.loadSeveral("white", 0.3, 0.1
-    , false, white, defaultArea, mapOf("pool" to null))
-
-  Sprites.loadSeveral("fish", 0.1, 0.5
-    , true, white, null, mapOf("pool" to defaultArea))
+  loadSeveral("player", 0.6, 0.5
+    , true, white)
+  loadSeveral("yellow", 0.3, 0.1
+    , false, yellow)
+  loadSeveral("white", 0.3, 0.1
+    , false, white)
+  addScope("throne_1", 0, 4690)
+  addScope("throne_2", 4690, 100000)
 }

@@ -1,3 +1,6 @@
+import Background.Companion.backgrounds
+import Background.Companion.composeBackground
+import Background.Companion.findBackground
 import org.tukaani.xz.SeekableFileInputStream
 import org.tukaani.xz.SeekableXZInputStream
 import java.awt.Color
@@ -8,7 +11,6 @@ import java.io.File
 import java.io.IOException
 import java.util.*
 import javax.imageio.ImageIO
-import kotlin.math.floor
 
 object Screen {
   private val backgroundOn = IntArray(PIXEL_SIZE)
@@ -18,7 +20,7 @@ object Screen {
   fun init() {
     val file = SeekableFileInputStream("$project/video.xz")
     inStream = SeekableXZInputStream(file)
-    loadBackgrounds()
+    Background.loadBackgrounds()
   }
 
   // loading
@@ -65,82 +67,6 @@ object Screen {
     return Area(data, attrs, area)
   }
 
-  @Throws(IOException::class)
-  fun loadBackgrounds() {
-    for(file in File("$project/backgrounds").listFiles()) {
-      if(file.isDirectory) continue
-      val image = ImageIO.read(file)
-      val pixels = Array<Pixel>(PIXEL_SIZE) {Pixel.OFF}
-      for(y in 0 until PIXEL_HEIGHT) {
-        for(x in 0 until PIXEL_WIDTH) {
-          val pos = x + y * PIXEL_WIDTH
-          val pixel = image.getRGB(x, y)
-          if(pixel and 0xFF < 0x80) {
-            pixels[pos] = Pixel.OFF
-          } else if(pixel and 0xFF00 >= 0x80) {
-            pixels[pos] = Pixel.ON
-          } else {
-            pixels[pos] = Pixel.ANY
-          }
-        }
-      }
-      val repainted = File("$project/backgrounds/repainted/"
-          + file.name)
-      backgrounds.add(Background(pixels, if(repainted.exists())
-        ImageIO.read(repainted) else null, file.name))
-    }
-  }
-
-  var maxBackgroundDifference = -1
-
-  private fun findBackground(screen: Array<Pixel>, frame: Int
-                             , only:Boolean): Background? {
-    var minDifference = if(SHOW_BG_DIFFERENCE) 100000
-        else MAX_BG_DIFFERENCE
-    var minBackground: Background? = null
-    for(background in backgrounds) {
-      if(only && background.name != ONLY_BACKGROUND) continue
-      val max = if(SHOW_BG_DIFFERENCE) 100000
-          else background.maxDifference
-      val difference = background.difference(screen, if(SHOW_BG_DIFFERENCE)
-        100000 else max)
-      if(difference < minDifference && difference < max) {
-        minDifference = difference
-        minBackground = background
-        if(only) break
-      }
-    }
-
-    if(minBackground == null) {
-      if(!only) println("$frame is too different ($minDifference)");
-      return null
-    }
-
-    if(maxBackgroundDifference < minDifference) {
-      maxBackgroundDifference = minDifference
-    }
-
-    return minBackground
-  }
-
-  fun getBackground(name: String): Background {
-    for(background in backgrounds) {
-      if(background.name == name) return background
-    }
-    println("Background $name is not found")
-    throw Exception("Background is not found")
-  }
-
-  private val backgrounds = LinkedList<Background>()
-  private fun composeBackground(frames: Int): Array<Pixel> {
-    val minFrames = floor(PERCENT_ON * frames).toInt()
-    val background = Array<Pixel>(PIXEL_SIZE) { Pixel.OFF }
-    for(addr in 0 until PIXEL_SIZE)
-      background[addr] = if(backgroundOn[addr] >= minFrames) Pixel.ON else
-        Pixel.OFF
-    return background
-  }
-
   // processing
 
   fun process() {
@@ -155,17 +81,18 @@ object Screen {
     while(frame <= to || to < 0) {
       if(frame % 1000 == 0) println(frame)
 
+      val screen: Area = try {
+        load(frame, MAIN_SCREEN)
+      } catch(ex: IOException) {
+        break
+      }
+
       if(mode == Mode.SCREENSHOTS) {
         saveImage(toImage(load(frame, WHOLE_SCREEN), true), frame)
         frame++
         continue
       }
 
-      val screen: Area = try {
-        load(frame, MAIN_SCREEN)
-      } catch(ex: IOException) {
-        break
-      }
       if(oldScreen == null) {
         oldScreen = screen
         frame++
@@ -175,8 +102,10 @@ object Screen {
       if(!ONLY_ABSENT || !File("D:\\output_final\\"
             + String.format("%06d", frame) + ".png").exists()) {
         if(mode == Mode.COLOR_BACKGROUNDS) {
-          val background = findBackground(screen.pixels, frame, false)
-          if(background != null && background.frame < 0) background.frame = frame;
+          val background = Background.findBackground(screen.pixels, frame, false)
+          if(background != null && background.frame < 0) {
+            background.frame = frame
+          }
         } else if(mode == Mode.EXTRACT_BACKGROUNDS) {
           println("$frame background switch")
 
@@ -194,12 +123,12 @@ object Screen {
             )
             val frames = frame - firstFrame
             if(frames >= MIN_FRAMES) {
-              val background = composeBackground(frames)
+              val background = composeBackground(frames, backgroundOn)
               if(SAVE_SIMILAR || findBackground(background, frame
                   , false) == null) {
                 oldScreen = Area(background, oldScreen.attrs, oldScreen.area)
                 saveImage(toImage(oldScreen, false), firstFrame)
-                backgrounds.add(Background(background))
+                Background.addBackground(background)
                 //saveImage(toImage(oldScreen, null), frame - 1)
                 //saveImage(toImage(screen, null), frame)
                 println("Saved background $firstFrame with difference"
@@ -381,15 +310,4 @@ object Screen {
     val outputFile = File(OUT_DIR + fileName)
     ImageIO.write(x3(image), "png", outputFile)
   }
-}
-
-fun setParticles(name: String, area: Rect, color: Int = white) {
-  val bg = Screen.getBackground(name)
-  bg.particlesArea = area
-  bg.particlesColor = color
-}
-
-fun setMaxDifference(name: String, diff: Int) {
-  val bg = Screen.getBackground(name)
-  bg.maxDifference = diff
 }
