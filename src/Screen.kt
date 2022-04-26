@@ -302,7 +302,7 @@ object Screen {
 
   @Throws(IOException::class)
   fun saveImage(image: BufferedImage, fileNumber: Int) {
-    saveImage(image, format(fileNumber) + ".png")
+    saveImage(image, format(fileNumber, 6) + ".png")
   }
 
   @Throws(IOException::class)

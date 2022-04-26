@@ -21,7 +21,8 @@ object ImageExtractor {
     for(addr in 0 until PIXEL_SIZE) {
       val pixel = screen.pixels[addr]
       val bgPixel = backgroundValues[addr]
-      var isChanged = pixel != bgPixel && (ANY_IS_CHANGED || bgPixel != Pixel.ANY)
+      var isChanged = pixel != bgPixel
+          && (ANY_IS_CHANGED || bgPixel != Pixel.ANY)
       pixels[addr] = if(isChanged) CHANGED else SAME
       if(isChanged) changed++
     }
@@ -124,6 +125,7 @@ object ImageExtractor {
     if(SHOW_DETECTION_AREA && particlesArea != null) {
       particlesArea!!.draw(image)
     }
+    val changedColor = background.changedColor
     for(y in y1 until y2) {
       val yAddr = y * PIXEL_WIDTH
       val yAttrSource = (y shr 3) shl 5
@@ -131,7 +133,9 @@ object ImageExtractor {
         val addr = x + yAddr
         if(pixels[addr] == imageNumber) {
           val attr = screen.attrs[yAttrSource or (x shr 3)]
-          image.setRGB(x, y, if(screen.pixels[addr] == Pixel.ANY) {
+          image.setRGB(x, y, if(changedColor >= 0) {
+            changedColor
+          } else if(screen.pixels[addr] == Pixel.ANY) {
             if(SHOW_DETECTION_AREA) magenta else color[attr and 0xF]
           } else if(particlesArea != null && particlesArea.has(x, y)) {
             background.particlesColor

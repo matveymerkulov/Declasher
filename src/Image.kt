@@ -64,10 +64,10 @@ class Image {
 
   constructor(pixels: IntArray, screen: Array<Pixel>, background: Array<Pixel>?
               , x1: Int, y1: Int, x2: Int, y2: Int, imageNumber: Int) {
-    val leftBorder = Integer.min(BORDER_SIZE, x1)
-    val topBorder = Integer.min(BORDER_SIZE, y1)
-    val rightBorder = Integer.min(BORDER_SIZE, MAIN_SCREEN.pixelWidth() - x2)
-    val bottomBorder = Integer.min(BORDER_SIZE, MAIN_SCREEN.pixelHeight() - y2)
+    val leftBorder = Integer.min(BORDER_SIZE_FROM, x1)
+    val topBorder = Integer.min(BORDER_SIZE_FROM, y1)
+    val rightBorder = Integer.min(BORDER_SIZE_TO, MAIN_SCREEN.pixelWidth() - x2)
+    val bottomBorder = Integer.min(BORDER_SIZE_TO, MAIN_SCREEN.pixelHeight() - y2)
     width = leftBorder + x2 - x1 + rightBorder
     height = topBorder + y2 - y1 + bottomBorder
     this.x1 = leftBorder

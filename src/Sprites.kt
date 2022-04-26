@@ -27,21 +27,20 @@ object Sprites {
   }
 
   private class SpritePos(val dx: Int, val dy: Int, var errors: Double
-                          , val matched: Double, val sprite: Sprite) {
+                , val matched: Double, val sprite: Sprite, val text: String) {
     fun repaint(screen: Area, image: BufferedImage, remove: Boolean) {
       sprite.repaint(dx, dy, screen, image, remove)
     }
   }
 
   fun declash(screen: Area, image: BufferedImage, name: String
-              , areas: LinkedList<ChangedArea>, background: Background) {
+    , areas: LinkedList<ChangedArea>, background: Background) {
 
     //System.out.print(width + "x" + height + ", ");
 
     for(list in spriteLists) {
-      var best: SpritePos = SpritePos(
-        0, 0, 2.0, -1.0, list.sprites.first
-      )
+      var best: SpritePos = SpritePos(0, 0, 2.0, -1.0
+        , list.sprites.first, "")
 
       if(SHOW_DETECTION_AREA) {
         list.sprites.first.areas[name]?.draw(image)
@@ -51,26 +50,27 @@ object Sprites {
         for(sprite in list.sprites) {
           best = sprite.check(best, area, name, screen, background)
           if(!list.alwaysSingle && best.errors < 1.0) {
-            process(best, screen, image, area, background)
+            process(best, screen, image, area)
             best.errors = 2.0
           }
         }
       }
       if(list.alwaysSingle && best.errors < 1.0) {
-        process(best, screen, image, null, background)
+        process(best, screen, image, null)
       }
     }
   }
 
-  private fun process(best: SpritePos, screen: Area
-          , image: BufferedImage, area:ChangedArea?, background: Background) {
+  private fun process(best: SpritePos, screen: Area, image: BufferedImage
+                      , area:ChangedArea?) {
     if(SHOW_DETECTION_AREA) {
       val g = image.createGraphics()
       g.color = Color.white
-      g.drawString("${format((10000 * best.matched
-          / best.sprite.pixelsQuantity).toInt())}" +
-          "/${format((10000 * best.errors).toInt())}"
-        , best.dx, best.dy - 3)
+      g.drawString(best.text, best.dx, best.dy - 3 - 10 * 2)
+      g.drawString(format((10000 * best.matched / best.sprite.pixelsQuantity
+          ).toInt(), 4), best.dx, best.dy - 3 - 10)
+      g.drawString(format((10000 * best.errors).toInt(), 4)
+          , best.dx, best.dy - 3)
     }
 
     if(area != null) {
@@ -107,10 +107,10 @@ object Sprites {
     init {
       try {
         val image = ImageIO.read(file)
-        val repaintedFile = File("$project/repainted/$name")
+        val repaintedFile = File("$project/repainted/${file.name}")
         if(repaintedFile.exists()) {
           repainted = ImageIO.read(repaintedFile)
-          println("$name is repainted")
+          println("${file.name} is repainted")
         }
         isBlock = name.contains("_block")
         width = image.width
@@ -150,18 +150,18 @@ object Sprites {
       val areaX2 = area.x + area.width
       val areaY2 = area.y + area.height
 
-      val dy1 = changed.y1 - BORDER_SIZE
-      val dy2 = changed.y2 - height + BORDER_SIZE
-      for(dy in dy1 until dy2) {
+      val dy1 = changed.y1 + BORDER_SIZE_FROM
+      val dy2 = changed.y2 - height + BORDER_SIZE_TO
+      for(dy in dy1..dy2) {
         if(isBlock && (dy % 8) != 0) continue
         val spriteY1 = Integer.max(0, -dy)
         val spriteY2 = Integer.min(height, PIXEL_HEIGHT - dy)
         if(spriteY1 + dy < areaY1 || spriteY2 + dy > areaY2) continue
 
         val areaHeight = spriteY2 - spriteY1
-        val dx1 = changed.x1 - BORDER_SIZE
-        val dx2 = changed.x2 - width + BORDER_SIZE
-        dx@ for(dx in dx1 until dx2) {
+        val dx1 = changed.x1 + BORDER_SIZE_FROM
+        val dx2 = changed.x2 - width + BORDER_SIZE_TO
+        dx@ for(dx in dx1..dx2) {
           if(isBlock && (dx % 8) != 0) continue
 
           val spriteX1 = Integer.max(0, -dx)
@@ -184,9 +184,9 @@ object Sprites {
               val screenPixel = screen.pixels[screenX + yScreen]
               if(XOR) {
                 val backgroundPixel = background.pixels[screenX + yScreen]
-                val chang = screenPixel != backgroundPixel
-                if((chang && spritePixel == Pixel.ON)
-                  || (!chang && spritePixel != Pixel.ON)) {
+                val chang =
+                if((screenPixel != backgroundPixel && spritePixel == Pixel.ON)
+                  || (screenPixel == backgroundPixel && spritePixel != Pixel.ON)) {
                   matched++
                 } else {
                   errors++
@@ -213,7 +213,8 @@ object Sprites {
           val errorPercent = 1.0 * errors / pixelsQuantity
           if(matchedPercent < minMatched) continue
           if(best.errors < 0 || errorPercent < best.errors) {
-            best = SpritePos(dx, dy, errorPercent, matchedPercent, this)
+            best = SpritePos(dx, dy, errorPercent, matchedPercent, this
+              , "${dx - changed.x1},${dy - changed.y1}:")
             if(errors == 0) return best
           }
         }
@@ -317,7 +318,7 @@ object Sprites {
       , 0.0, 0.0, white, false, fileName
       , DefaultMap(defaultArea, emptyMap()))
     for(n in list.indices step 3) {
-      val bg = getBackground(format(list[n]))
+      val bg = getBackground(format(list[n], 6))
       val x0 = list[n + 1]
       val y0 = list[n + 2]
       val pixels = bg.pixels

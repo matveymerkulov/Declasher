@@ -3,18 +3,24 @@
   <component name="ChangeListManager">
     <list default="true" id="9dcd0ae3-14a0-4f58-8655-2d30be363d32" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/man1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/man2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/medusa0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/medusa1.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/medusa1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/medusa2.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/medusa2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/sprites/white/bee1_both.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/sprites/white/bee2_both.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/sprites/white/bee3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/sprites/white/bee4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sceptre/sprites/yellow/355_6372_003001.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Declasher.iws" beforeDir="false" afterPath="$PROJECT_DIR$/Declasher.iws" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/door.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/repainted/swords.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/stairs.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/stairs2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/storage.png" beforeDir="false" afterPath="$PROJECT_DIR$/sceptre/backgrounds/storage.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/backgrounds/swords.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/fssort.ini" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/yellow/fish1_both.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/yellow/fish2_both.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/yellow/knife.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/yellow/shark1_both.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sceptre/sprites/yellow/shark2_both.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Background.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Background.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ImageExtractor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImageExtractor.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Screen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Sprites.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Sprites.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/sceptre.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/sceptre.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

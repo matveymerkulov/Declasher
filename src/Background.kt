@@ -21,6 +21,7 @@ class Background {
   var particlesColor: Int = white
   var particlesArea: Rect? = null
   var maxDifference: Int = MAX_BG_DIFFERENCE
+  var changedColor: Int = -1
 
   constructor(pixels: Array<Pixel>) {
     this.pixels = pixels
@@ -35,6 +36,7 @@ class Background {
     this.pixels = pixels
     this.image = image
     this.fileName = fileName
+    this.frame = frame
     if(mode == Mode.FIND_PIXELS_TO_SKIP) changed = Array(PIXEL_SIZE) { 0 }
   }
 
@@ -65,7 +67,7 @@ class Background {
       for(file in File("$project/backgrounds").listFiles()) {
         if(file.isDirectory) continue
         val image = ImageIO.read(file)
-        val pixels = Array<Pixel>(PIXEL_SIZE) {Pixel.OFF}
+        val pixels = Array(PIXEL_SIZE) {Pixel.OFF}
         for(y in 0 until PIXEL_HEIGHT) {
           for(x in 0 until PIXEL_WIDTH) {
             val pos = x + y * PIXEL_WIDTH
@@ -81,6 +83,7 @@ class Background {
         }
         val repainted = File("$project/backgrounds/repainted/"
             + file.name)
+        if(repainted.exists()) println("${file.name} is repainted")
         this.backgrounds.add(Background(pixels, if(repainted.exists())
           ImageIO.read(repainted) else null, file.name))
       }
@@ -161,8 +164,11 @@ class Background {
     }
 
     fun setMaxDifference(name: String, diff: Int) {
-      val bg = getBackground(name)
-      bg.maxDifference = diff
+      getBackground(name).maxDifference = diff
+    }
+
+    fun setChangedPixelsColor(name: String, color: Int) {
+      getBackground(name).changedColor = color
     }
 
     fun addScope(name: String, from: Int, to: Int) {

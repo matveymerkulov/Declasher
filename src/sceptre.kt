@@ -1,4 +1,5 @@
 import Background.Companion.addScope
+import Background.Companion.setChangedPixelsColor
 import Sprites.loadSeveral
 
 // screen areas
@@ -40,36 +41,52 @@ const val MAX_BG_DIFFERENCE = 1800
 
 // declash
 
-const val BORDER_SIZE = 2
+const val BORDER_SIZE_FROM = -1
+const val BORDER_SIZE_TO = 1
 const val MAX_DISTANCE = 2
-const val MIN_WIDTH = 10
-const val MAX_WIDTH = 128
-const val MIN_HEIGHT = 6
-const val MAX_HEIGHT = 128
-const val MIN_PIXELS = 36
+const val MIN_WIDTH = 2
+const val MAX_WIDTH = 256
+const val MIN_HEIGHT = 2
+const val MAX_HEIGHT = 256
+const val MIN_PIXELS = 4
+
 const val SHOW_DETECTION_AREA = false
 //const val SHOW_DETECTION_AREA = true
 const val ANY_IS_CHANGED = false
 //const val ANY_IS_CHANGED = true
 
-const val ONLY_BACKGROUND = "throne_2"
+const val ONLY_BACKGROUND = "balcony_2"
 //const val ONLY_BACKGROUND = ""
 
 fun process() {
   sprites()
-  //throne
-  //Screen.process(0, 5000)
-  Screen.process(4690 - 1, 15000)
+  //door, books_and_table, pool3, swords1, rock, balcony, sceptre
+  //13358-13945
+  Screen.process(1 - 1, 100000)
   //Screen.process()
 }
 
 fun sprites() {
-  loadSeveral("player", 0.6, 0.5
+  loadSeveral("player", 0.6, 0.3
     , true, white)
   loadSeveral("yellow", 0.3, 0.1
     , false, yellow)
   loadSeveral("white", 0.3, 0.1
     , false, white)
+  loadSeveral("cyan", 0.3, 0.1
+    , false, cyan)
+  loadSeveral("coin", 0.3, 0.1
+    , false, yellow, null, mapOf("storage" to defaultArea))
+
+  addScope("pool_1", 0, 9309)
+  addScope("pool_2", 9309, 12577)
+  addScope("pool_3", 12577, 100000)
   addScope("throne_1", 0, 4690)
   addScope("throne_2", 4690, 100000)
+  addScope("door_1", 0, 27964)
+  addScope("door_2", 27964, 100000)
 }
+
+// TODO
+// Static images detection / using
+// background ranges export / use

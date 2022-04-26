@@ -100,8 +100,8 @@ fun main(args: Array<String>) {
   println("Max background difference is $maxBackgroundDifference")
 }
 
-fun format(num: Int): String {
-  return String.format("%06d", num)
+fun format(num: Int, zeros: Int): String {
+  return String.format("%0${zeros}d", num)
 }
 
 fun resizeImage(originalImage: BufferedImage, targetWidth: Int
